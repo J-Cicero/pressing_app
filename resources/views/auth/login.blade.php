@@ -38,7 +38,7 @@
                     autocomplete="email"
                     autofocus
                     class="w-full px-3 py-2 bg-[#FFF] border border-[#374151]/40 text-[#000] text-sm focus:outline-none focus:border-[#000]"
-                    placeholder="exemple@pressing.local"
+                    placeholder="exemple@pressing.com"
                 >
             </div>
 
@@ -79,9 +79,10 @@
         </form>
 
         <div class="mt-8 pt-6 border-t border-[#374151]/10 text-center text-xs text-[#374151]">
-            <p class="font-medium">Comptes de démonstration :</p>
-            <p class="mt-1">Admin: <span class="font-mono text-[#000]">admin@pressing.local</span> (mdp: password)</p>
-            <p>Caissier: <span class="font-mono text-[#000]">caissier@pressing.local</span> (mdp: password)</p>
+            <p class="font-medium">Comptes de démonstration (Lomé) :</p>
+            <p class="mt-1">Admin: <span class="font-mono text-[#000]">admin@pressing.com</span> (mdp: password)</p>
+            <p>Caissier 1 (Centre-Ville): <span class="font-mono text-[#000]">caissier1@pressing.com</span> (mdp: password)</p>
+            <p>Caissier 2 (GTA): <span class="font-mono text-[#000]">caissier2@pressing.com</span> (mdp: password)</p>
         </div>
     </div>
 </div>

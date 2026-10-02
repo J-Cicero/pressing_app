@@ -378,3 +378,47 @@ Tests automatisés exécutés via PHPUnit :
   - `test_caissier_can_encaisser_et_restituer_with_100_percent_payment_and_timestamp` : ✅
   - `test_caissier_can_search_tickets_by_phone_and_num_ticket` : ✅
 - **Résultat global** : **47 tests exécutés, 47 réussis, 134 assertions validées**.
+
+---
+
+## Configuration de l'Environnement de Démonstration & Test (DatabaseSeeder)
+
+**Date** : 02 Octobre 2026  
+**Statut** : ✅ Terminé et initialisé (`php artisan migrate:fresh --seed`)
+
+### 1. Comptes et Agences Configurés
+
+- **Super Administrateur** :
+  - Nom : `Administrateur Principal`
+  - Email : `admin@pressing.com`
+  - Mot de passe : `password`
+  - Rôle : `admin`
+
+- **Agence 1 : Pressing Centre-Ville** :
+  - Ville : `Lomé`
+  - Quartier : `Centre-Ville`
+  - Téléphone : `+228 90 00 00 01`
+  - Caissier rattaché : `caissier1@pressing.com` (Nom: `Caissier Centre-Ville`, Mdp: `password`, Rôle: `caissier`)
+
+- **Agence 2 : Pressing GTA** :
+  - Ville : `Lomé`
+  - Quartier : `GTA`
+  - Téléphone : `+228 90 00 00 02`
+  - Caissier rattaché : `caissier2@pressing.com` (Nom: `Caissier GTA`, Mdp: `password`, Rôle: `caissier`)
+
+### 2. Catalogue des Prestations Réelles (par agence)
+
+- `Chemise` : 1 000 FCFA
+- `Costume 2 Pièces` : 3 500 FCFA
+- `Robe de soirée` : 2 500 FCFA
+- `Pantalon` : 1 200 FCFA
+- `Draps / Couette` : 4 000 FCFA
+
+### 3. Factures Initiales Ensemencées
+
+- Factures réalistes multi-statuts (`depose`, `pret`, `paye_retire`) avec lignes d'articles associées pour alimenter immédiatement les dashboards d'administration et de caisse sans aucune donnée mockée.
+
+### 4. Validation des Tests
+
+- Exécution de `php artisan test` : **47 tests exécutés, 47 réussis, 134 assertions (100% au vert)**.
+
