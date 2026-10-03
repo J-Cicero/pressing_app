@@ -34,7 +34,7 @@
                 1. Identification du Client & Délais
             </h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
                 <div>
                     <label for="client_nom" class="block text-xs font-semibold uppercase tracking-wider text-[#374151] mb-1">
                         Nom complet du Client *
@@ -62,6 +62,20 @@
                         required
                         class="w-full px-3 py-2 bg-[#FFF] border border-[#374151]/40 text-xs font-mono text-[#000] focus:outline-none focus:border-[#000]"
                         placeholder="Ex: +229 97 00 00 00"
+                    >
+                </div>
+
+                <div>
+                    <label for="client_email" class="block text-xs font-semibold uppercase tracking-wider text-[#374151] mb-1">
+                        Adresse Email (Optionnelle)
+                    </label>
+                    <input
+                        type="email"
+                        name="client_email"
+                        id="client_email"
+                        value="{{ old('client_email') }}"
+                        class="w-full px-3 py-2 bg-[#FFF] border border-[#374151]/40 text-xs text-[#000] focus:outline-none focus:border-[#000]"
+                        placeholder="Ex: client@exemple.com"
                     >
                 </div>
 

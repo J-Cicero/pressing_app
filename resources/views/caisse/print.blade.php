@@ -165,11 +165,19 @@
 
         /* Print Media Styles */
         @media print {
-            body {
-                background: #FFF;
+            @page {
+                size: 80mm auto;
+                margin: 0;
             }
 
-            .toolbar {
+            html, body {
+                background: #FFF !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 80mm !important;
+            }
+
+            .toolbar, header, footer, aside, nav, .print\:hidden {
                 display: none !important;
             }
 
@@ -221,6 +229,12 @@
             <span>Téléphone :</span>
             <span class="bold">{{ $facture->client_telephone ?? 'Non renseigné' }}</span>
         </div>
+        @if($facture->client_email)
+        <div class="info-row">
+            <span>Email :</span>
+            <span class="bold">{{ $facture->client_email }}</span>
+        </div>
+        @endif
         <div class="info-row">
             <span>Caissier :</span>
             <span>{{ $facture->user->name }}</span>

@@ -143,12 +143,6 @@ class UserController extends Controller
             ]);
         }
 
-        if ($user->factures()->exists()) {
-            return back()->withErrors([
-                'error' => 'Impossible de supprimer cet utilisateur car des factures lui sont rattachées.',
-            ]);
-        }
-
         $user->delete();
 
         return redirect()->route('admin.users.index')

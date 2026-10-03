@@ -52,6 +52,7 @@ class DepotController extends Controller
         $validated = $request->validate([
             'client_nom' => ['required', 'string', 'max:255'],
             'client_telephone' => ['required', 'string', 'max:50'],
+            'client_email' => ['nullable', 'string', 'email', 'max:255'],
             'date_retrait_prevue' => ['required', 'date', 'after_or_equal:today'],
             'lignes' => ['required', 'array', 'min:1'],
             'lignes.*.service_id' => ['required', 'exists:services,id'],
@@ -102,6 +103,7 @@ class DepotController extends Controller
                 'user_id' => $user->id,
                 'client_nom' => $validated['client_nom'],
                 'client_telephone' => $validated['client_telephone'],
+                'client_email' => $validated['client_email'] ?? null,
                 'date_retrait_prevue' => $validated['date_retrait_prevue'],
                 'montant_total' => $montantTotal,
                 'statut' => 'depose',

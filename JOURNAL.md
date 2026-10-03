@@ -422,3 +422,71 @@ Tests automatisés exécutés via PHPUnit :
 
 - Exécution de `php artisan test` : **47 tests exécutés, 47 réussis, 134 assertions (100% au vert)**.
 
+---
+
+## Étape 4 : Refonte Ergonomique & Corrections de Dysfonctionnements
+
+**Date** : 03 Octobre 2026  
+**Statut** : ✅ Terminé avec succès (47/47 tests validés)
+
+### 1. Refonte du Layout Global — Sidebar à Droite
+
+- **[`resources/views/layouts/app.blade.php`](file:///home/jude/Public/pressing-app/resources/views/layouts/app.blade.php)** :
+  - Architecture `flex-row` : contenu principal **à gauche** + sidebar de navigation **à droite** (`aside` sticky).
+  - Sidebar droite structurée avec : logo-brand, carte utilisateur (nom, rôle, agence), liens de navigation contextuels (Admin ou Caissier), bouton Déconnexion en bas.
+  - Navigation active avec `border-l-4 border-[#000]` pour l'élément courant.
+  - Masquée automatiquement à l'impression thermique via `print:hidden`.
+  - Entête mobile séparé pour les petits écrans.
+
+### 2. Refonte de la Page de Connexion
+
+- **[`resources/views/auth/login.blade.php`](file:///home/jude/Public/pressing-app/resources/views/auth/login.blade.php)** :
+  - Carte centrée avec `shadow-md`, bordures fines, champs avec `focus:ring-1 focus:ring-[#000]`.
+  - Bloc de démonstration amélioré avec fond `#F3F4F6`, police monospace, icônes rôle.
+  - Palette monochrome stricte respectée.
+
+### 3. Formulaire de Dépôt — Champ Email Client + Toutes Prestations
+
+- **[`resources/views/caisse/depot.blade.php`](file:///home/jude/Public/pressing-app/resources/views/caisse/depot.blade.php)** :
+  - Ajout du champ **"Adresse Email du Client" (optionnel)** en 4ème colonne du bloc client.
+  - Grille client passée de 3 à 4 colonnes (`sm:grid-cols-4`).
+- **[`app/Http/Controllers/Caisse/DepotController.php`](file:///home/jude/Public/pressing-app/app/Http/Controllers/Caisse/DepotController.php)** :
+  - Validation ajoutée : `client_email` => `nullable|email|max:255`.
+  - Sauvegarde en base via `$validated['client_email'] ?? null`.
+  - Les prestations chargées proviennent de **toutes les prestations de l'agence**, sans limite de 5.
+- **[`app/Models/Facture.php`](file:///home/jude/Public/pressing-app/app/Models/Facture.php)** : `client_email` ajouté au `$fillable`.
+- **Migration** : `2026_10_02_161917_add_client_email_to_factures_table.php` — colonne `client_email` (nullable, string).
+
+### 4. Impression Thermique 80mm — CSS @media print Optimisé
+
+- **[`resources/views/caisse/print.blade.php`](file:///home/jude/Public/pressing-app/resources/views/caisse/print.blade.php)** :
+  - Règle `@page { size: 80mm auto; margin: 0; }` déplacée à l'intérieur du bloc `@media print`.
+  - `html, body` forcés à `width: 80mm !important; margin: 0 !important; padding: 0 !important; background: #FFF !important`.
+  - Sélecteur étendu : `.toolbar, header, footer, aside, nav, .print\:hidden` tous masqués à l'impression.
+  - Affichage de l'email client sur le ticket si renseigné.
+
+### 5. Gestion du Personnel — Suppression Admin Permise
+
+- **[`app/Http/Controllers/Admin/UserController.php`](file:///home/jude/Public/pressing-app/app/Http/Controllers/Admin/UserController.php)** :
+  - La restriction `"impossble de supprimer si factures rattachées"` a été **levée**.
+  - Seule protection conservée : interdiction d'auto-suppression (compte connecté).
+  - Cascade `ON DELETE` en BDD gère la dissociation des factures.
+- **[`resources/views/admin/users/index.blade.php`](file:///home/jude/Public/pressing-app/resources/views/admin/users/index.blade.php)** : bouton Supprimer visible pour tous les utilisateurs sauf le compte connecté.
+
+### 6. Filtrage Opérationnel sur Toutes les Listes
+
+Tous les filtres étaient déjà câblés côté contrôleur. Confirmation du bon fonctionnement via tests et vérification des vues :
+- `/admin/factures` : filtre par ticket, agence, statut ✅
+- `/admin/users` : filtre par nom/email, rôle, agence ✅
+- `/admin/pressings` : recherche par nom, ville, quartier, téléphone ✅
+- `/admin/services` : filtre par désignation, agence ✅
+- `/caisse/retrait` : recherche par ticket, téléphone, nom + filtre statut ✅
+
+### 7. Validation Finale
+
+- `php artisan migrate:fresh --seed` : ✅ Base réinitialisée avec la colonne `client_email`.
+- `php artisan test` : **47 tests, 47 réussis, 134 assertions (100% au vert)**.
+- `vendor/bin/pint --dirty` : ✅ Code formaté.
+- `npm run build` : ✅ Assets compilés (`app-BoIHJcE_.css`).
+
+

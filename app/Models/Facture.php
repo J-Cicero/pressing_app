@@ -22,6 +22,7 @@ class Facture extends Model
         'user_id',
         'client_nom',
         'client_telephone',
+        'client_email',
         'montant_total',
         'statut',
         'date_retrait_prevue',
