@@ -3,21 +3,21 @@
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
     <!-- Header -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-zinc-800 gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-5 border-b border-slate-200 dark:border-zinc-800 gap-4">
         <div>
             <div class="flex items-center gap-2.5">
-                <h1 class="text-xl font-extrabold tracking-tight text-white">GESTION DES RETRAITS & ENCAISSEMENT</h1>
-                <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-white text-zinc-950">
+                <h1 class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">GESTION DES RETRAITS & ENCAISSEMENT</h1>
+                <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-slate-900 dark:bg-white text-white dark:text-zinc-950">
                     📍 {{ $pressing->nom }}
                 </span>
             </div>
-            <p class="text-xs text-zinc-400 mt-0.5">
+            <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">
                 Recherche par N° de ticket ou téléphone client & encaissement lors de la restitution
             </p>
         </div>
         <div>
-            <a href="{{ route('caisse.depot') }}" class="px-3.5 py-2 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold rounded-xl shadow-xs transition duration-150 flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <a href="{{ route('caisse.depot') }}" class="px-3.5 py-2 bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold rounded-xl shadow-xs transition duration-150 flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-white dark:text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
                 <span>Nouveau Dépôt</span>
@@ -26,14 +26,14 @@
     </div>
 
     <!-- Search & Filters -->
-    <div class="bg-zinc-900 p-4 rounded-xl border border-zinc-800 shadow-xs">
+    <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-slate-200/80 dark:border-zinc-800 shadow-xs">
         <form method="GET" action="{{ route('caisse.retrait') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="space-y-1">
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                     Recherche par Ticket, Téléphone ou Nom
                 </label>
                 <div class="relative">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
@@ -43,16 +43,16 @@
                         name="q"
                         value="{{ $search }}"
                         placeholder="Ex: TCK-2026..., 90000000, Koffi..."
-                        class="w-full pl-9 pr-3.5 py-1.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs font-mono text-white focus:outline-none focus:border-white transition placeholder:text-zinc-600"
+                        class="w-full pl-9 pr-3.5 py-1.5 bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-slate-900 dark:focus:border-white transition placeholder:text-slate-400 dark:placeholder:text-zinc-600"
                     >
                 </div>
             </div>
 
             <div class="space-y-1">
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-400">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
                     Filtrer par Statut
                 </label>
-                <select name="statut" class="w-full px-3.5 py-1.5 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-white focus:outline-none focus:border-white transition">
+                <select name="statut" class="w-full px-3.5 py-1.5 bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-slate-900 dark:focus:border-white transition">
                     <option value="">Tous les statuts</option>
                     <option value="depose" {{ $selectedStatut === 'depose' ? 'selected' : '' }}>
                         Déposés (En cours de nettoyage) ({{ $countDepose }})
@@ -67,14 +67,14 @@
             </div>
 
             <div class="flex items-end gap-2">
-                <button type="submit" class="px-4 py-1.5 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold rounded-xl shadow-xs transition flex-1 h-[34px] flex items-center justify-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <button type="submit" class="px-4 py-1.5 bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold rounded-xl shadow-xs transition flex-1 h-[34px] flex items-center justify-center gap-1.5 cursor-pointer">
+                    <svg class="w-3.5 h-3.5 text-white dark:text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                     </svg>
                     <span>Rechercher</span>
                 </button>
                 @if($search || $selectedStatut)
-                    <a href="{{ route('caisse.retrait') }}" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded-xl text-xs font-semibold transition h-[34px] flex items-center border border-zinc-700">
+                    <a href="{{ route('caisse.retrait') }}" class="px-3 py-1.5 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition h-[34px] flex items-center border border-slate-200 dark:border-zinc-700">
                         Réinit.
                     </a>
                 @endif
@@ -85,32 +85,32 @@
     <!-- Status Tabs / Counters -->
     <div class="flex overflow-x-auto gap-2 text-xs">
         <a href="{{ route('caisse.retrait') }}"
-           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap {{ empty($selectedStatut) ? 'bg-white text-zinc-950 border-white shadow-xs' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-white' }}">
+           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap {{ empty($selectedStatut) ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-950 dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }}">
             Tous les tickets
         </a>
         <a href="{{ route('caisse.retrait', ['statut' => 'depose']) }}"
-           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'depose' ? 'bg-white text-zinc-950 border-white shadow-xs' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-white' }}">
+           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'depose' ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-950 dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }}">
             <span>Déposés</span>
-            <span class="px-2 py-0.2 rounded-full text-[10px] {{ $selectedStatut === 'depose' ? 'bg-zinc-900 text-white' : 'bg-zinc-800 text-zinc-300 border border-zinc-700' }} font-mono font-bold">{{ $countDepose }}</span>
+            <span class="px-2 py-0.2 rounded-full text-[10px] {{ $selectedStatut === 'depose' ? 'bg-white text-slate-900 dark:bg-zinc-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countDepose }}</span>
         </a>
         <a href="{{ route('caisse.retrait', ['statut' => 'pret']) }}"
-           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'pret' ? 'bg-white text-zinc-950 border-white shadow-xs' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-white' }}">
+           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'pret' ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-950 dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }}">
             <span>Prêts au Retrait</span>
-            <span class="px-2 py-0.2 rounded-full text-[10px] {{ $selectedStatut === 'pret' ? 'bg-zinc-900 text-white' : 'bg-zinc-800 text-zinc-300 border border-zinc-700' }} font-mono font-bold">{{ $countPret }}</span>
+            <span class="px-2 py-0.2 rounded-full text-[10px] {{ $selectedStatut === 'pret' ? 'bg-white text-slate-900 dark:bg-zinc-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countPret }}</span>
         </a>
         <a href="{{ route('caisse.retrait', ['statut' => 'paye_retire']) }}"
-           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'paye_retire' ? 'bg-white text-zinc-950 border-white shadow-xs' : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:bg-zinc-800 hover:text-white' }}">
+           class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'paye_retire' ? 'bg-slate-900 text-white border-slate-900 dark:bg-white dark:text-zinc-950 dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-slate-600 dark:text-zinc-400 border-slate-200 dark:border-zinc-800 hover:bg-slate-50 dark:hover:bg-zinc-800 hover:text-slate-900 dark:hover:text-white' }}">
             <span>Payés & Retirés</span>
-            <span class="px-2 py-0.2 rounded-full text-[10px] {{ $selectedStatut === 'paye_retire' ? 'bg-zinc-900 text-white' : 'bg-zinc-800 text-zinc-300 border border-zinc-700' }} font-mono font-bold">{{ $countPayeRetire }}</span>
+            <span class="px-2 py-0.2 rounded-full text-[10px] {{ $selectedStatut === 'paye_retire' ? 'bg-white text-slate-900 dark:bg-zinc-900 dark:text-white' : 'bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countPayeRetire }}</span>
         </a>
     </div>
 
     <!-- Table of tickets -->
-    <div class="bg-zinc-900 rounded-xl border border-zinc-800 shadow-xs overflow-hidden">
+    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-zinc-950/80 border-b border-zinc-800 text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+                    <tr class="bg-slate-50/80 dark:bg-zinc-950/80 border-b border-slate-100 dark:border-zinc-800 text-[10px] uppercase tracking-wider text-slate-500 dark:text-zinc-400 font-semibold">
                         <th class="py-3 px-4">N° Ticket</th>
                         <th class="py-3 px-4">Client</th>
                         <th class="py-3 px-4">Dépôt & Prévu</th>
@@ -120,32 +120,32 @@
                         <th class="py-3 px-4 text-right">Actions Guichet</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-zinc-800/60">
+                <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/60">
                     @forelse($factures as $f)
-                        <tr class="hover:bg-zinc-800/40 transition duration-150">
+                        <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition duration-150">
                             <!-- Ticket -->
-                            <td class="py-3.5 px-4 font-mono font-bold text-white">
+                            <td class="py-3.5 px-4 font-mono font-bold text-slate-900 dark:text-white">
                                 <a href="{{ route('caisse.factures.print', $f) }}" target="_blank" class="hover:underline">
                                     {{ $f->num_ticket }}
                                 </a>
                             </td>
 
                             <!-- Client -->
-                            <td class="py-3.5 px-4 text-zinc-300">
-                                <div class="font-bold text-white">{{ $f->client_nom ?? 'Client de passage' }}</div>
-                                <div class="font-mono text-[11px] text-zinc-400">Tél: {{ $f->client_telephone ?? 'Sans téléphone' }}</div>
+                            <td class="py-3.5 px-4 text-slate-600 dark:text-zinc-300">
+                                <div class="font-bold text-slate-900 dark:text-white">{{ $f->client_nom ?? 'Client de passage' }}</div>
+                                <div class="font-mono text-[11px] text-slate-500 dark:text-zinc-400">Tél: {{ $f->client_telephone ?? 'Sans téléphone' }}</div>
                             </td>
 
                             <!-- Dates -->
-                            <td class="py-3.5 px-4 text-zinc-400 font-mono text-[11px]">
+                            <td class="py-3.5 px-4 text-slate-500 dark:text-zinc-400 font-mono text-[11px]">
                                 <div>Dépôt : {{ $f->created_at->format('d/m/Y') }}</div>
-                                <div>Prévu : <span class="font-bold text-white">{{ $f->date_retrait_prevue ? $f->date_retrait_prevue->format('d/m/Y') : '—' }}</span></div>
+                                <div>Prévu : <span class="font-bold text-slate-900 dark:text-white">{{ $f->date_retrait_prevue ? $f->date_retrait_prevue->format('d/m/Y') : '—' }}</span></div>
                             </td>
 
                             <!-- Articles count / detail -->
-                            <td class="py-3.5 px-4 text-zinc-300">
-                                <span class="font-bold text-white">{{ $f->ligneFactures->sum('quantite') }} pièce(s)</span>
-                                <div class="text-[11px] text-zinc-400 truncate max-w-xs">
+                            <td class="py-3.5 px-4 text-slate-600 dark:text-zinc-300">
+                                <span class="font-bold text-slate-900 dark:text-white">{{ $f->ligneFactures->sum('quantite') }} pièce(s)</span>
+                                <div class="text-[11px] text-slate-500 dark:text-zinc-400 truncate max-w-xs">
                                     {{ $f->ligneFactures->map(fn($l) => ($l->service ? $l->service->designation : 'Article') . ' (x' . $l->quantite . ')')->join(', ') }}
                                 </div>
                             </td>
@@ -153,22 +153,22 @@
                             <!-- Statut Badge -->
                             <td class="py-3.5 px-4 text-center">
                                 @if($f->statut === 'paye_retire')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-zinc-950">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 dark:bg-white text-white dark:text-zinc-950">
                                         Payé & Retiré
                                     </span>
                                 @elseif($f->statut === 'pret')
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-800 text-zinc-200 border border-zinc-700">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-zinc-800 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700">
                                         Prêt pour Retrait
                                     </span>
                                 @else
-                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-700">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 dark:bg-zinc-800 text-slate-500 dark:text-zinc-400 border border-slate-200 dark:border-zinc-700">
                                         En Cours (Déposé)
                                     </span>
                                 @endif
                             </td>
 
                             <!-- Montant -->
-                            <td class="py-3.5 px-4 text-right font-mono font-bold text-white">
+                            <td class="py-3.5 px-4 text-right font-mono font-bold text-slate-900 dark:text-white">
                                 {{ number_format((float) $f->montant_total, 2, ',', ' ') }} FCFA
                             </td>
 
@@ -181,7 +181,7 @@
                                         @method('PATCH')
                                         <button
                                             type="submit"
-                                            class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 border border-zinc-700 transition cursor-pointer"
+                                            class="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-300 border border-slate-200 dark:border-zinc-700 transition cursor-pointer"
                                             title="Indiquer que les vêtements sont repassés et disponibles"
                                         >
                                             Marquer Prêt
@@ -194,7 +194,7 @@
                                         @method('PATCH')
                                         <button
                                             type="submit"
-                                            class="px-3 py-1 text-[11px] font-bold rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 transition shadow-xs cursor-pointer"
+                                            class="px-3 py-1 text-[11px] font-bold rounded-lg bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 transition shadow-xs cursor-pointer"
                                         >
                                             Encaisser & Restituer
                                         </button>
@@ -206,19 +206,19 @@
                                         @method('PATCH')
                                         <button
                                             type="submit"
-                                            class="px-3 py-1 text-[11px] font-bold rounded-lg bg-white hover:bg-zinc-200 text-zinc-950 transition shadow-xs cursor-pointer"
+                                            class="px-3 py-1 text-[11px] font-bold rounded-lg bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 transition shadow-xs cursor-pointer"
                                         >
                                             Encaisser & Restituer
                                         </button>
                                     </form>
                                 @else
-                                    <span class="text-[11px] text-zinc-400 font-mono font-semibold mr-1.5">
+                                    <span class="text-[11px] text-slate-500 dark:text-zinc-400 font-mono font-semibold mr-1.5">
                                         ✓ Réglé {{ $f->paye_at ? $f->paye_at->format('d/m H:i') : '' }}
                                     </span>
                                 @endif
 
-                                <a href="{{ route('caisse.factures.print', $f) }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition" title="Réimprimer le ticket 80mm">
-                                    <svg class="w-3.5 h-3.5 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <a href="{{ route('caisse.factures.print', $f) }}" target="_blank" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 transition" title="Réimprimer le ticket 80mm">
+                                    <svg class="w-3.5 h-3.5 text-slate-400 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
                                     </svg>
                                     <span>Reçu</span>
@@ -227,15 +227,15 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-10 text-center text-xs text-zinc-400">
+                            <td colspan="7" class="py-10 text-center text-xs text-slate-500 dark:text-zinc-400">
                                 <div class="max-w-xs mx-auto space-y-2">
-                                    <div class="w-10 h-10 rounded-full bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto text-base">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 dark:text-zinc-400 flex items-center justify-center mx-auto text-base">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                         </svg>
                                     </div>
-                                    <p class="font-medium text-zinc-200">Aucun ticket correspondant trouvé</p>
-                                    <a href="{{ route('caisse.retrait') }}" class="inline-block text-white font-bold text-xs underline">
+                                    <p class="font-medium text-slate-700 dark:text-zinc-200">Aucun ticket correspondant trouvé</p>
+                                    <a href="{{ route('caisse.retrait') }}" class="inline-block text-slate-900 dark:text-white font-bold text-xs underline">
                                         Réinitialiser la recherche
                                     </a>
                                 </div>
@@ -247,7 +247,7 @@
         </div>
 
         @if($factures->hasPages())
-            <div class="p-4 border-t border-zinc-800 bg-zinc-900">
+            <div class="p-4 border-t border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                 {{ $factures->links() }}
             </div>
         @endif
