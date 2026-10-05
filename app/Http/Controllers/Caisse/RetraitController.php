@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TicketPretMail;
 use App\Models\Facture;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\View\View;
 
 class RetraitController extends Controller
@@ -79,6 +82,14 @@ class RetraitController extends Controller
         $facture->update([
             'statut' => 'pret',
         ]);
+
+        if (! empty($facture->client_email)) {
+            try {
+                Mail::to($facture->client_email)->send(new TicketPretMail($facture));
+            } catch (\Throwable $e) {
+                Log::error('Erreur lors de l\'envoi de l\'e-mail de prêt : '.$e->getMessage());
+            }
+        }
 
         return back()->with('status', 'Le ticket '.$facture->num_ticket.' est désormais marqué comme PRÊT pour le retrait client.');
     }

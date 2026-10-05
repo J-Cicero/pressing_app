@@ -8,7 +8,13 @@
             <div class="flex items-center gap-2.5">
                 <h1 class="text-xl font-bold tracking-tight text-slate-900">ESPACE SUPER ADMIN</h1>
                 <span class="px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/80 rounded-full">
-                    Supervision Global
+                    @if($periode === 'jour')
+                        Filtre : Aujourd'hui
+                    @elseif($periode === 'tout')
+                        Filtre : Historique Global
+                    @else
+                        Filtre : Ce Mois
+                    @endif
                 </span>
             </div>
             <p class="text-xs text-slate-500 mt-0.5">
@@ -41,7 +47,7 @@
             <div class="flex items-center justify-between">
                 <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">CA du Jour</span>
                 <span class="px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Encaissé
+                    Aujourd'hui
                 </span>
             </div>
             <div class="mt-3 flex items-baseline gap-1">
@@ -56,23 +62,37 @@
             </div>
         </div>
 
-        <!-- CA du Mois -->
+        <!-- CA du Mois / Filtré -->
         <div class="bg-white rounded-xl p-5 border border-slate-200/80 shadow-xs hover:shadow-md transition duration-200 relative overflow-hidden group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">CA du Mois</span>
+                <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    @if($periode === 'jour')
+                        CA Sélectionné
+                    @elseif($periode === 'tout')
+                        CA Cumulé Global
+                    @else
+                        CA du Mois
+                    @endif
+                </span>
                 <span class="px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
-                    {{ date('M Y') }}
+                    @if($periode === 'jour')
+                        Jour
+                    @elseif($periode === 'tout')
+                        Global
+                    @else
+                        {{ date('M Y') }}
+                    @endif
                 </span>
             </div>
             <div class="mt-3 flex items-baseline gap-1">
-                <span class="text-2xl font-extrabold tracking-tight text-slate-900 font-mono">
-                    {{ number_format($caMois, 2, ',', ' ') }}
+                <span class="text-2xl font-extrabold tracking-tight text-indigo-600 font-mono">
+                    {{ number_format($caPeriode, 2, ',', ' ') }}
                 </span>
                 <span class="text-xs font-semibold text-slate-500">FCFA</span>
             </div>
             <div class="mt-1.5 text-[11px] text-slate-500 flex items-center gap-1">
                 <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
-                Recette mensuelle en cours
+                Recette selon filtre actif
             </div>
         </div>
 
@@ -139,7 +159,15 @@
                         <th class="py-3 px-5 text-center">Personnel</th>
                         <th class="py-3 px-5 text-center">Tickets Émis</th>
                         <th class="py-3 px-5 text-right">Impayés / En cours</th>
-                        <th class="py-3 px-5 text-right">CA Encaissé Ce Mois</th>
+                        <th class="py-3 px-5 text-right">
+                            @if($periode === 'jour')
+                                CA Encaissé Aujourd'hui
+                            @elseif($periode === 'tout')
+                                CA Encaissé Global
+                            @else
+                                CA Encaissé Ce Mois
+                            @endif
+                        </th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -169,7 +197,7 @@
                                 {{ number_format((float) ($p->total_impayes ?? 0), 2, ',', ' ') }} FCFA
                             </td>
                             <td class="py-3.5 px-5 text-right font-mono font-bold text-slate-900">
-                                {{ number_format((float) ($p->ca_mois ?? 0), 2, ',', ' ') }} FCFA
+                                {{ number_format((float) ($p->ca_filtre ?? 0), 2, ',', ' ') }} FCFA
                             </td>
                         </tr>
                     @empty

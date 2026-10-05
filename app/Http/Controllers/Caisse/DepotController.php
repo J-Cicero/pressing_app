@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TicketDeposeMail;
 use App\Models\Facture;
 use App\Models\LigneFacture;
 use App\Models\Service;
@@ -10,6 +11,8 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -122,6 +125,14 @@ class DepotController extends Controller
 
             return $facture;
         });
+
+        if (! empty($facture->client_email)) {
+            try {
+                Mail::to($facture->client_email)->send(new TicketDeposeMail($facture));
+            } catch (\Throwable $e) {
+                Log::error('Erreur lors de l\'envoi de l\'e-mail de dépôt : '.$e->getMessage());
+            }
+        }
 
         return redirect()->route('caisse.factures.print', $facture)
             ->with('status', 'Dépôt validé avec succès. Ticket généré : '.$facture->num_ticket);
