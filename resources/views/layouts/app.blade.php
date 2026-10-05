@@ -1,73 +1,45 @@
 <!DOCTYPE html>
-<html lang="fr" class="h-full bg-[#F3F4F6]">
+<html lang="fr" class="h-full bg-slate-50">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'Pressing App' }} - Gestion de Pressing Multi-Agences</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full font-sans antialiased text-[#000] bg-[#F3F4F6]">
-    <div class="min-h-screen flex flex-col md:flex-row bg-[#F3F4F6]">
+<body class="h-full font-sans antialiased text-slate-900 bg-slate-50/80">
+    <div class="min-h-screen flex flex-col md:flex-row">
         
-        <!-- Main Content Area (On the Left) -->
-        <div class="flex-1 flex flex-col min-w-0">
-            @auth
-            <!-- Mobile Header Bar (Only visible on small screens) -->
-            <div class="md:hidden bg-[#FFF] border-b border-[#E5E7EB] p-4 flex items-center justify-between shadow-sm print:hidden">
-                <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('caisse.dashboard') }}" class="text-lg font-bold tracking-tight text-[#000]">
-                    PRESSING<span class="text-[#374151] font-light">APP</span>
-                </a>
-                <div class="text-xs font-semibold uppercase tracking-wider px-2 py-1 bg-[#F3F4F6] text-[#374151] border border-[#E5E7EB]">
-                    {{ auth()->user()->role === 'admin' ? 'Admin' : 'Caissier' }}
-                </div>
-            </div>
-            @endauth
-
-            <main class="flex-1">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
-                    @if (session('status'))
-                        <div class="mb-4 p-4 bg-[#FFF] border-l-4 border-[#000] text-xs font-medium text-[#000] shadow-sm">
-                            {{ session('status') }}
-                        </div>
-                    @endif
-
-                    @if ($errors->has('error'))
-                        <div class="mb-4 p-4 bg-[#FFF] border-l-4 border-[#374151] text-xs font-medium text-[#000] shadow-sm">
-                            {{ $errors->first('error') }}
-                        </div>
-                    @endif
-                </div>
-
-                @yield('content')
-            </main>
-
-            <footer class="bg-[#FFF] border-t border-[#E5E7EB] py-4 px-6 text-center text-xs text-[#374151] mt-auto print:hidden">
-                &copy; {{ date('Y') }} PressingApp &bull; Système Multi-Agences Monochrome Strict
-            </footer>
-        </div>
-
         @auth
-        <!-- Navigation Sidebar (On the RIGHT Side) -->
-        <aside class="w-full md:w-64 bg-[#FFF] border-t md:border-t-0 md:border-l border-[#E5E7EB] shadow-md flex flex-col justify-between shrink-0 md:sticky md:top-0 md:h-screen print:hidden">
+        <!-- Navigation Sidebar (Desktop & Mobile) -->
+        <aside class="w-full md:w-64 bg-slate-900 text-slate-300 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col justify-between shrink-0 md:sticky md:top-0 md:h-screen z-30 print:hidden shadow-xl">
             <div>
                 <!-- Brand Header -->
-                <div class="p-6 border-b border-[#E5E7EB] hidden md:block">
-                    <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('caisse.dashboard') }}" class="text-xl font-extrabold tracking-tight text-[#000] block">
-                        PRESSING<span class="text-[#374151] font-light">APP</span>
+                <div class="p-6 border-b border-slate-800/80 flex items-center justify-between">
+                    <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('caisse.dashboard') }}" class="block">
+                        <div class="text-xl font-extrabold tracking-tight text-white">
+                            PRESSING<span class="text-indigo-400 font-light">APP</span>
+                        </div>
+                        <div class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">
+                            Multi-Agences Suite
+                        </div>
                     </a>
-                    <p class="text-[10px] uppercase tracking-widest text-[#374151] mt-1 font-semibold">
-                        Gestion Multi-Agences
-                    </p>
                 </div>
 
                 <!-- User Profile Card -->
-                <div class="p-4 bg-[#F3F4F6]/60 border-b border-[#E5E7EB] m-3 rounded-none border">
-                    <div class="text-xs font-bold text-[#000] truncate">{{ auth()->user()->name }}</div>
-                    <div class="text-[10px] uppercase font-mono text-[#374151] tracking-wider mt-0.5">
-                        Role: {{ auth()->user()->role === 'admin' ? 'Super Admin' : 'Caissier' }}
+                <div class="p-4 bg-slate-800/60 border border-slate-700/50 m-3 rounded-2xl">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-xl bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+                            {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
+                        </div>
+                        <div class="min-w-0 flex-1">
+                            <div class="text-xs font-bold text-white truncate">{{ auth()->user()->name }}</div>
+                            <div class="text-[10px] uppercase font-mono text-indigo-300 tracking-wider">
+                                {{ auth()->user()->role === 'admin' ? 'Super Admin' : 'Caissier' }}
+                            </div>
+                        </div>
                     </div>
                     @if(auth()->user()->pressing)
-                        <div class="mt-2 text-[10px] uppercase tracking-wider font-semibold px-2 py-1 bg-[#FFF] text-[#000] border border-[#E5E7EB] inline-block truncate max-w-full">
+                        <div class="mt-2 text-[10px] uppercase tracking-wider font-medium px-2.5 py-1 bg-slate-950/70 text-slate-300 border border-slate-700/60 rounded-lg block truncate">
                             📍 {{ auth()->user()->pressing->nom }}
                         </div>
                     @endif
@@ -76,52 +48,82 @@
                 <!-- Navigation Links -->
                 <nav class="px-3 py-2 space-y-1">
                     @if(auth()->user()->isAdmin())
-                        <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#374151]">
+                        <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             Espace Administration
                         </div>
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('admin.dashboard') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            📊 Dashboard
+                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">📊</span> Tableau de bord
                         </a>
-                        <a href="{{ route('admin.pressings.index') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('admin.pressings.*') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            🏢 Pressings / Agences
+                        <a href="{{ route('admin.pressings.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('admin.pressings.*') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">🏢</span> Pressings / Agences
                         </a>
-                        <a href="{{ route('admin.users.index') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('admin.users.*') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            👥 Personnel & Caissiers
+                        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">👥</span> Personnel & Caissiers
                         </a>
-                        <a href="{{ route('admin.services.index') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('admin.services.*') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            🏷️ Grille Tarifaire
+                        <a href="{{ route('admin.services.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('admin.services.*') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">🏷️</span> Grille Tarifaire
                         </a>
-                        <a href="{{ route('admin.factures.index') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('admin.factures.*') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            🧾 Vue Factures
+                        <a href="{{ route('admin.factures.index') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('admin.factures.*') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">🧾</span> Vue Factures
                         </a>
                     @elseif(auth()->user()->isCaissier())
-                        <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-[#374151]">
+                        <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
                             Espace Guichet Caisse
                         </div>
-                        <a href="{{ route('caisse.dashboard') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('caisse.dashboard') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            📈 Dashboard Caisse
+                        <a href="{{ route('caisse.dashboard') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('caisse.dashboard') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">📈</span> Dashboard Caisse
                         </a>
-                        <a href="{{ route('caisse.depot') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('caisse.depot*') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            ➕ Nouveau Dépôt
+                        <a href="{{ route('caisse.depot') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('caisse.depot*') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">➕</span> Nouveau Dépôt
                         </a>
-                        <a href="{{ route('caisse.retrait') }}" class="flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider rounded-none transition {{ request()->routeIs('caisse.retrait*') ? 'bg-[#000] text-[#FFF] shadow-sm font-bold border-l-4 border-[#000]' : 'text-[#374151] hover:text-[#000] hover:bg-[#F3F4F6]' }}">
-                            🔄 Retraits & Encaissement
+                        <a href="{{ route('caisse.retrait') }}" class="flex items-center gap-3 px-3 py-2.5 text-xs font-medium rounded-xl transition {{ request()->routeIs('caisse.retrait*') ? 'bg-indigo-600 text-white font-semibold shadow-md shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <span class="text-base">🔄</span> Retraits & Encaissement
                         </a>
                     @endif
                 </nav>
             </div>
 
-            <!-- Logout Section at Bottom of Sidebar -->
-            <div class="p-4 border-t border-[#E5E7EB]">
+            <!-- Logout Section -->
+            <div class="p-4 border-t border-slate-800">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full py-2 px-3 text-xs font-bold uppercase tracking-widest bg-[#000] text-[#FFF] hover:bg-[#1F2937] transition text-center shadow-sm">
-                        Déconnexion
+                    <button type="submit" class="w-full py-2.5 px-3 text-xs font-semibold rounded-xl bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 transition text-center flex items-center justify-center gap-2 group cursor-pointer">
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        <span>Déconnexion</span>
                     </button>
                 </form>
             </div>
         </aside>
         @endauth
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col min-w-0">
+            <main class="flex-1">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                    @if (session('status'))
+                        <div class="mb-4 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs font-medium text-emerald-800 flex items-center gap-3 shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span>{{ session('status') }}</span>
+                        </div>
+                    @endif
+
+                    @if ($errors->has('error'))
+                        <div class="mb-4 p-4 bg-rose-50 border border-rose-200 rounded-2xl text-xs font-medium text-rose-800 flex items-center gap-3 shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                            <span>{{ $errors->first('error') }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                @yield('content')
+            </main>
+
+            <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500 mt-auto print:hidden">
+                &copy; {{ date('Y') }} PressingApp &bull; Solution de Gestion Multi-Agences & Blanchisserie
+            </footer>
+        </div>
     </div>
 </body>
 </html>

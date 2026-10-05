@@ -1,77 +1,104 @@
 @extends('layouts.app', ['title' => 'Gestion des Pressings'])
 
 @section('content')
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-[#374151]/20 gap-4">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 gap-4">
         <div>
-            <h1 class="text-2xl font-bold tracking-tight text-[#000]">GESTION DES PRESSINGS</h1>
-            <p class="text-xs uppercase tracking-wider text-[#374151] mt-1">
-                Liste et administration des agences du réseau
+            <div class="flex items-center gap-3">
+                <h1 class="text-2xl font-bold tracking-tight text-slate-900">Gestion des Agences</h1>
+                <span class="px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider bg-indigo-50 text-indigo-700 border border-indigo-200/80 rounded-full">
+                    {{ $pressings->total() }} agence(s)
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+                Administration des points de vente et filiales du réseau
             </p>
         </div>
         <div>
-            <a href="{{ route('admin.pressings.create') }}" class="px-4 py-2 bg-[#000] text-[#FFF] text-xs font-semibold uppercase tracking-wider hover:bg-[#374151] transition">
-                + Ajouter une agence
+            <a href="{{ route('admin.pressings.create') }}" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded-xl shadow-md shadow-indigo-600/20 transition duration-150 flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Ajouter une agence</span>
             </a>
         </div>
     </div>
 
     <!-- Search form -->
-    <div class="my-6">
-        <form method="GET" action="{{ route('admin.pressings.index') }}" class="flex max-w-md gap-2">
-            <input
-                type="text"
-                name="q"
-                value="{{ $search }}"
-                placeholder="Rechercher par nom, ville, quartier..."
-                class="flex-1 px-3 py-2 bg-[#FFF] border border-[#374151]/30 text-xs text-[#000] focus:outline-none focus:border-[#000]"
-            >
-            <button type="submit" class="px-4 py-2 bg-[#000] text-[#FFF] text-xs font-semibold uppercase tracking-wider hover:bg-[#374151] transition">
-                Filtrer
-            </button>
-            @if($search)
-                <a href="{{ route('admin.pressings.index') }}" class="px-3 py-2 bg-[#F3F4F6] text-[#374151] border border-[#374151]/30 text-xs font-semibold uppercase tracking-wider hover:bg-[#FFF] transition">
-                    Réinitialiser
-                </a>
-            @endif
+    <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+        <form method="GET" action="{{ route('admin.pressings.index') }}" class="flex flex-col sm:flex-row max-w-md gap-3">
+            <div class="relative flex-1">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                    </svg>
+                </div>
+                <input
+                    type="text"
+                    name="q"
+                    value="{{ $search }}"
+                    placeholder="Rechercher par nom, ville, quartier..."
+                    class="w-full pl-9 pr-4 py-2 bg-slate-50/50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:bg-white focus:outline-none focus:border-indigo-600 focus:ring-4 focus:ring-indigo-500/10 transition"
+                >
+            </div>
+            <div class="flex gap-2">
+                <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold rounded-xl transition shadow-xs">
+                    Filtrer
+                </button>
+                @if($search)
+                    <a href="{{ route('admin.pressings.index') }}" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition">
+                        Réinitialiser
+                    </a>
+                @endif
+            </div>
         </form>
     </div>
 
-    <!-- Table -->
-    <div class="bg-[#FFF] border border-[#374151]/20 shadow-sm overflow-hidden">
+    <!-- Table Card -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-[#F3F4F6] border-b border-[#374151]/20 text-[11px] uppercase tracking-wider text-[#374151]">
-                        <th class="py-3 px-6 font-semibold">Nom de l'agence</th>
-                        <th class="py-3 px-6 font-semibold">Ville</th>
-                        <th class="py-3 px-6 font-semibold">Quartier</th>
-                        <th class="py-3 px-6 font-semibold">Téléphone</th>
-                        <th class="py-3 px-6 font-semibold text-center">Personnel</th>
-                        <th class="py-3 px-6 font-semibold text-center">Prestations</th>
-                        <th class="py-3 px-6 font-semibold text-center">Factures</th>
-                        <th class="py-3 px-6 font-semibold text-right">Actions</th>
+                    <tr class="bg-slate-50/80 border-b border-slate-100 text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
+                        <th class="py-3.5 px-6">Nom de l'agence</th>
+                        <th class="py-3.5 px-6">Ville</th>
+                        <th class="py-3.5 px-6">Quartier</th>
+                        <th class="py-3.5 px-6">Téléphone</th>
+                        <th class="py-3.5 px-6 text-center">Personnel</th>
+                        <th class="py-3.5 px-6 text-center">Prestations</th>
+                        <th class="py-3.5 px-6 text-center">Factures</th>
+                        <th class="py-3.5 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-[#374151]/10 text-xs">
+                <tbody class="divide-y divide-slate-100">
                     @forelse($pressings as $p)
-                        <tr class="hover:bg-[#F3F4F6]/50 transition">
-                            <td class="py-4 px-6 font-bold text-[#000]">{{ $p->nom }}</td>
-                            <td class="py-4 px-6 text-[#374151]">{{ $p->ville }}</td>
-                            <td class="py-4 px-6 text-[#374151]">{{ $p->quartier }}</td>
-                            <td class="py-4 px-6 font-mono text-[#374151]">{{ $p->telephone ?? '—' }}</td>
-                            <td class="py-4 px-6 text-center font-mono">{{ $p->users_count }}</td>
-                            <td class="py-4 px-6 text-center font-mono">{{ $p->services_count }}</td>
-                            <td class="py-4 px-6 text-center font-mono font-semibold">{{ $p->factures_count }}</td>
+                        <tr class="hover:bg-slate-50/60 transition duration-150">
+                            <td class="py-4 px-6 font-bold text-slate-900">{{ $p->nom }}</td>
+                            <td class="py-4 px-6 text-slate-600">{{ $p->ville }}</td>
+                            <td class="py-4 px-6 text-slate-600">{{ $p->quartier }}</td>
+                            <td class="py-4 px-6 font-mono text-slate-600">{{ $p->telephone ?? '—' }}</td>
+                            <td class="py-4 px-6 text-center font-mono">
+                                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold">
+                                    {{ $p->users_count }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-center font-mono">
+                                <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold">
+                                    {{ $p->services_count }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-center font-mono font-bold text-indigo-600">
+                                {{ $p->factures_count }}
+                            </td>
                             <td class="py-4 px-6 text-right space-x-2">
-                                <a href="{{ route('admin.pressings.edit', $p) }}" class="inline-block px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider border border-[#374151] text-[#000] hover:bg-[#000] hover:text-[#FFF] transition">
+                                <a href="{{ route('admin.pressings.edit', $p) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 transition">
                                     Modifier
                                 </a>
 
                                 <form method="POST" action="{{ route('admin.pressings.destroy', $p) }}" class="inline-block" onsubmit="return confirm('Confirmer la suppression de cette agence ?');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider bg-[#F3F4F6] text-[#374151] border border-[#374151]/30 hover:bg-[#000] hover:text-[#FFF] transition">
+                                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 transition cursor-pointer">
                                         Supprimer
                                     </button>
                                 </form>
@@ -79,8 +106,16 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-8 text-center text-xs text-[#374151]">
-                                Aucun pressing trouvé.
+                            <td colspan="8" class="py-12 text-center text-xs text-slate-500">
+                                <div class="max-w-xs mx-auto space-y-3">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto text-lg">
+                                        🏢
+                                    </div>
+                                    <p class="font-medium text-slate-700">Aucun pressing trouvé</p>
+                                    <a href="{{ route('admin.pressings.create') }}" class="inline-block px-3.5 py-1.5 bg-indigo-600 text-white rounded-xl text-xs font-semibold">
+                                        + Ajouter une agence
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @endforelse
@@ -89,7 +124,7 @@
         </div>
 
         @if($pressings->hasPages())
-            <div class="p-4 border-t border-[#374151]/10 bg-[#FFF]">
+            <div class="p-4 border-t border-slate-100 bg-white">
                 {{ $pressings->links() }}
             </div>
         @endif

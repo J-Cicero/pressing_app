@@ -21,7 +21,7 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
             color: #000;
-            background: #F3F4F6;
+            background: #f8fafc;
             margin: 0;
             padding: 0;
             -webkit-print-color-adjust: exact;
@@ -31,35 +31,46 @@
         /* Screen Toolbar */
         .toolbar {
             max-width: 80mm;
-            margin: 15px auto 10px;
+            margin: 20px auto 12px;
             display: flex;
             justify-content: space-between;
-            gap: 10px;
-            font-family: system-ui, sans-serif;
+            gap: 8px;
+            font-family: system-ui, -apple-system, sans-serif;
         }
 
         .btn {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
             padding: 8px 12px;
             text-decoration: none;
             font-size: 11px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
-            border: 1px solid #000;
-            text-align: center;
+            border: none;
+            transition: all 0.15s ease;
         }
 
         .btn-print {
-            background: #000;
-            color: #FFF;
+            background: #4f46e5;
+            color: #ffffff;
             flex: 1;
+            box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn-print:hover {
+            background: #4338ca;
         }
 
         .btn-back {
-            background: #FFF;
-            color: #000;
+            background: #ffffff;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+        }
+
+        .btn-back:hover {
+            background: #f1f5f9;
         }
 
         /* 80mm Ticket Container */
@@ -67,10 +78,11 @@
             width: 80mm;
             max-width: 80mm;
             margin: 0 auto;
-            background: #FFF;
-            padding: 4mm 3mm;
-            border: 1px solid #374151/20;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: #ffffff;
+            padding: 5mm 4mm;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border-radius: 12px;
         }
 
         .center {
@@ -90,7 +102,7 @@
         .ticket-num {
             font-size: 16px;
             margin: 6px 0;
-            padding: 3px 0;
+            padding: 4px 0;
             border-top: 1px dashed #000;
             border-bottom: 1px dashed #000;
         }
@@ -171,7 +183,7 @@
             }
 
             html, body {
-                background: #FFF !important;
+                background: #ffffff !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 width: 80mm !important;
@@ -188,6 +200,7 @@
                 padding: 2mm 3mm !important;
                 border: none !important;
                 box-shadow: none !important;
+                border-radius: 0 !important;
             }
         }
     </style>
@@ -196,7 +209,7 @@
     <!-- Screen Actions (Hidden on Thermal Print) -->
     <div class="toolbar">
         <a href="{{ route('caisse.dashboard') }}" class="btn btn-back">&larr; Caisse</a>
-        <button onclick="window.print()" class="btn btn-print">Imprimer Reçu (80mm)</button>
+        <button onclick="window.print()" class="btn btn-print">🖨️ Imprimer Reçu (80mm)</button>
         <a href="{{ route('caisse.depot') }}" class="btn btn-back">+ Nouveau</a>
     </div>
 
@@ -302,7 +315,6 @@
     <!-- Script d'impression automatique -->
     <script>
         window.addEventListener('load', function () {
-            // Petite temporisation pour assurer le rendu complet des styles
             setTimeout(function () {
                 window.print();
             }, 400);
