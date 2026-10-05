@@ -286,7 +286,7 @@
         <!-- Totaux & Règle Financière -->
         <div class="total-section">
             <div class="total-row total-big">
-                <span>TOTAL TTC :</span>
+                <span>TOTAL :</span>
                 <span>{{ number_format((float) $facture->montant_total, 0, ',', ' ') }} FCFA</span>
             </div>
             <div class="total-row">

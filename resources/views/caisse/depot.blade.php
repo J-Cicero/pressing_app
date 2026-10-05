@@ -151,9 +151,9 @@
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Total TTC -->
+                <!-- Total -->
                 <div class="border border-slate-200/80 p-5 rounded-2xl bg-slate-50/60 space-y-1">
-                    <div class="text-[10px] uppercase font-bold text-slate-500">Montant Total TTC</div>
+                    <div class="text-[10px] uppercase font-bold text-slate-500">Montant Total</div>
                     <div class="text-2xl font-mono font-extrabold text-slate-900">
                         <span id="displayTotal">0,00</span> <span class="text-xs font-semibold text-slate-500">FCFA</span>
                     </div>
