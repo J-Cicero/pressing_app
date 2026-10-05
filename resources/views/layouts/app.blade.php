@@ -6,99 +6,99 @@
     <title>{{ $title ?? 'Pressing App' }} - Gestion de Pressing Multi-Agences</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="h-full font-sans antialiased text-slate-900 bg-slate-50/80 text-[13px]">
+<body class="h-full font-sans antialiased text-slate-900 bg-slate-50/80 text-xs">
     <div class="min-h-screen flex flex-col md:flex-row">
         
         @auth
-        <!-- Navigation Sidebar (Desktop & Mobile) -->
-        <aside class="w-full md:w-60 bg-slate-900 text-slate-300 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col justify-between shrink-0 md:sticky md:top-0 md:h-screen z-30 print:hidden shadow-xl">
+        <!-- Compact Navigation Sidebar (Desktop & Mobile) -->
+        <aside class="w-full md:w-56 bg-slate-900 text-slate-300 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col justify-between shrink-0 md:sticky md:top-0 md:h-screen z-30 print:hidden shadow-lg">
             <div>
                 <!-- Brand Header -->
-                <div class="p-5 border-b border-slate-800/80 flex items-center justify-between">
+                <div class="p-4 border-b border-slate-800/80 flex items-center justify-between">
                     <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('caisse.dashboard') }}" class="block">
-                        <div class="text-lg font-extrabold tracking-tight text-white">
+                        <div class="text-base font-extrabold tracking-tight text-white">
                             PRESSING<span class="text-indigo-400 font-light">APP</span>
                         </div>
-                        <div class="text-[10px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">
+                        <div class="text-[9px] uppercase tracking-widest text-slate-400 font-semibold mt-0.5">
                             Multi-Agences Suite
                         </div>
                     </a>
                 </div>
 
                 <!-- User Profile Card -->
-                <div class="p-3 bg-slate-800/60 border border-slate-700/50 m-2.5 rounded-xl">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0">
+                <div class="p-2.5 bg-slate-800/60 border border-slate-700/50 m-2 rounded-lg">
+                    <div class="flex items-center gap-2">
+                        <div class="w-7 h-7 rounded-md bg-indigo-600/20 border border-indigo-500/30 text-indigo-300 flex items-center justify-center font-bold text-[11px] shrink-0">
                             {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
                         </div>
                         <div class="min-w-0 flex-1">
-                            <div class="text-xs font-semibold text-white truncate">{{ auth()->user()->name }}</div>
-                            <div class="text-[10px] uppercase font-mono text-indigo-300 tracking-wider">
+                            <div class="text-[11px] font-semibold text-white truncate">{{ auth()->user()->name }}</div>
+                            <div class="text-[9px] uppercase font-mono text-indigo-300 tracking-wider">
                                 {{ auth()->user()->role === 'admin' ? 'Super Admin' : 'Caissier' }}
                             </div>
                         </div>
                     </div>
                     @if(auth()->user()->pressing)
-                        <div class="mt-2 text-[10px] uppercase tracking-wider font-medium px-2 py-0.5 bg-slate-950/70 text-slate-300 border border-slate-700/60 rounded-md block truncate">
+                        <div class="mt-1.5 text-[9px] uppercase tracking-wider font-medium px-2 py-0.5 bg-slate-950/70 text-slate-300 border border-slate-700/60 rounded block truncate">
                             Agence : {{ auth()->user()->pressing->nom }}
                         </div>
                     @endif
                 </div>
 
                 <!-- Navigation Links with Vector SVG Icons -->
-                <nav class="px-2.5 py-2 space-y-0.5">
+                <nav class="px-2 py-1 space-y-0.5">
                     @if(auth()->user()->isAdmin())
-                        <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
                             Espace Administration
                         </div>
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                             </svg>
                             <span>Tableau de bord</span>
                         </a>
-                        <a href="{{ route('admin.pressings.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('admin.pressings.*') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('admin.pressings.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('admin.pressings.*') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9"/>
                             </svg>
                             <span>Pressings / Agences</span>
                         </a>
-                        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                             </svg>
                             <span>Personnel & Caissiers</span>
                         </a>
-                        <a href="{{ route('admin.services.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('admin.services.*') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('admin.services.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('admin.services.*') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                             </svg>
                             <span>Grille Tarifaire</span>
                         </a>
-                        <a href="{{ route('admin.factures.index') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('admin.factures.*') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('admin.factures.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('admin.factures.*') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                             </svg>
                             <span>Vue Factures</span>
                         </a>
                     @elseif(auth()->user()->isCaissier())
-                        <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                        <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-slate-400">
                             Espace Guichet Caisse
                         </div>
-                        <a href="{{ route('caisse.dashboard') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('caisse.dashboard') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('caisse.dashboard') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('caisse.dashboard') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
                             </svg>
                             <span>Dashboard Caisse</span>
                         </a>
-                        <a href="{{ route('caisse.depot') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('caisse.depot*') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('caisse.depot') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('caisse.depot*') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                             </svg>
                             <span>Nouveau Dépôt</span>
                         </a>
-                        <a href="{{ route('caisse.retrait') }}" class="flex items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-lg transition {{ request()->routeIs('caisse.retrait*') ? 'bg-indigo-600 text-white font-semibold shadow-sm shadow-indigo-600/30' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
-                            <svg class="w-4 h-4 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <a href="{{ route('caisse.retrait') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-md transition {{ request()->routeIs('caisse.retrait*') ? 'bg-indigo-600 text-white font-semibold shadow-xs' : 'text-slate-300 hover:text-white hover:bg-slate-800/60' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
                             </svg>
                             <span>Retraits & Encaissement</span>
@@ -108,11 +108,11 @@
             </div>
 
             <!-- Logout Section -->
-            <div class="p-3 border-t border-slate-800">
+            <div class="p-2.5 border-t border-slate-800">
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="w-full py-2 px-3 text-xs font-semibold rounded-lg bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 transition text-center flex items-center justify-center gap-2 group cursor-pointer">
-                        <svg class="w-4 h-4 text-slate-400 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <button type="submit" class="w-full py-1.5 px-2.5 text-[11px] font-semibold rounded-md bg-slate-800 hover:bg-rose-600 hover:text-white text-slate-300 transition text-center flex items-center justify-center gap-2 group cursor-pointer">
+                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                         </svg>
                         <span>Déconnexion</span>
@@ -125,16 +125,16 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0">
             <main class="flex-1">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
                     @if (session('status'))
-                        <div class="mb-4 p-3.5 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-medium text-emerald-800 flex items-center gap-2.5 shadow-xs">
+                        <div class="mb-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-medium text-emerald-800 flex items-center gap-2 shadow-xs">
                             <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                             <span>{{ session('status') }}</span>
                         </div>
                     @endif
 
                     @if ($errors->has('error'))
-                        <div class="mb-4 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-xs font-medium text-rose-800 flex items-center gap-2.5 shadow-xs">
+                        <div class="mb-3 p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs font-medium text-rose-800 flex items-center gap-2 shadow-xs">
                             <span class="w-2 h-2 rounded-full bg-rose-500"></span>
                             <span>{{ $errors->first('error') }}</span>
                         </div>
@@ -144,7 +144,7 @@
                 @yield('content')
             </main>
 
-            <footer class="bg-white border-t border-slate-200 py-3.5 px-6 text-center text-[11px] text-slate-500 mt-auto print:hidden">
+            <footer class="bg-white border-t border-slate-200 py-3 px-6 text-center text-[10px] text-slate-500 mt-auto print:hidden">
                 &copy; {{ date('Y') }} PressingApp &bull; Solution de Gestion Multi-Agences & Blanchisserie
             </footer>
         </div>

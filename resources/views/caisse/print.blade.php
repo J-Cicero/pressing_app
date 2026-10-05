@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Thermal - {{ $facture->num_ticket }}</title>
+    <title>Ticket {{ $facture->num_ticket }}</title>
     <style>
-        /* Base Thermal 80mm Settings */
+        /* Modern CSS Reset for 80mm POS Thermal Roll Printers */
         @page {
             size: 80mm auto;
             margin: 0;
@@ -20,29 +20,39 @@
         body {
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
-            color: #000;
-            background: #f8fafc;
+            color: #000000;
+            background-color: #f1f5f9;
             margin: 0;
             padding: 0;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
-        /* Screen Toolbar */
+        /* Screen Toolbar (Screen only) */
+        .toolbar-wrapper {
+            max-width: 480px;
+            margin: 16px auto 12px;
+            padding: 0 12px;
+            font-family: system-ui, -apple-system, sans-serif;
+        }
+
         .toolbar {
-            max-width: 80mm;
-            margin: 20px auto 12px;
             display: flex;
+            align-items: center;
             justify-content: space-between;
             gap: 8px;
-            font-family: system-ui, -apple-system, sans-serif;
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 8px 12px;
+            padding: 6px 12px;
             text-decoration: none;
             font-size: 11px;
             font-weight: 600;
@@ -56,7 +66,6 @@
             background: #4f46e5;
             color: #ffffff;
             flex: 1;
-            box-shadow: 0 1px 3px rgba(79, 70, 229, 0.3);
         }
 
         .btn-print:hover {
@@ -64,25 +73,33 @@
         }
 
         .btn-back {
-            background: #ffffff;
+            background: #f8fafc;
             color: #334155;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #cbd5e1;
         }
 
         .btn-back:hover {
-            background: #f1f5f9;
+            background: #e2e8f0;
         }
 
-        /* 80mm Ticket Container */
+        .print-tip {
+            margin-top: 8px;
+            font-size: 10px;
+            color: #64748b;
+            text-align: center;
+            line-height: 1.3;
+        }
+
+        /* 80mm Thermal Receipt Simulation Container */
         .ticket-wrapper {
             width: 80mm;
             max-width: 80mm;
-            margin: 0 auto;
+            margin: 0 auto 24px;
             background: #ffffff;
-            padding: 5mm 4mm;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
-            border-radius: 12px;
+            padding: 4mm 3mm;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 4px;
         }
 
         .center {
@@ -94,13 +111,13 @@
         }
 
         .title {
-            font-size: 15px;
-            letter-spacing: 1px;
+            font-size: 14px;
+            letter-spacing: 0.5px;
             margin-bottom: 2px;
         }
 
         .ticket-num {
-            font-size: 16px;
+            font-size: 15px;
             margin: 6px 0;
             padding: 4px 0;
             border-top: 1px dashed #000;
@@ -109,25 +126,25 @@
 
         .divider {
             border-top: 1px dashed #000;
-            margin: 6px 0;
+            margin: 5px 0;
         }
 
         .double-divider {
             border-top: 2px solid #000;
-            margin: 6px 0;
+            margin: 5px 0;
         }
 
         .info-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
             font-size: 11px;
         }
 
         .items-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 6px 0;
+            margin: 5px 0;
             font-size: 11px;
         }
 
@@ -140,7 +157,7 @@
         }
 
         .items-table td {
-            padding: 4px 0;
+            padding: 3px 0;
             vertical-align: top;
         }
 
@@ -153,43 +170,44 @@
         }
 
         .total-section {
-            margin-top: 6px;
-            font-size: 12px;
+            margin-top: 5px;
+            font-size: 11px;
         }
 
         .total-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .total-big {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
         }
 
         .footer-note {
-            margin-top: 10px;
-            font-size: 10px;
+            margin-top: 8px;
+            font-size: 9.5px;
             text-align: center;
             line-height: 1.3;
         }
 
-        /* Print Media Styles */
+        /* Strict Thermal Print Media Override */
         @media print {
             @page {
                 size: 80mm auto;
-                margin: 0;
+                margin: 0mm !important;
             }
 
             html, body {
+                width: 80mm !important;
+                max-width: 80mm !important;
                 background: #ffffff !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                width: 80mm !important;
             }
 
-            .toolbar, header, footer, aside, nav, .print\:hidden {
+            .toolbar-wrapper, .print\:hidden {
                 display: none !important;
             }
 
@@ -206,14 +224,19 @@
     </style>
 </head>
 <body>
-    <!-- Screen Actions (Hidden on Thermal Print) -->
-    <div class="toolbar">
-        <a href="{{ route('caisse.dashboard') }}" class="btn btn-back">&larr; Caisse</a>
-        <button onclick="window.print()" class="btn btn-print">🖨️ Imprimer Reçu (80mm)</button>
-        <a href="{{ route('caisse.depot') }}" class="btn btn-back">+ Nouveau</a>
+    <!-- Screen Actions & POS Printer Guidance -->
+    <div class="toolbar-wrapper">
+        <div class="toolbar">
+            <a href="{{ route('caisse.dashboard') }}" class="btn btn-back">&larr; Caisse</a>
+            <button onclick="window.print()" class="btn btn-print">🖨️ Imprimer Reçu (POS 80mm)</button>
+            <a href="{{ route('caisse.depot') }}" class="btn btn-back">+ Nouveau</a>
+        </div>
+        <div class="print-tip">
+            💡 <strong>Note POS Thermal :</strong> Dans la fenêtre d'impression, sélectionnez votre imprimante thermique 80mm (ou format rouleau Ticket) pour un dévidage direct sans marges A4.
+        </div>
     </div>
 
-    <!-- 80mm Ticket Paper -->
+    <!-- 80mm Thermal Ticket Roll -->
     <div class="ticket-wrapper">
         <!-- En-tête de l'Agence -->
         <div class="center">
@@ -303,12 +326,12 @@
 
         <!-- Mentions Obligatoires -->
         <div class="footer-note">
-            <div class="bold" style="text-transform: uppercase; margin-bottom: 4px;">
+            <div class="bold" style="text-transform: uppercase; margin-bottom: 3px;">
                 PAIEMENT À 100% LORS DU RETRAIT DE VOS ARTICLES.
             </div>
             <div>Gardez précieusement ce ticket pour le retrait.</div>
-            <div style="margin-top: 4px;">Merci pour votre fidélité !</div>
-            <div style="font-size: 8px; margin-top: 6px;">PRESSINGAPP &bull; {{ date('d/m/Y H:i') }}</div>
+            <div style="margin-top: 3px;">Merci pour votre fidélité !</div>
+            <div style="font-size: 8px; margin-top: 4px;">PRESSINGAPP &bull; {{ date('d/m/Y H:i') }}</div>
         </div>
     </div>
 
@@ -317,7 +340,7 @@
         window.addEventListener('load', function () {
             setTimeout(function () {
                 window.print();
-            }, 400);
+            }, 300);
         });
     </script>
 </body>
