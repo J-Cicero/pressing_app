@@ -1,30 +1,31 @@
 @extends('layouts.app', ['title' => 'Connexion'])
 
 @section('content')
-<div class="min-h-[calc(100vh-6rem)] flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 bg-zinc-950">
-    <div class="w-full max-w-4xl bg-zinc-900 rounded-2xl shadow-2xl shadow-black/80 border border-zinc-800/80 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[520px]">
+<div class="min-h-[calc(100vh-6rem)] flex items-center justify-center py-8 px-4 sm:px-6 lg:px-8 bg-slate-50 dark:bg-zinc-950">
+    <!-- Main Card Container: 60% White / Soft Surface Base -->
+    <div class="w-full max-w-4xl bg-white dark:bg-zinc-900 rounded-2xl shadow-xl shadow-slate-900/5 dark:shadow-black/80 border border-slate-200 dark:border-zinc-800 overflow-hidden grid grid-cols-1 lg:grid-cols-12 min-h-[520px]">
         
-        <!-- Left Banner (Sober Monochrome Branding for All Users) -->
-        <div class="lg:col-span-5 bg-zinc-950 p-8 flex flex-col justify-between text-white relative overflow-hidden border-b lg:border-b-0 lg:border-r border-zinc-800">
+        <!-- Left Panel: 30% Structure / Contrast Accent -->
+        <div class="lg:col-span-5 bg-slate-900 dark:bg-zinc-950 p-8 flex flex-col justify-between text-white relative overflow-hidden border-b lg:border-b-0 lg:border-r border-slate-800 dark:border-zinc-800">
             <div class="relative z-10 space-y-6">
                 <!-- Brand Badge -->
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-medium text-zinc-300">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 dark:bg-zinc-900 border border-slate-700 dark:border-zinc-800 text-[11px] font-medium text-slate-200 dark:text-zinc-300">
                     <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
                     Espace de Gestion PressingApp
                 </div>
 
-                <!-- Brand Title & Tagline -->
+                <!-- Brand Title -->
                 <div>
                     <h1 class="text-2xl lg:text-3xl font-extrabold tracking-tight text-white font-sans flex items-center gap-1.5">
-                        <span>PRESSING</span><span class="text-zinc-500 font-light">APP</span>
+                        <span>PRESSING</span><span class="text-slate-400 dark:text-zinc-400 font-light">APP</span>
                     </h1>
-                    <p class="mt-2 text-xs text-zinc-400 leading-relaxed">
+                    <p class="mt-2 text-xs text-slate-300 dark:text-zinc-400 leading-relaxed">
                         Portail d'authentification sécurisé pour le personnel et les administrateurs des agences de pressing.
                     </p>
                 </div>
 
-                <!-- Neutral Monochrome Highlights -->
-                <div class="space-y-3 pt-4 border-t border-zinc-800/80 text-xs text-zinc-300">
+                <!-- Features Highlight -->
+                <div class="space-y-3 pt-4 border-t border-slate-800 dark:border-zinc-800/80 text-xs text-slate-300 dark:text-zinc-300">
                     <div class="flex items-center gap-3">
                         <svg class="w-4 h-4 text-white shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -41,31 +42,43 @@
             </div>
 
             <!-- Footer Note -->
-            <div class="relative z-10 pt-6 mt-4 border-t border-zinc-800/80 text-[11px] text-zinc-500 flex items-center justify-between font-mono">
+            <div class="relative z-10 pt-6 mt-4 border-t border-slate-800 dark:border-zinc-800/80 text-[11px] text-slate-400 dark:text-zinc-500 flex items-center justify-between font-mono">
                 <span>PressingApp Suite</span>
                 <span>v2.0</span>
             </div>
         </div>
 
-        <!-- Right Side: Clean Login Form & Demo Selector -->
-        <div class="lg:col-span-7 p-7 sm:p-8 flex flex-col justify-between bg-zinc-900">
+        <!-- Right Side: 60% Dominant White Login Form -->
+        <div class="lg:col-span-7 p-7 sm:p-8 flex flex-col justify-between bg-white dark:bg-zinc-900">
             <div class="space-y-5">
                 <!-- Header -->
-                <div>
-                    <h2 class="text-xl font-bold text-white tracking-tight">Connexion à votre espace</h2>
-                    <p class="text-xs text-zinc-400 mt-0.5">Saisissez vos identifiants pour ouvrir votre session.</p>
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white tracking-tight">Connexion à votre espace</h2>
+                        <p class="text-xs text-slate-500 dark:text-zinc-400 mt-0.5">Saisissez vos identifiants pour ouvrir votre session.</p>
+                    </div>
+
+                    <!-- Small Theme Toggle on Login Page -->
+                    <button type="button" onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50 dark:bg-zinc-950 text-slate-600 dark:text-zinc-300 hover:bg-slate-100 dark:hover:bg-zinc-800 transition cursor-pointer" title="Changer de thème">
+                        <svg class="w-4 h-4 text-amber-500 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <svg class="w-4 h-4 text-slate-700 block dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
                 </div>
 
                 <!-- Error State Banner -->
                 @if ($errors->any())
-                    <div class="p-3.5 bg-zinc-950 border border-zinc-700 rounded-xl text-xs text-zinc-200 space-y-1">
-                        <div class="flex items-center gap-2 font-semibold text-white">
-                            <svg class="w-4 h-4 text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="p-3.5 bg-rose-50 dark:bg-zinc-950 border border-rose-200 dark:border-zinc-700 rounded-xl text-xs text-rose-800 dark:text-zinc-200 space-y-1">
+                        <div class="flex items-center gap-2 font-semibold text-rose-900 dark:text-white">
+                            <svg class="w-4 h-4 text-rose-600 dark:text-zinc-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                             </svg>
                             <span>Erreur d'identifiants</span>
                         </div>
-                        <ul class="list-disc list-inside space-y-0.5 text-zinc-400 pl-1 text-[11px]">
+                        <ul class="list-disc list-inside space-y-0.5 text-rose-700 dark:text-zinc-400 pl-1 text-[11px]">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -79,11 +92,11 @@
 
                     <!-- Email Field -->
                     <div class="space-y-1">
-                        <label for="email" class="block text-xs font-semibold text-zinc-300">
-                            Adresse Email <span class="text-white">*</span>
+                        <label for="email" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                            Adresse Email <span class="text-slate-900 dark:text-white">*</span>
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
                                 </svg>
@@ -96,7 +109,7 @@
                                 required
                                 autocomplete="email"
                                 autofocus
-                                class="w-full pl-9 pr-3.5 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition placeholder:text-zinc-600"
+                                class="w-full pl-9 pr-3.5 py-2.5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-slate-900 dark:text-white text-xs focus:bg-white focus:outline-none focus:border-slate-900 dark:focus:border-white focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition placeholder:text-slate-400 dark:placeholder:text-zinc-600"
                                 placeholder="votre.email@pressing.com"
                             >
                         </div>
@@ -104,11 +117,11 @@
 
                     <!-- Password Field -->
                     <div class="space-y-1">
-                        <label for="password" class="block text-xs font-semibold text-zinc-300">
-                            Mot de passe <span class="text-white">*</span>
+                        <label for="password" class="block text-xs font-semibold text-slate-700 dark:text-zinc-300">
+                            Mot de passe <span class="text-slate-900 dark:text-white">*</span>
                         </label>
                         <div class="relative">
-                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-500">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 dark:text-zinc-500">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                                 </svg>
@@ -119,13 +132,13 @@
                                 type="password"
                                 required
                                 autocomplete="current-password"
-                                class="w-full pl-9 pr-9 py-2.5 bg-zinc-950 border border-zinc-800 rounded-xl text-white text-xs focus:outline-none focus:border-white focus:ring-1 focus:ring-white transition placeholder:text-zinc-600"
+                                class="w-full pl-9 pr-9 py-2.5 bg-slate-50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-slate-900 dark:text-white text-xs focus:bg-white focus:outline-none focus:border-slate-900 dark:focus:border-white focus:ring-1 focus:ring-slate-900 dark:focus:ring-white transition placeholder:text-slate-400 dark:placeholder:text-zinc-600"
                                 placeholder="••••••••"
                             >
                             <button
                                 type="button"
                                 onclick="togglePasswordVisibility()"
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-500 hover:text-zinc-300 transition cursor-pointer"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 dark:text-zinc-500 hover:text-slate-600 dark:hover:text-zinc-300 transition cursor-pointer"
                                 title="Afficher/masquer le mot de passe"
                             >
                                 <svg id="eyeIcon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -142,18 +155,18 @@
                             <input
                                 type="checkbox"
                                 name="remember"
-                                class="w-3.5 h-3.5 rounded border-zinc-700 bg-zinc-950 text-white focus:ring-white focus:ring-offset-0 transition"
+                                class="w-3.5 h-3.5 rounded border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-950 text-slate-900 dark:text-white focus:ring-slate-900 dark:focus:ring-white focus:ring-offset-0 transition"
                             >
-                            <span class="text-xs text-zinc-400 group-hover:text-white transition">Se souvenir de moi</span>
+                            <span class="text-xs text-slate-600 dark:text-zinc-400 group-hover:text-slate-900 dark:group-hover:text-white transition">Se souvenir de moi</span>
                         </label>
                     </div>
 
-                    <!-- Submit Button with High Contrast White CTA -->
+                    <!-- Submit Button: 10% High Contrast CTA -->
                     <div class="pt-1">
                         <button
                             id="submitBtn"
                             type="submit"
-                            class="w-full py-2.5 px-4 bg-white hover:bg-zinc-200 text-zinc-950 text-xs font-bold uppercase tracking-wider rounded-xl transition duration-150 shadow-md flex items-center justify-center gap-2 group cursor-pointer"
+                            class="w-full py-2.5 px-4 bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold uppercase tracking-wider rounded-xl transition duration-150 shadow-md flex items-center justify-center gap-2 group cursor-pointer"
                         >
                             <span id="btnText">Se connecter</span>
                             <svg id="btnIcon" class="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -168,26 +181,26 @@
                 </form>
             </div>
 
-            <!-- Demo Accounts Selector (Interactive Quick Fill preserved for testing) -->
-            <div class="mt-6 pt-5 border-t border-zinc-800">
+            <!-- Demo Account Quick Fill Box -->
+            <div class="mt-6 pt-5 border-t border-slate-100 dark:border-zinc-800">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Compte Administrateur Initial</span>
-                    <span class="text-[10px] text-zinc-400 font-medium">Cliquez pour remplir</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-500">Compte Administrateur Initial</span>
+                    <span class="text-[10px] text-slate-600 dark:text-zinc-400 font-medium">Cliquez pour remplir</span>
                 </div>
                 <div>
                     <button
                         type="button"
                         onclick="fillCredentials('admin@pressing.com', 'password')"
-                        class="w-full p-3 rounded-xl border border-zinc-700 bg-zinc-950/80 hover:bg-zinc-800 transition text-left group cursor-pointer flex items-center justify-between"
+                        class="w-full p-3 rounded-xl border border-slate-200 dark:border-zinc-800 bg-slate-50/80 dark:bg-zinc-950/80 hover:bg-slate-100 dark:hover:bg-zinc-800 transition text-left group cursor-pointer flex items-center justify-between"
                     >
                         <div>
                             <div class="flex items-center gap-2">
-                                <span class="font-bold text-white text-xs">Super Administrateur</span>
-                                <span class="text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Aucune agence assignée</span>
+                                <span class="font-bold text-slate-900 dark:text-white text-xs">Super Administrateur</span>
+                                <span class="text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-slate-200 dark:bg-zinc-800 text-slate-700 dark:text-zinc-300 font-semibold">Aucune agence assignée</span>
                             </div>
-                            <p class="text-[11px] text-zinc-400 mt-0.5 font-mono">admin@pressing.com &bull; mot de passe: password</p>
+                            <p class="text-[11px] text-slate-500 dark:text-zinc-400 mt-0.5 font-mono">admin@pressing.com &bull; mot de passe: password</p>
                         </div>
-                        <svg class="w-4 h-4 text-zinc-400 group-hover:translate-x-1 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4 text-slate-400 dark:text-zinc-400 group-hover:translate-x-1 group-hover:text-slate-900 dark:group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
                         </svg>
                     </button>
@@ -216,11 +229,11 @@
         emailInput.value = email;
         passwordInput.value = password;
         
-        emailInput.classList.add('ring-1', 'ring-white');
-        passwordInput.classList.add('ring-1', 'ring-white');
+        emailInput.classList.add('ring-1', 'ring-slate-900');
+        passwordInput.classList.add('ring-1', 'ring-slate-900');
         setTimeout(() => {
-            emailInput.classList.remove('ring-1', 'ring-white');
-            passwordInput.classList.remove('ring-1', 'ring-white');
+            emailInput.classList.remove('ring-1', 'ring-slate-900');
+            passwordInput.classList.remove('ring-1', 'ring-slate-900');
         }, 400);
     }
 
