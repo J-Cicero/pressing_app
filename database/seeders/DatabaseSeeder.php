@@ -17,13 +17,13 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::firstOrCreate(
+        User::updateOrCreate(
             ['email' => 'admin@pressing.com'],
             [
                 'name' => 'Super Administrateur',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
-                'pressing_id' => null, // Super Admin is not affiliated with any specific pressing
+                'pressing_id' => null,
             ]
         );
     }
