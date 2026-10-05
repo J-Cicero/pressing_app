@@ -171,44 +171,25 @@
             <!-- Demo Accounts Selector (Interactive Quick Fill preserved for testing) -->
             <div class="mt-6 pt-5 border-t border-zinc-800">
                 <div class="flex items-center justify-between mb-2">
-                    <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Comptes de Test Rapides</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Compte Administrateur Initial</span>
                     <span class="text-[10px] text-zinc-400 font-medium">Cliquez pour remplir</span>
                 </div>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
+                <div>
                     <button
                         type="button"
                         onclick="fillCredentials('admin@pressing.com', 'password')"
-                        class="p-2.5 rounded-xl border border-zinc-800 bg-zinc-950/80 hover:bg-zinc-800 hover:border-zinc-700 transition text-left group cursor-pointer"
+                        class="w-full p-3 rounded-xl border border-zinc-700 bg-zinc-950/80 hover:bg-zinc-800 transition text-left group cursor-pointer flex items-center justify-between"
                     >
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-white group-hover:text-white text-xs">Super Admin</span>
-                            <span class="text-[9px] text-zinc-500 font-mono">Admin</span>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-white text-xs">Super Administrateur</span>
+                                <span class="text-[9px] uppercase font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">Aucune agence assignée</span>
+                            </div>
+                            <p class="text-[11px] text-zinc-400 mt-0.5 font-mono">admin@pressing.com &bull; mot de passe: password</p>
                         </div>
-                        <p class="text-[10px] text-zinc-400 truncate mt-0.5">admin@pressing.com</p>
-                    </button>
-
-                    <button
-                        type="button"
-                        onclick="fillCredentials('caissier1@pressing.com', 'password')"
-                        class="p-2.5 rounded-xl border border-zinc-800 bg-zinc-950/80 hover:bg-zinc-800 hover:border-zinc-700 transition text-left group cursor-pointer"
-                    >
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-white group-hover:text-white text-xs">Caissier 1</span>
-                            <span class="text-[9px] text-zinc-500 font-mono">Guichet</span>
-                        </div>
-                        <p class="text-[10px] text-zinc-400 truncate mt-0.5">caissier1@pressing.com</p>
-                    </button>
-
-                    <button
-                        type="button"
-                        onclick="fillCredentials('caissier2@pressing.com', 'password')"
-                        class="p-2.5 rounded-xl border border-zinc-800 bg-zinc-950/80 hover:bg-zinc-800 hover:border-zinc-700 transition text-left group cursor-pointer"
-                    >
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-white group-hover:text-white text-xs">Caissier 2</span>
-                            <span class="text-[9px] text-zinc-500 font-mono">Guichet</span>
-                        </div>
-                        <p class="text-[10px] text-zinc-400 truncate mt-0.5">caissier2@pressing.com</p>
+                        <svg class="w-4 h-4 text-zinc-400 group-hover:translate-x-1 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                        </svg>
                     </button>
                 </div>
             </div>
