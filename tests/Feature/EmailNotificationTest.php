@@ -8,13 +8,13 @@ use App\Models\Facture;
 use App\Models\Pressing;
 use App\Models\Service;
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class EmailNotificationTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     public function test_email_sent_when_deposit_created_with_client_email(): void
     {
