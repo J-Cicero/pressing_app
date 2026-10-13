@@ -4,9 +4,13 @@ namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
 use App\Mail\TicketDeposeMail;
+use App\Models\Client;
 use App\Models\Facture;
+use App\Models\Laveur;
 use App\Models\LigneFacture;
 use App\Models\Service;
+use App\Models\Vehicule;
+use App\Services\WhatsAppNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +23,7 @@ use Illuminate\View\View;
 class DepotController extends Controller
 {
     /**
-     * Show the deposit form for recording incoming laundry.
+     * Show the deposit / wash registration form.
      */
     public function create(): View
     {
@@ -27,23 +31,28 @@ class DepotController extends Controller
         $pressing = $user->pressing;
 
         if (! $pressing) {
-            abort(403, 'Aucune agence de pressing n\'est assignée à ce compte caissier.');
+            abort(403, 'Aucune agence n\'est assignée à ce compte caissier.');
         }
 
         $services = Service::where('pressing_id', $pressing->id)
             ->orderBy('designation')
             ->get();
 
+        $laveurs = $pressing->isLavage()
+            ? Laveur::where('pressing_id', $pressing->id)->where('actif', true)->orderBy('nom')->get()
+            : collect();
+
         return view('caisse.depot', [
             'pressing' => $pressing,
             'services' => $services,
+            'laveurs' => $laveurs,
         ]);
     }
 
     /**
      * Store a newly created deposit and its line items within a transaction.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request, WhatsAppNotificationService $whatsApp): RedirectResponse
     {
         $user = Auth::user()->load('pressing');
         $pressing = $user->pressing;
@@ -60,9 +69,16 @@ class DepotController extends Controller
             'lignes' => ['required', 'array', 'min:1'],
             'lignes.*.service_id' => ['required', 'exists:services,id'],
             'lignes.*.quantite' => ['required', 'integer', 'min:1', 'max:1000'],
+            // Wash specific fields
+            'laveur_id' => ['nullable', 'exists:laveurs,id'],
+            'immatriculation' => ['nullable', 'string', 'max:50'],
+            'marque_modele' => ['nullable', 'string', 'max:100'],
+            'type_vehicule' => ['nullable', 'string', 'max:50'],
+            'date_visite_technique' => ['nullable', 'date'],
+            'date_assurance' => ['nullable', 'date'],
         ]);
 
-        // Vérifier l'isolation : tous les services doivent appartenir au pressing du caissier
+        // Vérifier l'isolation des services : doivent appartenir à l'établissement du caissier
         $serviceIds = collect($validated['lignes'])->pluck('service_id')->unique();
         $services = Service::where('pressing_id', $pressing->id)
             ->whereIn('id', $serviceIds)
@@ -76,13 +92,63 @@ class DepotController extends Controller
         }
 
         $facture = DB::transaction(function () use ($validated, $pressing, $user, $services) {
-            // Génération d'un numéro de ticket unique TCK-YYYYMMDD-XXXX
+            // 1. Centraliser ou mettre à jour le client
+            $client = Client::firstOrCreate(
+                ['telephone' => trim($validated['client_telephone'])],
+                [
+                    'nom' => trim($validated['client_nom']),
+                    'email' => $validated['client_email'] ?? null,
+                ]
+            );
+
+            if ($client->nom !== $validated['client_nom'] || (! empty($validated['client_email']) && $client->email !== $validated['client_email'])) {
+                $client->update([
+                    'nom' => trim($validated['client_nom']),
+                    'email' => $validated['client_email'] ?? $client->email,
+                ]);
+            }
+
+            // 2. Gestion du véhicule si station de lavage et immatriculation renseignée
+            $vehicule = null;
+            if ($pressing->isLavage() && ! empty($validated['immatriculation'])) {
+                $immat = strtoupper(trim($validated['immatriculation']));
+                $vehicule = Vehicule::firstOrCreate(
+                    ['immatriculation' => $immat],
+                    [
+                        'client_id' => $client->id,
+                        'marque_modele' => $validated['marque_modele'] ?? 'Véhicule',
+                        'type_vehicule' => $validated['type_vehicule'] ?? 'voiture',
+                        'date_visite_technique' => $validated['date_visite_technique'] ?? null,
+                        'date_assurance' => $validated['date_assurance'] ?? null,
+                    ]
+                );
+
+                // Mettre à jour les informations du véhicule si renseignées
+                $updateData = [];
+                if (! empty($validated['marque_modele'])) {
+                    $updateData['marque_modele'] = $validated['marque_modele'];
+                }
+                if (! empty($validated['type_vehicule'])) {
+                    $updateData['type_vehicule'] = $validated['type_vehicule'];
+                }
+                if (! empty($validated['date_visite_technique'])) {
+                    $updateData['date_visite_technique'] = $validated['date_visite_technique'];
+                }
+                if (! empty($validated['date_assurance'])) {
+                    $updateData['date_assurance'] = $validated['date_assurance'];
+                }
+                if (! empty($updateData)) {
+                    $vehicule->update($updateData);
+                }
+            }
+
+            // 3. Génération du numéro de ticket unique TCK-YYYYMMDD-XXXX
             $datePrefix = 'TCK-'.date('Ymd').'-';
             do {
                 $numTicket = $datePrefix.strtoupper(Str::random(4));
             } while (Facture::where('num_ticket', $numTicket)->exists());
 
-            // Calcul fiable côté serveur du montant total
+            // 4. Calcul du montant total
             $montantTotal = 0;
             $itemsData = [];
 
@@ -99,21 +165,24 @@ class DepotController extends Controller
                 ];
             }
 
-            // Création de la facture (Règle : 100% au retrait, aucun acompte, statut initial 'depose')
+            // 5. Création de la facture
             $facture = Facture::create([
                 'num_ticket' => $numTicket,
                 'pressing_id' => $pressing->id,
                 'user_id' => $user->id,
-                'client_nom' => $validated['client_nom'],
-                'client_telephone' => $validated['client_telephone'],
-                'client_email' => $validated['client_email'] ?? null,
+                'client_id' => $client->id,
+                'vehicule_id' => $vehicule?->id,
+                'laveur_id' => $validated['laveur_id'] ?? null,
+                'client_nom' => $client->nom,
+                'client_telephone' => $client->telephone,
+                'client_email' => $client->email,
                 'date_retrait_prevue' => $validated['date_retrait_prevue'],
                 'montant_total' => $montantTotal,
                 'statut' => 'depose',
                 'paye_at' => null,
             ]);
 
-            // Insertion des lignes de facturation
+            // 6. Lignes de facturation
             foreach ($itemsData as $item) {
                 LigneFacture::create([
                     'facture_id' => $facture->id,
@@ -126,6 +195,7 @@ class DepotController extends Controller
             return $facture;
         });
 
+        // Email notification (optionnel)
         if (! empty($facture->client_email)) {
             try {
                 Mail::to($facture->client_email)->send(new TicketDeposeMail($facture));
@@ -134,7 +204,24 @@ class DepotController extends Controller
             }
         }
 
+        // Génération du lien WhatsApp
+        $whatsappUrl = $whatsApp->urlDepot($facture);
+
+        // Vérification de fidélité pour le client
+        $fideliteMessage = null;
+        $fideliteUrl = null;
+        if ($facture->client) {
+            $regle = $facture->client->fideliteAtteinte($pressing->type_activite);
+            if ($regle) {
+                $fideliteMessage = "Palier de fidélité atteint : {$regle->seuil_visites} visites ({$regle->description}) !";
+                $fideliteUrl = $whatsApp->urlFidelite($facture->client, $regle);
+            }
+        }
+
         return redirect()->route('caisse.factures.print', $facture)
-            ->with('status', 'Dépôt validé avec succès. Ticket généré : '.$facture->num_ticket);
+            ->with('status', 'Ticket généré avec succès : '.$facture->num_ticket)
+            ->with('whatsapp_url', $whatsappUrl)
+            ->with('fidelite_message', $fideliteMessage)
+            ->with('fidelite_url', $fideliteUrl);
     }
 }

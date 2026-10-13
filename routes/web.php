@@ -1,11 +1,18 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminDashboardController;
+use App\Http\Controllers\Admin\ClientController;
 use App\Http\Controllers\Admin\FactureController;
+use App\Http\Controllers\Admin\LaveurController;
 use App\Http\Controllers\Admin\PressingController;
+use App\Http\Controllers\Admin\RegleFideliteController;
 use App\Http\Controllers\Admin\ServiceController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\VehiculeController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Caisse\CaisseClientLookupController;
+use App\Http\Controllers\Caisse\CaisseLaveurController;
+use App\Http\Controllers\Caisse\CaisseVehiculeController;
 use App\Http\Controllers\Caisse\CaissierDashboardController;
 use App\Http\Controllers\Caisse\DepotController;
 use App\Http\Controllers\Caisse\RetraitController;
@@ -38,16 +45,29 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
-        // CRUD Pressings
+        // CRUD Établissements (Pressings & Stations de Lavage)
         Route::resource('pressings', PressingController::class)->except(['show']);
 
-        // CRUD Personnel / Utilisateurs
+        // CRUD Personnel & Caissiers
         Route::resource('users', UserController::class)->except(['show']);
 
         // CRUD Catalogue des Services
         Route::resource('services', ServiceController::class)->except(['show']);
 
-        // Vue Consolidée des Factures (Route Key Binding via num_ticket)
+        // Gestion Centralisée des Clients
+        Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
+        Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
+
+        // Règles de Fidélité Paramétrables
+        Route::resource('fidelite', RegleFideliteController::class)->except(['show']);
+
+        // Gestion des Laveurs (Personnel de Terrain)
+        Route::resource('laveurs', LaveurController::class)->except(['show']);
+
+        // Module Rappels Échéances Véhicules (Visite Technique & Assurance)
+        Route::get('/vehicules/echeances', [VehiculeController::class, 'echeances'])->name('vehicules.echeances');
+
+        // Vue Consolidée des Factures
         Route::get('/factures', [FactureController::class, 'index'])->name('factures.index');
         Route::get('/factures/{facture}', [FactureController::class, 'show'])->name('factures.show');
     });
@@ -56,14 +76,23 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:caissier')->prefix('caisse')->name('caisse.')->group(function () {
         Route::get('/dashboard', [CaissierDashboardController::class, 'index'])->name('dashboard');
 
-        // Module Nouveau Dépôt
+        // Module Nouveau Dépôt / Lavage
         Route::get('/depot', [DepotController::class, 'create'])->name('depot');
         Route::post('/depot', [DepotController::class, 'store'])->name('depot.store');
+
+        // API Lookup Client automatique par téléphone
+        Route::get('/clients/lookup', CaisseClientLookupController::class)->name('clients.lookup');
 
         // Recherche & Encaissement au Retrait
         Route::get('/retrait', [RetraitController::class, 'index'])->name('retrait');
         Route::patch('/factures/{facture:num_ticket}/pret', [RetraitController::class, 'marquerPret'])->name('factures.pret');
         Route::patch('/factures/{facture:num_ticket}/encaisser', [RetraitController::class, 'encaisser'])->name('factures.encaisser');
+
+        // Suivi des Laveurs et Commissions Journalières (Station Lavage)
+        Route::get('/laveurs', [CaisseLaveurController::class, 'index'])->name('laveurs.index');
+
+        // Échéances Visite Technique des Véhicules & Rappels WhatsApp
+        Route::get('/vehicules/echeances', [CaisseVehiculeController::class, 'echeances'])->name('vehicules.echeances');
 
         // Impression Thermique 80mm
         Route::get('/factures/{facture:num_ticket}/print', [TicketPrintController::class, 'show'])->name('factures.print');

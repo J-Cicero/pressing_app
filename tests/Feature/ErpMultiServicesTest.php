@@ -1,0 +1,226 @@
+<?php
+
+namespace Tests\Feature;
+
+use App\Models\Client;
+use App\Models\Facture;
+use App\Models\Laveur;
+use App\Models\Pressing;
+use App\Models\Service;
+use App\Models\User;
+use App\Models\Vehicule;
+use App\Services\WhatsAppNotificationService;
+use Carbon\Carbon;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Tests\TestCase;
+
+class ErpMultiServicesTest extends TestCase
+{
+    use DatabaseTransactions;
+
+    public function test_admin_can_create_lavage_station(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $response = $this->actingAs($admin)->post(route('admin.pressings.store'), [
+            'nom' => 'Station Clean Express',
+            'ville' => 'Lomé',
+            'quartier' => 'Adidogomé',
+            'telephone' => '+228 90 00 11 22',
+            'type_activite' => 'lavage',
+        ]);
+
+        $response->assertRedirect(route('admin.pressings.index'));
+        $this->assertDatabaseHas('pressings', [
+            'nom' => 'Station Clean Express',
+            'type_activite' => 'lavage',
+        ]);
+    }
+
+    public function test_admin_can_manage_loyalty_rules(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        // Create
+        $response = $this->actingAs($admin)->post(route('admin.fidelite.store'), [
+            'seuil_visites' => 8,
+            'type_activite' => 'lavage',
+            'type_avantage' => 'pourcentage',
+            'valeur_avantage' => 15,
+            'description' => '15% de remise au 8ème lavage',
+            'actif' => true,
+        ]);
+
+        $response->assertRedirect(route('admin.fidelite.index'));
+        $this->assertDatabaseHas('regles_fidelite', [
+            'seuil_visites' => 8,
+            'description' => '15% de remise au 8ème lavage',
+        ]);
+    }
+
+    public function test_admin_can_manage_washers(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $station = Pressing::factory()->create(['type_activite' => 'lavage']);
+
+        $response = $this->actingAs($admin)->post(route('admin.laveurs.store'), [
+            'pressing_id' => $station->id,
+            'nom' => 'Komi Mawuli',
+            'telephone' => '+228 91 22 33 44',
+            'type_remuneration' => 'pourcentage',
+            'valeur_remuneration' => 25,
+            'actif' => true,
+        ]);
+
+        $response->assertRedirect(route('admin.laveurs.index'));
+        $this->assertDatabaseHas('laveurs', [
+            'nom' => 'Komi Mawuli',
+            'pressing_id' => $station->id,
+            'valeur_remuneration' => 25,
+        ]);
+    }
+
+    public function test_caisse_client_lookup_returns_client_data_vehicles_and_loyalty(): void
+    {
+        $pressing = Pressing::factory()->create();
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $pressing->id]);
+
+        $client = Client::create([
+            'nom' => 'Messan Agbodjan',
+            'telephone' => '99887766',
+            'email' => 'messan@test.com',
+        ]);
+
+        Vehicule::create([
+            'client_id' => $client->id,
+            'immatriculation' => 'TG-5544-ZZ',
+            'marque_modele' => 'Toyota Yaris',
+            'type_vehicule' => 'voiture',
+            'date_visite_technique' => Carbon::today()->addDays(5),
+        ]);
+
+        $response = $this->actingAs($caissier)->getJson(route('caisse.clients.lookup', ['telephone' => '99887766']));
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'found' => true,
+            'client' => [
+                'nom' => 'Messan Agbodjan',
+                'telephone' => '99887766',
+            ],
+            'vehicules' => [
+                [
+                    'immatriculation' => 'TG-5544-ZZ',
+                    'marque_modele' => 'Toyota Yaris',
+                ],
+            ],
+        ]);
+    }
+
+    public function test_depot_lavage_links_client_creates_vehicle_and_assigns_washer(): void
+    {
+        $station = Pressing::factory()->create(['type_activite' => 'lavage']);
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $station->id]);
+
+        $service = Service::factory()->create([
+            'pressing_id' => $station->id,
+            'designation' => 'Lavage Complet SUV',
+            'prix_unitaire' => 5000,
+        ]);
+
+        $laveur = Laveur::create([
+            'pressing_id' => $station->id,
+            'nom' => 'Kokou Laveur',
+            'telephone' => '+228 90 99 88 77',
+            'type_remuneration' => 'pourcentage',
+            'valeur_remuneration' => 30,
+            'actif' => true,
+        ]);
+
+        $response = $this->actingAs($caissier)->post(route('caisse.depot.store'), [
+            'client_nom' => 'Pauline Dossou',
+            'client_telephone' => '90445566',
+            'client_email' => 'pauline@test.com',
+            'date_retrait_prevue' => Carbon::today()->toDateString(),
+            'laveur_id' => $laveur->id,
+            'immatriculation' => 'TG-7788-BA',
+            'marque_modele' => 'Kia Sportage',
+            'type_vehicule' => '4x4',
+            'date_visite_technique' => Carbon::today()->addDays(7)->toDateString(),
+            'date_assurance' => Carbon::today()->addMonths(6)->toDateString(),
+            'lignes' => [
+                [
+                    'service_id' => $service->id,
+                    'quantite' => 1,
+                ],
+            ],
+        ]);
+
+        $response->assertSessionHasNoErrors();
+
+        // Verify client creation
+        $this->assertDatabaseHas('clients', [
+            'telephone' => '90445566',
+            'nom' => 'Pauline Dossou',
+        ]);
+
+        // Verify vehicle creation
+        $this->assertDatabaseHas('vehicules', [
+            'immatriculation' => 'TG-7788-BA',
+            'marque_modele' => 'Kia Sportage',
+        ]);
+
+        // Verify invoice links
+        $this->assertDatabaseHas('factures', [
+            'pressing_id' => $station->id,
+            'client_nom' => 'Pauline Dossou',
+            'laveur_id' => $laveur->id,
+            'montant_total' => 5000,
+        ]);
+
+        // Commission calculation verification
+        $facture = Facture::where('client_nom', 'Pauline Dossou')->first();
+        $this->assertNotNull($facture);
+        $this->assertEquals(1500, $laveur->calculerCommission($facture)); // 30% of 5000
+    }
+
+    public function test_whatsapp_service_generates_valid_wa_me_urls(): void
+    {
+        $service = app(WhatsAppNotificationService::class);
+
+        $client = new Client([
+            'nom' => 'Akouvi Mensah',
+            'telephone' => '90 12 34 56',
+        ]);
+
+        $pressing = new Pressing([
+            'nom' => 'Pressing Elite',
+        ]);
+
+        $facture = new Facture([
+            'num_ticket' => 'TCK-20261013-ABCD',
+            'client_nom' => 'Akouvi Mensah',
+            'client_telephone' => '90 12 34 56',
+            'montant_total' => 4000,
+            'date_retrait_prevue' => Carbon::parse('2026-10-15'),
+            'statut' => 'depose',
+        ]);
+        $facture->setRelation('pressing', $pressing);
+        $facture->setRelation('ligneFactures', collect());
+
+        $urlDepot = $service->urlDepot($facture);
+        $this->assertStringStartsWith('https://wa.me/22890123456', $urlDepot);
+        $this->assertStringContainsString('TCK-20261013-ABCD', $urlDepot);
+
+        $vehicule = new Vehicule([
+            'immatriculation' => 'TG-2026-OK',
+            'marque_modele' => 'Toyota RAV4',
+            'date_visite_technique' => Carbon::today()->addDays(3),
+        ]);
+        $vehicule->setRelation('client', $client);
+
+        $urlRappel = $service->urlRappelVisiteJMoins3($vehicule);
+        $this->assertStringStartsWith('https://wa.me/22890123456', $urlRappel);
+        $this->assertStringContainsString('TG-2026-OK', $urlRappel);
+    }
+}

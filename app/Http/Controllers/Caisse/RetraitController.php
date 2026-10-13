@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Caisse;
 use App\Http\Controllers\Controller;
 use App\Mail\TicketPretMail;
 use App\Models\Facture;
+use App\Services\WhatsAppNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,9 +16,9 @@ use Illuminate\View\View;
 class RetraitController extends Controller
 {
     /**
-     * Display the search and checkout / pickup interface.
+     * Display the search and checkout / pickup interface with WhatsApp shortcuts.
      */
-    public function index(Request $request): View
+    public function index(Request $request, WhatsAppNotificationService $whatsApp): View
     {
         $user = Auth::user()->load('pressing');
         $pressing = $user->pressing;
@@ -30,12 +31,13 @@ class RetraitController extends Controller
         $statut = $request->query('statut');
 
         $query = Facture::where('pressing_id', $pressing->id)
-            ->with(['ligneFactures.service', 'user'])
+            ->with(['ligneFactures.service', 'user', 'client', 'vehicule', 'laveur'])
             ->when($search, function ($q, $search) {
                 $q->where(function ($sub) use ($search) {
                     $sub->where('num_ticket', 'like', "%{$search}%")
                         ->orWhere('client_telephone', 'like', "%{$search}%")
-                        ->orWhere('client_nom', 'like', "%{$search}%");
+                        ->orWhere('client_nom', 'like', "%{$search}%")
+                        ->orWhereHas('vehicule', fn ($v) => $v->where('immatriculation', 'like', "%{$search}%"));
                 });
             })
             ->when($statut, function ($q, $statut) {
@@ -51,6 +53,17 @@ class RetraitController extends Controller
             ->paginate(15)
             ->withQueryString();
 
+        // Attach WhatsApp URL to each invoice for quick communication
+        $factures->getCollection()->transform(function ($f) use ($whatsApp) {
+            if ($f->statut === 'pret') {
+                $f->whatsapp_url = $whatsApp->urlPret($f);
+            } else {
+                $f->whatsapp_url = $whatsApp->urlDepot($f);
+            }
+
+            return $f;
+        });
+
         return view('caisse.retrait', [
             'pressing' => $pressing,
             'factures' => $factures,
@@ -63,9 +76,9 @@ class RetraitController extends Controller
     }
 
     /**
-     * Update ticket status from 'depose' to 'pret' (garments washed & ready).
+     * Update ticket status from 'depose' to 'pret' (items/car washed & ready).
      */
-    public function marquerPret(Facture $facture): RedirectResponse
+    public function marquerPret(Facture $facture, WhatsAppNotificationService $whatsApp): RedirectResponse
     {
         $user = Auth::user();
 
@@ -91,11 +104,15 @@ class RetraitController extends Controller
             }
         }
 
-        return back()->with('status', 'Le ticket '.$facture->num_ticket.' est désormais marqué comme PRÊT pour le retrait client.');
+        $whatsappUrl = $whatsApp->urlPret($facture);
+
+        return back()
+            ->with('status', 'Le ticket '.$facture->num_ticket.' est désormais PRÊT pour le retrait.')
+            ->with('whatsapp_pret_url', $whatsappUrl);
     }
 
     /**
-     * Process 100% payment and garment collection ('pret' or 'depose' -> 'paye_retire').
+     * Process 100% payment and collection ('pret' or 'depose' -> 'paye_retire').
      */
     public function encaisser(Facture $facture): RedirectResponse
     {
@@ -116,6 +133,6 @@ class RetraitController extends Controller
             'paye_at' => now(),
         ]);
 
-        return back()->with('status', 'Paiement de '.number_format((float) $facture->montant_total, 2, ',', ' ').' FCFA encaissé avec succès pour le ticket '.$facture->num_ticket.'. Vêtements restitués au client.');
+        return back()->with('status', 'Paiement de '.number_format((float) $facture->montant_total, 2, ',', ' ').' FCFA encaissé avec succès pour le ticket '.$facture->num_ticket.'. Restitution effectuée.');
     }
 }

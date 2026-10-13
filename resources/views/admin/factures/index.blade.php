@@ -2,33 +2,33 @@
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-slate-200 dark:border-zinc-800 gap-4">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-6 border-b border-zinc-200 dark:border-zinc-800 gap-4">
         <div>
-            <h1 class="text-2xl font-extrabold tracking-tight text-slate-900 dark:text-white">Vue Consolidée des Factures</h1>
-            <p class="text-xs text-slate-500 dark:text-zinc-400 mt-1">
+            <h1 class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Vue Consolidée des Factures</h1>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
                 Suivi centralisé des dépôts, préparations et retraits d'agences
             </p>
         </div>
 
         <!-- Metric summary pills -->
-        <div class="flex items-center gap-3 bg-white dark:bg-zinc-900 p-3 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs text-xs">
+        <div class="flex items-center gap-3 bg-white dark:bg-zinc-900 p-3 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs text-xs">
             <div>
-                <span class="text-slate-400 dark:text-zinc-500 uppercase text-[10px] font-semibold block">Total filtré</span>
-                <span class="font-bold text-slate-900 dark:text-white font-mono text-sm">{{ $totalTickets }} ticket(s)</span>
+                <span class="text-zinc-400 dark:text-zinc-500 uppercase text-[10px] font-semibold block">Total filtré</span>
+                <span class="font-bold text-zinc-900 dark:text-white font-mono text-sm">{{ $totalTickets }} ticket(s)</span>
             </div>
-            <div class="w-px h-8 bg-slate-100 dark:bg-zinc-800"></div>
+            <div class="w-px h-8 bg-zinc-100 dark:bg-zinc-800"></div>
             <div>
-                <span class="text-slate-400 dark:text-zinc-500 uppercase text-[10px] font-semibold block">Montant cumulé</span>
-                <span class="font-extrabold text-slate-900 dark:text-white font-mono text-sm">{{ number_format($totalMontant, 2, ',', ' ') }} FCFA</span>
+                <span class="text-zinc-400 dark:text-zinc-500 uppercase text-[10px] font-semibold block">Montant cumulé</span>
+                <span class="font-extrabold text-zinc-900 dark:text-white font-mono text-sm">{{ number_format($totalMontant, 2, ',', ' ') }} FCFA</span>
             </div>
         </div>
     </div>
 
     <!-- Filters form -->
-    <div class="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs">
+    <div class="bg-white dark:bg-zinc-900 p-5 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
         <form method="GET" action="{{ route('admin.factures.index') }}" class="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div class="space-y-1">
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                     Numéro de ticket
                 </label>
                 <div class="relative">
@@ -37,16 +37,16 @@
                         name="q"
                         value="{{ $search }}"
                         placeholder="Ex: TK-2026-..."
-                        class="w-full px-3.5 py-2 bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-slate-900 dark:focus:border-white transition placeholder:text-slate-400 dark:placeholder:text-zinc-600"
+                        class="w-full px-3.5 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                     >
                 </div>
             </div>
 
             <div class="space-y-1">
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                     Agence de Pressing
                 </label>
-                <select name="pressing_id" class="w-full px-3.5 py-2 bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-slate-900 dark:focus:border-white transition">
+                <select name="pressing_id" class="w-full px-3.5 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition">
                     <option value="">Toutes les agences</option>
                     @foreach($pressings as $p)
                         <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
@@ -57,10 +57,10 @@
             </div>
 
             <div class="space-y-1">
-                <label class="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-zinc-400">
+                <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
                     Statut du traitement
                 </label>
-                <select name="statut" class="w-full px-3.5 py-2 bg-slate-50/50 dark:bg-zinc-950 border border-slate-200 dark:border-zinc-800 rounded-xl text-xs text-slate-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-slate-900 dark:focus:border-white transition">
+                <select name="statut" class="w-full px-3.5 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition">
                     <option value="">Tous les statuts</option>
                     <option value="depose" {{ $selectedStatut === 'depose' ? 'selected' : '' }}>Déposé (En attente)</option>
                     <option value="pret" {{ $selectedStatut === 'pret' ? 'selected' : '' }}>Prêt (Non retiré)</option>
@@ -69,14 +69,14 @@
             </div>
 
             <div class="flex items-end gap-2">
-                <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold rounded-xl shadow-xs transition flex-1 h-[38px] flex items-center justify-center gap-1.5 cursor-pointer">
+                <button type="submit" class="px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold rounded-xl shadow-xs transition flex-1 h-[38px] flex items-center justify-center gap-1.5 cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                     </svg>
                     <span>Filtrer</span>
                 </button>
                 @if($search || $selectedPressingId || $selectedStatut)
-                    <a href="{{ route('admin.factures.index') }}" class="px-3 py-2 bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition border border-slate-200 dark:border-zinc-700 h-[38px] flex items-center">
+                    <a href="{{ route('admin.factures.index') }}" class="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition border border-zinc-200 dark:border-zinc-700 h-[38px] flex items-center">
                         Effacer
                     </a>
                 @endif
@@ -85,11 +85,11 @@
     </div>
 
     <!-- Factures Table -->
-    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-slate-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
-                    <tr class="bg-slate-50/80 dark:bg-zinc-950/80 border-b border-slate-100 dark:border-zinc-800 text-[11px] uppercase tracking-wider text-slate-500 dark:text-zinc-400 font-semibold">
+                    <tr class="bg-zinc-50/80 dark:bg-zinc-950/80 border-b border-zinc-100 dark:border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-semibold">
                         <th class="py-3.5 px-6">Numéro Ticket</th>
                         <th class="py-3.5 px-6">Agence</th>
                         <th class="py-3.5 px-6">Agent / Caissier</th>
@@ -100,20 +100,20 @@
                         <th class="py-3.5 px-6 text-right">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-zinc-800/60">
+                <tbody class="divide-y divide-zinc-100 dark:divide-zinc-800/60">
                     @forelse($factures as $f)
-                        <tr class="hover:bg-slate-50/60 dark:hover:bg-zinc-800/40 transition duration-150">
-                            <td class="py-4 px-6 font-mono font-bold text-slate-900 dark:text-white">
+                        <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition duration-150">
+                            <td class="py-4 px-6 font-mono font-bold text-zinc-900 dark:text-white">
                                 <a href="{{ route('admin.factures.show', $f) }}" class="hover:underline">
                                     {{ $f->num_ticket }}
                                 </a>
                             </td>
-                            <td class="py-4 px-6 text-slate-600 dark:text-zinc-300">
-                                <span class="font-semibold text-slate-900 dark:text-white">{{ $f->pressing->nom }}</span>
-                                <span class="text-slate-400 dark:text-zinc-500 text-[11px]">({{ $f->pressing->ville }})</span>
+                            <td class="py-4 px-6 text-zinc-600 dark:text-zinc-300">
+                                <span class="font-semibold text-zinc-900 dark:text-white">{{ $f->pressing->nom }}</span>
+                                <span class="text-zinc-400 dark:text-zinc-500 text-[11px]">({{ $f->pressing->ville }})</span>
                             </td>
-                            <td class="py-4 px-6 text-slate-700 dark:text-zinc-300 font-medium">{{ $f->user->name }}</td>
-                            <td class="py-4 px-6 text-slate-500 dark:text-zinc-400 font-mono text-[11px]">
+                            <td class="py-4 px-6 text-zinc-700 dark:text-zinc-300 font-medium">{{ $f->user->name }}</td>
+                            <td class="py-4 px-6 text-zinc-500 dark:text-zinc-400 font-mono text-[11px]">
                                 {{ $f->created_at->format('d/m/Y H:i') }}
                             </td>
                             <td class="py-4 px-6 text-center">
@@ -131,16 +131,16 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="py-4 px-6 text-right font-mono font-bold text-slate-900 dark:text-white">
+                            <td class="py-4 px-6 text-right font-mono font-bold text-zinc-900 dark:text-white">
                                 {{ number_format((float) $f->montant_total, 2, ',', ' ') }} FCFA
                             </td>
-                            <td class="py-4 px-6 text-right font-mono text-[11px] text-slate-500 dark:text-zinc-400">
+                            <td class="py-4 px-6 text-right font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
                                 {{ $f->paye_at ? $f->paye_at->format('d/m/Y H:i') : '—' }}
                             </td>
                             <td class="py-4 px-6 text-right">
-                                <a href="{{ route('admin.factures.show', $f) }}" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-100 dark:bg-zinc-800 hover:bg-slate-200 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 border border-slate-200 dark:border-zinc-700 transition">
+                                <a href="{{ route('admin.factures.show', $f) }}" class="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
                                     <span>Détails</span>
-                                    <svg class="w-3 h-3 text-slate-400 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <svg class="w-3 h-3 text-zinc-400 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                                     </svg>
                                 </a>
@@ -148,13 +148,13 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="py-12 text-center text-xs text-slate-500 dark:text-zinc-400">
+                            <td colspan="8" class="py-12 text-center text-xs text-zinc-500 dark:text-zinc-400">
                                 <div class="max-w-xs mx-auto space-y-2">
-                                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-zinc-800 text-slate-400 flex items-center justify-center mx-auto text-lg">
+                                    <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400 flex items-center justify-center mx-auto text-lg">
                                         🧾
                                     </div>
-                                    <p class="font-medium text-slate-700 dark:text-zinc-200">Aucune facture ne correspond aux filtres</p>
-                                    <a href="{{ route('admin.factures.index') }}" class="inline-block text-slate-900 dark:text-white font-semibold text-xs underline">
+                                    <p class="font-medium text-zinc-700 dark:text-zinc-200">Aucune facture ne correspond aux filtres</p>
+                                    <a href="{{ route('admin.factures.index') }}" class="inline-block text-zinc-900 dark:text-white font-semibold text-xs underline">
                                         Réinitialiser les filtres
                                     </a>
                                 </div>
@@ -166,7 +166,7 @@
         </div>
 
         @if($factures->hasPages())
-            <div class="p-4 border-t border-slate-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+            <div class="p-4 border-t border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900">
                 {{ $factures->links() }}
             </div>
         @endif

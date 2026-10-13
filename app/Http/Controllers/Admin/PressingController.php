@@ -11,11 +11,12 @@ use Illuminate\View\View;
 class PressingController extends Controller
 {
     /**
-     * Display a listing of the pressings.
+     * Display a listing of the pressings / wash stations.
      */
     public function index(Request $request): View
     {
         $search = $request->query('q');
+        $type = $request->query('type_activite');
 
         $pressings = Pressing::query()
             ->when($search, function ($query, $search) {
@@ -24,7 +25,10 @@ class PressingController extends Controller
                     ->orWhere('quartier', 'like', "%{$search}%")
                     ->orWhere('telephone', 'like', "%{$search}%");
             })
-            ->withCount(['users', 'services', 'factures'])
+            ->when($type, function ($query, $type) {
+                $query->where('type_activite', $type);
+            })
+            ->withCount(['users', 'services', 'factures', 'laveurs'])
             ->orderBy('nom')
             ->paginate(15)
             ->withQueryString();
@@ -32,6 +36,7 @@ class PressingController extends Controller
         return view('admin.pressings.index', [
             'pressings' => $pressings,
             'search' => $search,
+            'selectedType' => $type,
         ]);
     }
 
@@ -53,12 +58,15 @@ class PressingController extends Controller
             'ville' => ['required', 'string', 'max:255'],
             'quartier' => ['required', 'string', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:50'],
+            'type_activite' => ['nullable', 'string', 'in:pressing,lavage'],
         ]);
+
+        $validated['type_activite'] = $validated['type_activite'] ?? 'pressing';
 
         Pressing::create($validated);
 
         return redirect()->route('admin.pressings.index')
-            ->with('status', 'Agence de pressing créée avec succès.');
+            ->with('status', 'Établissement créé avec succès.');
     }
 
     /**
@@ -81,12 +89,15 @@ class PressingController extends Controller
             'ville' => ['required', 'string', 'max:255'],
             'quartier' => ['required', 'string', 'max:255'],
             'telephone' => ['nullable', 'string', 'max:50'],
+            'type_activite' => ['nullable', 'string', 'in:pressing,lavage'],
         ]);
+
+        $validated['type_activite'] = $validated['type_activite'] ?? ($pressing->type_activite ?? 'pressing');
 
         $pressing->update($validated);
 
         return redirect()->route('admin.pressings.index')
-            ->with('status', 'Agence de pressing mise à jour avec succès.');
+            ->with('status', 'Établissement mis à jour avec succès.');
     }
 
     /**
@@ -96,13 +107,13 @@ class PressingController extends Controller
     {
         if ($pressing->factures()->exists()) {
             return back()->withErrors([
-                'error' => 'Impossible de supprimer cette agence car elle possède des factures enregistrées.',
+                'error' => 'Impossible de supprimer cet établissement car des factures y sont rattachées.',
             ]);
         }
 
         $pressing->delete();
 
         return redirect()->route('admin.pressings.index')
-            ->with('status', 'Agence supprimée avec succès.');
+            ->with('status', 'Établissement supprimé avec succès.');
     }
 }

@@ -1,3 +1,7 @@
+@php
+    $whatsApp = app(\App\Services\WhatsAppNotificationService::class);
+    $whatsappUrl = $whatsApp->urlDepot($facture);
+@endphp
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -5,7 +9,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket {{ $facture->num_ticket }}</title>
     <style>
-        /* Modern CSS Reset for 80mm POS Thermal Roll Printers */
+        /* Format strict pour imprimante thermique 80mm */
         @page {
             size: 80mm auto;
             margin: 0;
@@ -21,14 +25,14 @@
             font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
             color: #000000;
-            background-color: #f1f5f9;
+            background-color: #f4f4f5;
             margin: 0;
             padding: 0;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
         }
 
-        /* Screen Toolbar (Screen only) */
+        /* Barre d'outils écran (Monochrome strict, masquée à l'impression) */
         .toolbar-wrapper {
             max-width: 480px;
             margin: 16px auto 12px;
@@ -44,7 +48,7 @@
             background: #ffffff;
             padding: 8px 12px;
             border-radius: 12px;
-            border: 1px solid #e2e8f0;
+            border: 1px solid #e4e4e7;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
         }
 
@@ -52,6 +56,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            gap: 6px;
             padding: 6px 12px;
             text-decoration: none;
             font-size: 11px;
@@ -63,41 +68,50 @@
         }
 
         .btn-print {
-            background: #4f46e5;
+            background: #000000;
             color: #ffffff;
             flex: 1;
         }
 
         .btn-print:hover {
-            background: #4338ca;
+            background: #27272a;
+        }
+
+        .btn-whatsapp {
+            background: #27272a;
+            color: #ffffff;
+        }
+
+        .btn-whatsapp:hover {
+            background: #000000;
         }
 
         .btn-back {
-            background: #f8fafc;
-            color: #334155;
-            border: 1px solid #cbd5e1;
+            background: #f4f4f5;
+            color: #18181b;
+            border: 1px solid #d4d4d8;
         }
 
         .btn-back:hover {
-            background: #e2e8f0;
+            background: #e4e4e7;
         }
 
         .print-tip {
             margin-top: 8px;
             font-size: 10px;
-            color: #64748b;
+            color: #71717a;
             text-align: center;
             line-height: 1.3;
         }
 
-        /* 80mm Thermal Receipt Simulation Container */
+        /* Simulation Rouleau Thermique 80mm */
         .ticket-wrapper {
             width: 80mm;
             max-width: 80mm;
             margin: 0 auto 24px;
             background: #ffffff;
             padding: 4mm 3mm;
-            border: 1px solid #cbd5e1;
+            border: 1px solid #d4d4d8;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             border-radius: 4px;
         }
@@ -192,7 +206,7 @@
             line-height: 1.3;
         }
 
-        /* Strict Thermal Print Media Override */
+        /* Strict Thermal Print Media Override (Format 80mm, pas de marges, nom du laveur JAMAIS visible) */
         @media print {
             @page {
                 size: 80mm auto;
@@ -224,23 +238,37 @@
     </style>
 </head>
 <body>
-    <!-- Screen Actions & POS Printer Guidance -->
+    <!-- Screen Actions Toolbar (Zero emoji, monochrome) -->
     <div class="toolbar-wrapper">
         <div class="toolbar">
-            <a href="{{ route('caisse.dashboard') }}" class="btn btn-back">&larr; Caisse</a>
-            <button onclick="window.print()" class="btn btn-print">🖨️ Imprimer Reçu (POS 80mm)</button>
+            <a href="{{ route('caisse.dashboard') }}" class="btn btn-back">
+                &larr; Caisse
+            </a>
+            <button onclick="window.print()" class="btn btn-print">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                </svg>
+                <span>Imprimer Reçu (POS 80mm)</span>
+            </button>
+            <a href="{{ $whatsappUrl }}" target="_blank" class="btn btn-whatsapp" title="Envoyer par WhatsApp au client">
+                <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+                <span>WhatsApp</span>
+            </a>
             <a href="{{ route('caisse.depot') }}" class="btn btn-back">+ Nouveau</a>
         </div>
         <div class="print-tip">
-            💡 <strong>Note POS Thermal :</strong> Dans la fenêtre d'impression, sélectionnez votre imprimante thermique 80mm (ou format rouleau Ticket) pour un dévidage direct sans marges A4.
+            Impression thermique POS 80mm &bull; Le dévidage s'exécute directement sur rouleau ticket.
         </div>
     </div>
 
     <!-- 80mm Thermal Ticket Roll -->
     <div class="ticket-wrapper">
-        <!-- En-tête de l'Agence -->
+        <!-- En-tête de l'Établissement -->
         <div class="center">
             <div class="title bold">{{ strtoupper($facture->pressing->nom) }}</div>
+            <div>{{ $facture->pressing->isLavage() ? 'STATION DE LAVAGE AUTO / MOTO' : 'PRESSING & BLANCHISSERIE' }}</div>
             <div>{{ $facture->pressing->quartier }}, {{ $facture->pressing->ville }}</div>
             @if($facture->pressing->telephone)
                 <div>Tél : {{ $facture->pressing->telephone }}</div>
@@ -254,25 +282,31 @@
 
         <!-- Informations Client & Date -->
         <div class="info-row">
-            <span>Dépôt le :</span>
+            <span>Date :</span>
             <span class="bold">{{ $facture->created_at->format('d/m/Y H:i') }}</span>
         </div>
         <div class="info-row">
             <span>Client :</span>
-            <span class="bold">{{ $facture->client_nom ?? 'Client de passage' }}</span>
+            <span class="bold">{{ $facture->client_nom ?? ($facture->client?->nom ?? 'Client de passage') }}</span>
         </div>
         <div class="info-row">
             <span>Téléphone :</span>
-            <span class="bold">{{ $facture->client_telephone ?? 'Non renseigné' }}</span>
+            <span class="bold">{{ $facture->client_telephone ?? ($facture->client?->telephone ?? 'Non renseigné') }}</span>
         </div>
+        @if($facture->vehicule)
+        <div class="info-row">
+            <span>Véhicule :</span>
+            <span class="bold">{{ $facture->vehicule->immatriculation }} ({{ $facture->vehicule->marque_modele }})</span>
+        </div>
+        @endif
         @if($facture->client_email)
         <div class="info-row">
             <span>Email :</span>
-            <span class="bold">{{ $facture->client_email }}</span>
+            <span>{{ $facture->client_email }}</span>
         </div>
         @endif
         <div class="info-row">
-            <span>Caissier :</span>
+            <span>Guichetier :</span>
             <span>{{ $facture->user->name }}</span>
         </div>
         <div class="info-row">
@@ -280,13 +314,15 @@
             <span class="bold">{{ $facture->date_retrait_prevue ? $facture->date_retrait_prevue->format('d/m/Y') : 'À convenir' }}</span>
         </div>
 
+        <!-- IMPORTANT : Conformément aux exigences strictes, le nom du laveur n'apparaît JAMAIS sur ce ticket client -->
+
         <div class="divider"></div>
 
         <!-- Détail des Articles / Prestations -->
         <table class="items-table">
             <thead>
                 <tr>
-                    <th style="width: 45%;">Article</th>
+                    <th style="width: 45%;">Prestation</th>
                     <th style="width: 15%;" class="text-center">Qté</th>
                     <th style="width: 20%;" class="text-right">P.U</th>
                     <th style="width: 20%;" class="text-right">Total</th>
@@ -295,7 +331,7 @@
             <tbody>
                 @foreach($facture->ligneFactures as $ligne)
                     <tr>
-                        <td class="bold">{{ $ligne->service ? $ligne->service->designation : 'Article' }}</td>
+                        <td class="bold">{{ $ligne->service ? $ligne->service->designation : 'Prestation' }}</td>
                         <td class="text-center">{{ $ligne->quantite }}</td>
                         <td class="text-right">{{ number_format((float) $ligne->prix_applique, 0, ',', ' ') }}</td>
                         <td class="text-right bold">{{ number_format((float) ($ligne->quantite * $ligne->prix_applique), 0, ',', ' ') }}</td>
@@ -329,9 +365,9 @@
             <div class="bold" style="text-transform: uppercase; margin-bottom: 3px;">
                 PAIEMENT À 100% LORS DU RETRAIT DE VOS ARTICLES.
             </div>
-            <div>Gardez précieusement ce ticket pour le retrait.</div>
+            <div>Présentez ce ticket lors de la récupération.</div>
             <div style="margin-top: 3px;">Merci pour votre fidélité !</div>
-            <div style="font-size: 8px; margin-top: 4px;">PRESSINGAPP &bull; {{ date('d/m/Y H:i') }}</div>
+            <div style="font-size: 8px; margin-top: 4px;">ERP SUITE &bull; {{ date('d/m/Y H:i') }}</div>
         </div>
     </div>
 

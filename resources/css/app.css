@@ -1,9 +1,32 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+/* Règle globale stricte : les inputs en mode sombre restent noirs avec texte blanc visible */
+.dark input,
+.dark select,
+.dark textarea {
+    color-scheme: dark !important;
+}
+
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus {
+    background-color: #09090b !important;
+    color: #ffffff !important;
+    border-color: #ffffff !important;
+    outline: none !important;
+}
+
+.dark input::placeholder,
+.dark textarea::placeholder {
+    color: #71717a !important;
 }

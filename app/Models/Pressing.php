@@ -20,10 +20,27 @@ class Pressing extends Model
         'ville',
         'quartier',
         'telephone',
+        'type_activite',
     ];
 
     /**
-     * Get the users associated with the pressing.
+     * Check if the establishment is a laundry / pressing service.
+     */
+    public function isPressing(): bool
+    {
+        return ($this->type_activite ?? 'pressing') === 'pressing';
+    }
+
+    /**
+     * Check if the establishment is a vehicle wash station.
+     */
+    public function isLavage(): bool
+    {
+        return ($this->type_activite ?? 'pressing') === 'lavage';
+    }
+
+    /**
+     * Get the users associated with the establishment.
      *
      * @return HasMany<User, $this>
      */
@@ -33,7 +50,17 @@ class Pressing extends Model
     }
 
     /**
-     * Get the services offered by the pressing.
+     * Get the washers associated with this establishment.
+     *
+     * @return HasMany<Laveur, $this>
+     */
+    public function laveurs(): HasMany
+    {
+        return $this->hasMany(Laveur::class);
+    }
+
+    /**
+     * Get the services offered by the establishment.
      *
      * @return HasMany<Service, $this>
      */
@@ -43,7 +70,7 @@ class Pressing extends Model
     }
 
     /**
-     * Get the factures created for the pressing.
+     * Get the factures created for the establishment.
      *
      * @return HasMany<Facture, $this>
      */
