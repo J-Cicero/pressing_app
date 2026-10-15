@@ -132,23 +132,32 @@
                 <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Chiffre d'affaires généré</p>
             </div>
 
-            <div class="bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 p-4 rounded-2xl border border-zinc-900 dark:border-zinc-200 shadow-xs space-y-1">
-                <span class="text-[10px] font-bold uppercase tracking-wider opacity-75">Salaires & Commissions Dûs</span>
-                <div class="text-2xl font-black font-mono">{{ number_format($totalMoisCommissions, 0, ',', ' ') }} <span class="text-xs">FCFA</span></div>
-                <p class="text-[11px] opacity-75">Total à débourser aux laveurs</p>
+            <div class="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Commissions Totales Calculées</span>
+                <div class="text-2xl font-black font-mono text-zinc-950 dark:text-white">{{ number_format($totalMoisCommissions, 0, ',', ' ') }} <span class="text-xs">FCFA</span></div>
+                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Montant théorique du mois</p>
             </div>
 
-            <div class="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs space-y-1">
-                <span class="text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">Marge Brute Stations</span>
-                <div class="text-2xl font-black font-mono text-zinc-950 dark:text-white">{{ number_format($totalMoisPartStation, 0, ',', ' ') }} <span class="text-xs">FCFA</span></div>
-                <p class="text-[11px] text-zinc-500 dark:text-zinc-400">Part restante de l'agence</p>
+            <div class="bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 p-4 rounded-2xl border border-zinc-900 dark:border-zinc-200 shadow-xs space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider opacity-75">Reste à Verser aux Laveurs</span>
+                <div class="text-2xl font-black font-mono">{{ number_format($totalMoisResteDu, 0, ',', ' ') }} <span class="text-xs">FCFA</span></div>
+                <p class="text-[11px] opacity-75">
+                    @if($totalMoisResteDu == 0 && $totalMoisCommissions > 0)
+                        &bull; Tous les salaires du mois sont soldés
+                    @else
+                        Total restant à régler en espèces
+                    @endif
+                </p>
             </div>
         </div>
 
         <!-- Monthly Breakdown Table -->
         <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs overflow-hidden">
             <div class="p-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-950 dark:text-white">Décompte Individuel de Fin de Mois par Laveur</h3>
+                <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-zinc-950 dark:text-white">Décompte Individuel & Émargement des Salaires de Fin de Mois</h3>
+                    <p class="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Cliquez sur « Valider le paiement » une fois le salaire remis physiquement en espèces pour remettre le solde à zéro.</p>
+                </div>
                 <span class="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono">{{ count($recapLaveurs) }} laveur(s) actif(s)</span>
             </div>
             <div class="overflow-x-auto">
@@ -157,10 +166,13 @@
                         <tr class="bg-zinc-50 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-semibold">
                             <th class="py-3 px-6">Laveur</th>
                             <th class="py-3 px-6">Station de rattachement</th>
-                            <th class="py-3 px-6">Règle de Rémunération</th>
-                            <th class="py-3 px-6 text-center">Lavages du Mois</th>
+                            <th class="py-3 px-6">Règle</th>
+                            <th class="py-3 px-6 text-center">Lavages</th>
                             <th class="py-3 px-6 text-right">CA Réalisé</th>
-                            <th class="py-3 px-6 text-right font-black">Net à Verser (FCFA)</th>
+                            <th class="py-3 px-6 text-right font-bold">Total Dû (FCFA)</th>
+                            <th class="py-3 px-6 text-center">État Règlement</th>
+                            <th class="py-3 px-6 text-right font-black">Reste à Payer</th>
+                            <th class="py-3 px-6 text-right">Action (Paiement physique)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
@@ -172,12 +184,13 @@
                                 </td>
                                 <td class="py-3.5 px-6 text-zinc-700 dark:text-zinc-300">
                                     <span class="font-semibold">{{ $row['laveur']->pressing->nom ?? '—' }}</span>
+                                    <span class="text-[10px] text-zinc-400">({{ $row['laveur']->pressing->isLavage() ? 'Lavage' : 'Pressing' }})</span>
                                 </td>
                                 <td class="py-3.5 px-6 text-zinc-700 dark:text-zinc-300">
                                     @if($row['laveur']->type_remuneration === 'pourcentage')
-                                        <span class="font-mono font-bold">{{ number_format($row['laveur']->valeur_remuneration, 0) }}%</span> du montant
+                                        <span class="font-mono font-bold">{{ number_format($row['laveur']->valeur_remuneration, 0) }}%</span>
                                     @else
-                                        <span class="font-mono font-bold">{{ number_format($row['laveur']->valeur_remuneration, 0, ',', ' ') }} FCFA</span> / véhicule
+                                        <span class="font-mono font-bold">{{ number_format($row['laveur']->valeur_remuneration, 0, ',', ' ') }} F</span> / vh
                                     @endif
                                 </td>
                                 <td class="py-3.5 px-6 text-center font-mono">
@@ -188,14 +201,84 @@
                                 <td class="py-3.5 px-6 text-right font-mono text-zinc-800 dark:text-zinc-200">
                                     {{ number_format($row['ca_genere'], 0, ',', ' ') }} FCFA
                                 </td>
-                                <td class="py-3.5 px-6 text-right font-mono font-black text-xs text-zinc-950 dark:text-white">
+                                <td class="py-3.5 px-6 text-right font-mono font-bold text-zinc-900 dark:text-zinc-100">
                                     {{ number_format($row['commission_due'], 0, ',', ' ') }} FCFA
+                                </td>
+                                <td class="py-3.5 px-6 text-center whitespace-nowrap">
+                                    @if($row['est_paye'])
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-zinc-900 text-white dark:bg-white dark:text-zinc-950">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-white dark:bg-zinc-950"></span>
+                                            <span>Soldé en espèces</span>
+                                        </span>
+                                        @if($row['paiement']?->date_paiement)
+                                            <div class="text-[9px] font-mono text-zinc-400 mt-0.5">le {{ \Carbon\Carbon::parse($row['paiement']->date_paiement)->format('d/m/Y') }}</div>
+                                        @endif
+                                    @else
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                                            <span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                                            <span>En attente</span>
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-6 text-right font-mono font-black text-xs {{ $row['reste_a_payer'] == 0 ? 'text-zinc-400 dark:text-zinc-500' : 'text-zinc-950 dark:text-white' }}">
+                                    @if($row['est_paye'])
+                                        <span class="text-zinc-400 dark:text-zinc-500">0 FCFA</span>
+                                    @else
+                                        <span>{{ number_format($row['reste_a_payer'], 0, ',', ' ') }} FCFA</span>
+                                    @endif
+                                </td>
+                                <td class="py-3.5 px-6 text-right whitespace-nowrap">
+                                    @if($row['est_paye'])
+                                        <form method="POST" action="{{ route('admin.laveurs.annuler-paiement', $row['laveur']) }}" class="inline-block">
+                                            @csrf
+                                            <input type="hidden" name="mois" value="{{ $selectedMois }}">
+                                            <button
+                                                type="button"
+                                                onclick="showConfirmModal({
+                                                    title: 'Annuler le règlement de salaire',
+                                                    message: 'Confirmez-vous l\'annulation du paiement de {{ $row['laveur']->nom }} pour le mois de {{ \Carbon\Carbon::parse($selectedMois . '-01')->translatedFormat('F Y') }} ? Le salaire repassera en attente.',
+                                                    confirmText: 'Confirmer l\'annulation',
+                                                    type: 'danger',
+                                                    form: this.closest('form')
+                                                })"
+                                                class="px-2.5 py-1 text-[10px] font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white underline transition cursor-pointer"
+                                            >
+                                                Annuler émargement
+                                            </button>
+                                        </form>
+                                    @else
+                                        @if($row['commission_due'] > 0)
+                                            <form method="POST" action="{{ route('admin.laveurs.paiement', $row['laveur']) }}" class="inline-block">
+                                                @csrf
+                                                <input type="hidden" name="mois" value="{{ $selectedMois }}">
+                                                <input type="hidden" name="montant" value="{{ $row['commission_due'] }}">
+                                                <button
+                                                    type="button"
+                                                    onclick="showConfirmModal({
+                                                        title: 'Valider le paiement physique en espèces',
+                                                        message: 'Confirmez-vous le versement physique de {{ number_format($row['commission_due'], 0, ',', ' ') }} FCFA en espèces à {{ addslashes($row['laveur']->nom) }} pour le mois de {{ \Carbon\Carbon::parse($selectedMois . '-01')->translatedFormat('F Y') }} ? Le montant dû sera remis à zéro.',
+                                                        confirmText: 'Valider et solder le mois',
+                                                        type: 'info',
+                                                        form: this.closest('form')
+                                                    })"
+                                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black font-bold text-[11px] rounded-lg transition shadow-xs cursor-pointer"
+                                                >
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                    </svg>
+                                                    <span>Marquer payé en espèces</span>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <span class="text-[10px] text-zinc-400 italic">Aucune commission</span>
+                                        @endif
+                                    @endif
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="py-8 text-center text-xs text-zinc-500">
-                                    Aucun lavage enregistré pour ce mois.
+                                <td colspan="9" class="py-8 text-center text-xs text-zinc-500">
+                                    Aucun laveur enregistré ou aucun lavage ce mois.
                                 </td>
                             </tr>
                         @endforelse

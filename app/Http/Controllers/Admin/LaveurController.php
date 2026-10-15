@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Laveur;
+use App\Models\PaiementLaveur;
 use App\Models\Pressing;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class LaveurController extends Controller
@@ -41,10 +43,16 @@ class LaveurController extends Controller
             ->withQueryString();
 
         $recapLaveurs = Laveur::query()
-            ->with(['pressing', 'factures' => function ($q) use ($year, $month) {
-                $q->whereYear('created_at', (int) $year)
-                    ->whereMonth('created_at', (int) $month);
-            }])
+            ->with([
+                'pressing',
+                'factures' => function ($q) use ($year, $month) {
+                    $q->whereYear('created_at', (int) $year)
+                        ->whereMonth('created_at', (int) $month);
+                },
+                'paiements' => function ($q) use ($selectedMois) {
+                    $q->where('mois', $selectedMois);
+                },
+            ])
             ->when($pressingId, fn ($q) => $q->where('pressing_id', $pressingId))
             ->where('actif', true)
             ->orderBy('nom')
@@ -53,6 +61,10 @@ class LaveurController extends Controller
                 $nbLavages = $laveur->factures->count();
                 $caGenere = (float) $laveur->factures->sum('montant_total');
                 $commissionDue = (float) $laveur->factures->sum(fn ($f) => $laveur->calculerCommission($f));
+                $paiement = $laveur->paiements->first();
+                $estPaye = $paiement !== null && $paiement->statut === 'paye';
+                $montantVerse = $paiement ? (float) $paiement->montant_paye : 0.0;
+                $resteAPayer = $estPaye ? 0.0 : max(0.0, $commissionDue - $montantVerse);
 
                 return [
                     'laveur' => $laveur,
@@ -60,12 +72,18 @@ class LaveurController extends Controller
                     'ca_genere' => $caGenere,
                     'commission_due' => $commissionDue,
                     'part_station' => $caGenere - $commissionDue,
+                    'paiement' => $paiement,
+                    'est_paye' => $estPaye,
+                    'montant_verse' => $montantVerse,
+                    'reste_a_payer' => $resteAPayer,
                 ];
             });
 
         $totalMoisLavages = $recapLaveurs->sum('nb_lavages');
         $totalMoisCa = $recapLaveurs->sum('ca_genere');
         $totalMoisCommissions = $recapLaveurs->sum('commission_due');
+        $totalMoisPaye = $recapLaveurs->sum('montant_verse');
+        $totalMoisResteDu = $recapLaveurs->sum('reste_a_payer');
         $totalMoisPartStation = $totalMoisCa - $totalMoisCommissions;
 
         $pressings = Pressing::orderBy('type_activite')->orderBy('nom')->get();
@@ -80,6 +98,8 @@ class LaveurController extends Controller
             'totalMoisLavages' => $totalMoisLavages,
             'totalMoisCa' => $totalMoisCa,
             'totalMoisCommissions' => $totalMoisCommissions,
+            'totalMoisPaye' => $totalMoisPaye,
+            'totalMoisResteDu' => $totalMoisResteDu,
             'totalMoisPartStation' => $totalMoisPartStation,
         ]);
     }
@@ -168,5 +188,55 @@ class LaveurController extends Controller
 
         return redirect()->route('admin.laveurs.index')
             ->with('status', 'Laveur supprimé.');
+    }
+
+    /**
+     * Enregistrer le règlement physique (en espèces) du salaire d'un laveur pour un mois précis.
+     */
+    public function enregistrerPaiement(Request $request, Laveur $laveur): RedirectResponse
+    {
+        $validated = $request->validate([
+            'mois' => ['required', 'regex:/^\d{4}-\d{2}$/'],
+            'montant' => ['nullable', 'numeric', 'min:0'],
+            'notes' => ['nullable', 'string', 'max:255'],
+        ]);
+
+        $mois = $validated['mois'];
+        $commissionTotale = $laveur->totalCommissionMois($mois);
+        $montantVerse = isset($validated['montant']) && $validated['montant'] !== null
+            ? (float) $validated['montant']
+            : $commissionTotale;
+
+        PaiementLaveur::updateOrCreate(
+            ['laveur_id' => $laveur->id, 'mois' => $mois],
+            [
+                'montant_total' => $commissionTotale,
+                'montant_paye' => $montantVerse,
+                'statut' => 'paye',
+                'mode_paiement' => 'especes',
+                'date_paiement' => now()->toDateString(),
+                'paye_par_user_id' => Auth::id(),
+                'notes' => $validated['notes'] ?? 'Paiement physique en espèces remis en mains propres.',
+            ]
+        );
+
+        return back()->with('status', "Le salaire de {$laveur->nom} pour le mois {$mois} a été marqué comme réglé en espèces (reste remis à 0 FCFA).");
+    }
+
+    /**
+     * Annuler le règlement d'un salaire (remise en attente).
+     */
+    public function annulerPaiement(Request $request, Laveur $laveur): RedirectResponse
+    {
+        $validated = $request->validate([
+            'mois' => ['required', 'regex:/^\d{4}-\d{2}$/'],
+        ]);
+
+        $mois = $validated['mois'];
+        PaiementLaveur::where('laveur_id', $laveur->id)
+            ->where('mois', $mois)
+            ->delete();
+
+        return back()->with('status', "Le règlement du salaire de {$laveur->nom} pour le mois {$mois} a été réinitialisé.");
     }
 }

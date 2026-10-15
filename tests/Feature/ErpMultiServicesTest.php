@@ -329,4 +329,83 @@ class ErpMultiServicesTest extends TestCase
         $responseUsers->assertOk();
         $responseUsers->assertViewHas('selectedPressingId', (string) $station->id);
     }
+
+    public function test_admin_can_record_physical_cash_payment_and_reset_washer_balance_to_zero(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $station = Pressing::create([
+            'nom' => 'Station Settlement Test',
+            'ville' => 'Lomé',
+            'quartier' => 'Tokoin',
+            'type_activite' => 'lavage',
+        ]);
+
+        $laveur = Laveur::create([
+            'pressing_id' => $station->id,
+            'nom' => 'Yao Paye',
+            'telephone' => '91223344',
+            'type_remuneration' => 'forfait',
+            'valeur_remuneration' => 1000, // 1000 FCFA / lavage
+            'actif' => true,
+        ]);
+
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $station->id]);
+
+        // Create 3 washes in October 2026 => 3 000 FCFA
+        for ($i = 1; $i <= 3; $i++) {
+            $f = Facture::create([
+                'pressing_id' => $station->id,
+                'user_id' => $caissier->id,
+                'laveur_id' => $laveur->id,
+                'num_ticket' => 'TCK-PAY-0'.$i,
+                'client_nom' => 'Client Pay '.$i,
+                'montant_total' => 4000,
+                'statut' => 'paye_retire',
+            ]);
+            $f->created_at = Carbon::parse('2026-10-10 10:00:00');
+            $f->save();
+        }
+
+        // Before payment: due = 3000, reste = 3000, estPaye = false
+        $this->assertEquals(3000, $laveur->totalCommissionMois('2026-10'));
+        $this->assertEquals(3000, $laveur->resteAPayerMois('2026-10'));
+        $this->assertFalse($laveur->estPayeMois('2026-10'));
+
+        // Admin records physical cash payment
+        $response = $this->actingAs($admin)->post(route('admin.laveurs.paiement', $laveur), [
+            'mois' => '2026-10',
+            'montant' => 3000,
+            'notes' => 'Remis en mains propres en espèces',
+        ]);
+
+        $response->assertSessionHas('status');
+        $this->assertDatabaseHas('paiements_laveurs', [
+            'laveur_id' => $laveur->id,
+            'mois' => '2026-10',
+            'montant_paye' => 3000,
+            'statut' => 'paye',
+            'mode_paiement' => 'especes',
+        ]);
+
+        // After payment: reste is reset to 0 FCFA!
+        $laveur->refresh();
+        $this->assertTrue($laveur->estPayeMois('2026-10'));
+        $this->assertEquals(0, $laveur->resteAPayerMois('2026-10'));
+
+        // Admin can cancel settlement if needed
+        $cancelResponse = $this->actingAs($admin)->post(route('admin.laveurs.annuler-paiement', $laveur), [
+            'mois' => '2026-10',
+        ]);
+
+        $cancelResponse->assertSessionHas('status');
+        $this->assertDatabaseMissing('paiements_laveurs', [
+            'laveur_id' => $laveur->id,
+            'mois' => '2026-10',
+        ]);
+
+        $laveur->refresh();
+        $this->assertFalse($laveur->estPayeMois('2026-10'));
+        $this->assertEquals(3000, $laveur->resteAPayerMois('2026-10'));
+    }
 }

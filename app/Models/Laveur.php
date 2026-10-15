@@ -124,4 +124,51 @@ class Laveur extends Model
 
         return (float) $factures->sum(fn (Facture $f) => $this->calculerCommission($f));
     }
+
+    /**
+     * Get the monthly payments recorded for this washer.
+     *
+     * @return HasMany<PaiementLaveur, $this>
+     */
+    public function paiements(): HasMany
+    {
+        return $this->hasMany(PaiementLaveur::class);
+    }
+
+    /**
+     * Get payment settlement record for a specific month.
+     */
+    public function paiementMois(string $anneeMois): ?PaiementLaveur
+    {
+        return $this->paiements()->where('mois', $anneeMois)->first();
+    }
+
+    /**
+     * Check if the washer's salary for a given month has been paid physically.
+     */
+    public function estPayeMois(string $anneeMois): bool
+    {
+        $paiement = $this->paiementMois($anneeMois);
+
+        return $paiement !== null && $paiement->statut === 'paye';
+    }
+
+    /**
+     * Calculate the remaining balance to pay for a given month (0 if settled).
+     */
+    public function resteAPayerMois(string $anneeMois): float
+    {
+        if ($this->estPayeMois($anneeMois)) {
+            return 0.0;
+        }
+
+        $totalDu = $this->totalCommissionMois($anneeMois);
+        $paiement = $this->paiementMois($anneeMois);
+
+        if ($paiement) {
+            return max(0.0, $totalDu - (float) $paiement->montant_paye);
+        }
+
+        return $totalDu;
+    }
 }

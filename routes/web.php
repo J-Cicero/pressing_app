@@ -61,8 +61,10 @@ Route::middleware('auth')->group(function () {
         // Règles de Fidélité Paramétrables
         Route::resource('fidelite', RegleFideliteController::class)->parameters(['fidelite' => 'regle'])->except(['show']);
 
-        // Gestion des Laveurs (Personnel de Terrain)
+        // Gestion des Laveurs (Personnel de Terrain) & Décompte des Salaires
         Route::resource('laveurs', LaveurController::class)->except(['show']);
+        Route::post('/laveurs/{laveur}/paiement', [LaveurController::class, 'enregistrerPaiement'])->name('laveurs.paiement');
+        Route::post('/laveurs/{laveur}/annuler-paiement', [LaveurController::class, 'annulerPaiement'])->name('laveurs.annuler-paiement');
 
         // Module Rappels Échéances Véhicules (Visite Technique & Assurance)
         Route::get('/vehicules/echeances', [VehiculeController::class, 'echeances'])->name('vehicules.echeances');
