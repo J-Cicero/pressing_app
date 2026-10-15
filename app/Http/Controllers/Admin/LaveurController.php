@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Facture;
 use App\Models\Laveur;
 use App\Models\PaiementLaveur;
 use App\Models\Pressing;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -136,6 +138,82 @@ class LaveurController extends Controller
 
         return redirect()->route('admin.laveurs.index')
             ->with('status', 'Laveur enregistré avec succès.');
+    }
+
+    /**
+     * Display the specified washer profile and monthly payroll history.
+     */
+    public function show(Laveur $laveur): View
+    {
+        $laveur->load('pressing');
+
+        // All-time factures grouped by year-month for complete history
+        $facturesParMois = $laveur->factures()
+            ->orderByDesc('created_at')
+            ->get()
+            ->groupBy(fn ($f) => $f->created_at->format('Y-m'));
+
+        $paiementsParMois = $laveur->paiements()
+            ->with('payePar')
+            ->get()
+            ->keyBy('mois');
+
+        // All distinct months with activity or payment, plus current month
+        $tousLesMois = $facturesParMois->keys()
+            ->merge($paiementsParMois->keys())
+            ->push(now()->format('Y-m'))
+            ->unique()
+            ->sortDesc()
+            ->values();
+
+        $historiqueMois = $tousLesMois->map(function (string $mois) use ($laveur, $facturesParMois, $paiementsParMois) {
+            $factures = $facturesParMois->get($mois, collect());
+            $nbLavages = $factures->count();
+            $caGenere = (float) $factures->sum('montant_total');
+            $commissionDue = (float) $factures->sum(fn (Facture $f) => $laveur->calculerCommission($f));
+
+            $paiement = $paiementsParMois->get($mois);
+            $estPaye = $paiement !== null && $paiement->statut === 'paye';
+            $montantVerse = $paiement ? (float) $paiement->montant_paye : 0.0;
+            $resteAPayer = $estPaye ? 0.0 : max(0.0, $commissionDue - $montantVerse);
+
+            return [
+                'mois' => $mois,
+                'mois_formate' => Carbon::parse($mois.'-01')->translatedFormat('F Y'),
+                'nb_lavages' => $nbLavages,
+                'ca_genere' => $caGenere,
+                'commission_due' => $commissionDue,
+                'est_paye' => $estPaye,
+                'montant_verse' => $montantVerse,
+                'reste_a_payer' => $resteAPayer,
+                'paiement' => $paiement,
+            ];
+        });
+
+        // Global metrics across all history
+        $totalLavages = $laveur->factures()->count();
+        $totalCaGenere = (float) $laveur->factures()->sum('montant_total');
+        $totalCommissions = (float) $historiqueMois->sum('commission_due');
+        $totalPaye = (float) $historiqueMois->sum('montant_verse');
+        $totalResteDu = (float) $historiqueMois->sum('reste_a_payer');
+
+        // Recent washes handled by this washer
+        $derniersLavages = $laveur->factures()
+            ->with(['client', 'vehicule', 'pressing'])
+            ->latest()
+            ->take(20)
+            ->get();
+
+        return view('admin.laveurs.show', [
+            'laveur' => $laveur,
+            'historiqueMois' => $historiqueMois,
+            'totalLavages' => $totalLavages,
+            'totalCaGenere' => $totalCaGenere,
+            'totalCommissions' => $totalCommissions,
+            'totalPaye' => $totalPaye,
+            'totalResteDu' => $totalResteDu,
+            'derniersLavages' => $derniersLavages,
+        ]);
     }
 
     /**

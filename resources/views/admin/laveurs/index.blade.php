@@ -179,7 +179,12 @@
                         @forelse($recapLaveurs as $row)
                             <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
                                 <td class="py-3.5 px-6 font-bold text-zinc-950 dark:text-white">
-                                    <div>{{ $row['laveur']->nom }}</div>
+                                    <a href="{{ route('admin.laveurs.show', $row['laveur']) }}" class="hover:underline flex items-center gap-1.5 group">
+                                        <span>{{ $row['laveur']->nom }}</span>
+                                        <svg class="w-3 h-3 text-zinc-400 group-hover:text-zinc-950 dark:group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
                                     <div class="text-[10px] font-mono text-zinc-500">{{ $row['laveur']->telephone ?? 'Sans tél.' }}</div>
                                 </td>
                                 <td class="py-3.5 px-6 text-zinc-700 dark:text-zinc-300">
@@ -316,7 +321,12 @@
                         @forelse($laveurs as $laveur)
                             <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition duration-150">
                                 <td class="py-4 px-6 font-bold text-zinc-950 dark:text-white">
-                                    {{ $laveur->nom }}
+                                    <a href="{{ route('admin.laveurs.show', $laveur) }}" class="hover:underline flex items-center gap-1.5 group">
+                                        <span>{{ $laveur->nom }}</span>
+                                        <svg class="w-3 h-3 text-zinc-400 group-hover:text-zinc-950 dark:group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                        </svg>
+                                    </a>
                                 </td>
                                 <td class="py-4 px-6 font-medium text-zinc-800 dark:text-zinc-300">
                                     {{ $laveur->pressing->nom ?? '—' }}
@@ -355,7 +365,15 @@
                                     @endif
                                 </td>
                                 <td class="py-4 px-6 text-right whitespace-nowrap">
-                                    <div class="flex items-center justify-end gap-3">
+                                    <div class="flex items-center justify-end gap-2">
+                                        <a href="{{ route('admin.laveurs.show', $laveur) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-900 text-white dark:bg-white dark:text-zinc-950 hover:opacity-90 transition shadow-xs">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                            </svg>
+                                            <span>Fiche & Salaires</span>
+                                        </a>
+
                                         <a href="{{ route('admin.laveurs.edit', $laveur) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
                                             Modifier
                                         </a>

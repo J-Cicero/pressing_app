@@ -408,4 +408,59 @@ class ErpMultiServicesTest extends TestCase
         $this->assertFalse($laveur->estPayeMois('2026-10'));
         $this->assertEquals(3000, $laveur->resteAPayerMois('2026-10'));
     }
+
+    public function test_admin_can_view_washer_show_profile_and_salary_history(): void
+    {
+        $admin = User::factory()->admin()->create();
+        $station = Pressing::factory()->create(['type_activite' => 'lavage']);
+        $laveur = Laveur::create([
+            'pressing_id' => $station->id,
+            'nom' => 'Koffi Anani',
+            'telephone' => '+228 90 12 34 56',
+            'type_remuneration' => 'pourcentage',
+            'valeur_remuneration' => 30,
+            'actif' => true,
+        ]);
+
+        $uniqueTel = '9'.rand(1000000, 9999999);
+        $uniquePlate = 'TG-'.rand(1000, 9999).'-AX';
+        $uniqueTicket = 'TCK-SHOW-'.rand(1000, 9999);
+
+        $client = Client::create([
+            'nom' => 'Ablanvi Mensah',
+            'telephone' => $uniqueTel,
+        ]);
+
+        $vehicule = Vehicule::create([
+            'client_id' => $client->id,
+            'immatriculation' => $uniquePlate,
+            'marque_modele' => 'Toyota RAV4',
+            'type_vehicule' => '4x4',
+        ]);
+
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $station->id]);
+
+        $facture = Facture::create([
+            'pressing_id' => $station->id,
+            'user_id' => $caissier->id,
+            'client_id' => $client->id,
+            'vehicule_id' => $vehicule->id,
+            'laveur_id' => $laveur->id,
+            'num_ticket' => $uniqueTicket,
+            'client_nom' => $client->nom,
+            'client_telephone' => $client->telephone,
+            'montant_total' => 5000,
+            'statut' => 'paye_retire',
+        ]);
+
+        $response = $this->actingAs($admin)->get(route('admin.laveurs.show', $laveur));
+
+        $response->assertOk();
+        $response->assertSee('Koffi Anani');
+        $response->assertSee('+228 90 12 34 56');
+        $response->assertSee('Historique Mensuel des Salaires');
+        $response->assertSee('Derniers Véhicules Pris en Charge');
+        $response->assertSee($uniqueTicket);
+        $response->assertSee($uniquePlate);
+    }
 }
