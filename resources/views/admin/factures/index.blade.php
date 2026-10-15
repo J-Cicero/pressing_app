@@ -36,7 +36,7 @@
                         type="text"
                         name="q"
                         value="{{ $search }}"
-                        placeholder="Ex: TK-2026-..."
+                        placeholder="N° ticket, client, tél, plaque..."
                         class="w-full px-3.5 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                     >
                 </div>

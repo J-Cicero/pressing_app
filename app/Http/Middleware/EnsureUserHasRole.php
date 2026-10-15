@@ -26,6 +26,10 @@ class EnsureUserHasRole
         }
 
         if (! in_array($user->role, $roles, true)) {
+            if ($user->role === 'caissier' && $request->is('admin/factures*')) {
+                return redirect()->route('caisse.factures.index');
+            }
+
             abort(403, 'Accès non autorisé : rôle insuffisant.');
         }
 

@@ -38,9 +38,10 @@ class DepotController extends Controller
             ->orderBy('designation')
             ->get();
 
-        $laveurs = $pressing->isLavage()
-            ? Laveur::where('pressing_id', $pressing->id)->where('actif', true)->orderBy('nom')->get()
-            : collect();
+        $laveurs = Laveur::where('pressing_id', $pressing->id)
+            ->where('actif', true)
+            ->orderBy('nom')
+            ->get();
 
         return view('caisse.depot', [
             'pressing' => $pressing,
@@ -73,7 +74,7 @@ class DepotController extends Controller
             'laveur_id' => ['nullable', 'exists:laveurs,id'],
             'immatriculation' => ['nullable', 'string', 'max:50'],
             'marque_modele' => ['nullable', 'string', 'max:100'],
-            'type_vehicule' => ['nullable', 'string', 'max:50'],
+            'type_vehicule' => ['nullable', 'string', 'max:100'],
             'date_visite_technique' => ['nullable', 'date'],
             'date_assurance' => ['nullable', 'date'],
         ]);

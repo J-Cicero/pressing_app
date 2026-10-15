@@ -22,7 +22,14 @@ class FactureController extends Controller
         $query = Facture::query()
             ->with(['pressing', 'user', 'ligneFactures.service'])
             ->when($search, function ($q, $search) {
-                $q->where('num_ticket', 'like', "%{$search}%");
+                $q->where(function ($sub) use ($search) {
+                    $sub->where('num_ticket', 'like', "%{$search}%")
+                        ->orWhere('client_nom', 'like', "%{$search}%")
+                        ->orWhere('client_telephone', 'like', "%{$search}%")
+                        ->orWhereHas('vehicule', function ($v) use ($search) {
+                            $v->where('immatriculation', 'like', "%{$search}%");
+                        });
+                });
             })
             ->when($pressingId, function ($q, $pressingId) {
                 $q->where('pressing_id', $pressingId);

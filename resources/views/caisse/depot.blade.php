@@ -209,19 +209,27 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div class="space-y-1.5">
                         <label for="type_vehicule" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                            Catégorie de véhicule
+                            Type / Catégorie de véhicule
                         </label>
-                        <select
+                        <input
+                            type="text"
                             name="type_vehicule"
                             id="type_vehicule"
-                            class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition"
+                            list="types_vehicules_suggestions"
+                            value="{{ old('type_vehicule', 'Moto') }}"
+                            class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                            placeholder="Ex: Moto, Berline, SUV, Tricycle..."
                         >
-                            <option value="voiture" {{ old('type_vehicule') === 'voiture' ? 'selected' : '' }}>Berline / Citadine</option>
-                            <option value="4x4" {{ old('type_vehicule') === '4x4' ? 'selected' : '' }}>4x4 / SUV / Pick-up</option>
-                            <option value="moto" {{ old('type_vehicule') === 'moto' ? 'selected' : '' }}>Moto / Scooter</option>
-                            <option value="minibus" {{ old('type_vehicule') === 'minibus' ? 'selected' : '' }}>Minibus / Fourgon</option>
-                            <option value="camion" {{ old('type_vehicule') === 'camion' ? 'selected' : '' }}>Poids lourd / Camion</option>
-                        </select>
+                        <datalist id="types_vehicules_suggestions">
+                            <option value="Moto">
+                            <option value="Scooter">
+                            <option value="Berline">
+                            <option value="SUV / 4x4">
+                            <option value="Pick-up">
+                            <option value="Tricycle">
+                            <option value="Minibus">
+                            <option value="Camion">
+                        </datalist>
                     </div>
 
                     <div class="space-y-1.5">
@@ -251,14 +259,39 @@
                     </div>
                 </div>
             </div>
+        @elseif($laveurs->isNotEmpty())
+            <!-- Section Spécifique Pressing : Laveur / Opérateur assigné -->
+            <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8 shadow-xs space-y-4">
+                <div class="flex items-center gap-2 text-xs font-bold text-zinc-950 dark:text-white uppercase tracking-wider pb-3 border-b border-zinc-100 dark:border-zinc-800">
+                    <span class="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-xs font-mono">2</span>
+                    <span>Personnel / Opérateur assigné (Lavage & Repassage)</span>
+                </div>
+                <div class="space-y-1.5 max-w-md">
+                    <label for="laveur_id" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                        Opérateur / Laveur en charge <span class="text-zinc-400 font-normal">(Optionnel)</span>
+                    </label>
+                    <select
+                        name="laveur_id"
+                        id="laveur_id"
+                        class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition"
+                    >
+                        <option value="">-- Aucun opérateur assigné --</option>
+                        @foreach($laveurs as $l)
+                            <option value="{{ $l->id }}" {{ old('laveur_id') == $l->id ? 'selected' : '' }}>
+                                {{ $l->nom }} ({{ $l->type_remuneration === 'pourcentage' ? number_format($l->valeur_remuneration, 0) . '%' : number_format($l->valeur_remuneration, 0, ',', ' ') . ' FCFA' }})
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
         @endif
 
-        <!-- Section 2 / 3 : Détail des Prestations -->
+        <!-- Section Détail des Prestations -->
         <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 p-6 sm:p-8 shadow-xs space-y-5">
             <div class="flex items-center justify-between pb-3 border-b border-zinc-100 dark:border-zinc-800">
                 <div class="flex items-center gap-2 text-xs font-bold text-zinc-950 dark:text-white uppercase tracking-wider">
                     <span class="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-xs font-mono">
-                        {{ $pressing->isLavage() ? '3' : '2' }}
+                        {{ ($pressing->isLavage() || $laveurs->isNotEmpty()) ? '3' : '2' }}
                     </span>
                     <span>Prestations Sollicitées</span>
                 </div>

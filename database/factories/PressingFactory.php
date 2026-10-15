@@ -24,6 +24,17 @@ class PressingFactory extends Factory
             'ville' => fake()->city(),
             'quartier' => fake()->streetName(),
             'telephone' => fake()->phoneNumber(),
+            'type_activite' => 'pressing',
         ];
+    }
+
+    /**
+     * Indicate that the pressing is a car/moto wash station.
+     */
+    public function lavage(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'type_activite' => 'lavage',
+        ]);
     }
 }

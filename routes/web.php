@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VehiculeController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Caisse\CaisseClientLookupController;
+use App\Http\Controllers\Caisse\CaisseFactureController;
 use App\Http\Controllers\Caisse\CaisseLaveurController;
 use App\Http\Controllers\Caisse\CaisseVehiculeController;
 use App\Http\Controllers\Caisse\CaissierDashboardController;
@@ -102,5 +103,8 @@ Route::middleware('auth')->group(function () {
 
         // Impression Thermique 80mm
         Route::get('/factures/{facture:num_ticket}/print', [TicketPrintController::class, 'show'])->name('factures.print');
+
+        // Historique & Suivi des Factures de l'agence
+        Route::get('/factures', [CaisseFactureController::class, 'index'])->name('factures.index');
     });
 });

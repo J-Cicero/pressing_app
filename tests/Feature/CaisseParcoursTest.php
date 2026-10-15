@@ -281,4 +281,63 @@ class CaisseParcoursTest extends TestCase
         $responseTicket->assertSee('TCK-20261002-SEARCH1');
         $responseTicket->assertDontSee('TCK-20261002-OTHER');
     }
+
+    public function test_caissier_can_access_caisse_factures_and_search_by_client_or_plate(): void
+    {
+        $pressing = Pressing::factory()->create();
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $pressing->id]);
+
+        $facture = Facture::factory()->create([
+            'pressing_id' => $pressing->id,
+            'user_id' => $caissier->id,
+            'num_ticket' => 'TCK-2026-CAISSE01',
+            'client_nom' => 'Koffi Mensah',
+            'client_telephone' => '90112233',
+        ]);
+
+        $response = $this->actingAs($caissier)->get(route('caisse.factures.index'));
+        $response->assertStatus(200);
+        $response->assertSee('TCK-2026-CAISSE01');
+        $response->assertSee('Koffi Mensah');
+
+        // Search by client name
+        $searchResponse = $this->actingAs($caissier)->get(route('caisse.factures.index', ['q' => 'Mensah']));
+        $searchResponse->assertStatus(200);
+        $searchResponse->assertSee('TCK-2026-CAISSE01');
+    }
+
+    public function test_caissier_accessing_admin_factures_is_redirected_to_caisse_factures(): void
+    {
+        $pressing = Pressing::factory()->create();
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $pressing->id]);
+
+        $response = $this->actingAs($caissier)->get('/admin/factures');
+
+        $response->assertRedirect(route('caisse.factures.index'));
+    }
+
+    public function test_caisse_depot_accepts_custom_free_form_vehicle_type(): void
+    {
+        $pressing = Pressing::factory()->lavage()->create();
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $pressing->id]);
+        $service = Service::factory()->create(['pressing_id' => $pressing->id, 'prix_unitaire' => 1500]);
+
+        $response = $this->actingAs($caissier)->post(route('caisse.depot.store'), [
+            'client_nom' => 'Ablanvi Doe',
+            'client_telephone' => '91223344',
+            'date_retrait_prevue' => now()->addDay()->format('Y-m-d'),
+            'immatriculation' => 'TG-9999-TR',
+            'type_vehicule' => 'Tricycle Électrique',
+            'marque_modele' => 'Bajaj Maxima',
+            'lignes' => [
+                ['service_id' => $service->id, 'quantite' => 1],
+            ],
+        ]);
+
+        $response->assertSessionHasNoErrors();
+        $this->assertDatabaseHas('vehicules', [
+            'immatriculation' => 'TG-9999-TR',
+            'type_vehicule' => 'Tricycle Électrique',
+        ]);
+    }
 }

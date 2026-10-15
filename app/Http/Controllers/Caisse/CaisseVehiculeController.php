@@ -102,7 +102,7 @@ class CaisseVehiculeController extends Controller
             'client_email' => ['nullable', 'email', 'max:255'],
             'immatriculation' => ['required', 'string', 'max:50'],
             'marque_modele' => ['required', 'string', 'max:100'],
-            'type_vehicule' => ['required', 'string', 'in:moto,voiture,4x4,utilitaire,autre'],
+            'type_vehicule' => ['required', 'string', 'max:100'],
             'date_visite_technique' => ['nullable', 'date'],
             'date_assurance' => ['nullable', 'date'],
         ]);
@@ -129,7 +129,7 @@ class CaisseVehiculeController extends Controller
             [
                 'client_id' => $client->id,
                 'marque_modele' => trim($validated['marque_modele']),
-                'type_vehicule' => $validated['type_vehicule'],
+                'type_vehicule' => trim($validated['type_vehicule']),
                 'date_visite_technique' => $validated['date_visite_technique'] ?? null,
                 'date_assurance' => $validated['date_assurance'] ?? null,
             ]
@@ -145,7 +145,7 @@ class CaisseVehiculeController extends Controller
     {
         $validated = $request->validate([
             'marque_modele' => ['nullable', 'string', 'max:100'],
-            'type_vehicule' => ['nullable', 'string', 'in:moto,voiture,4x4,utilitaire,autre'],
+            'type_vehicule' => ['nullable', 'string', 'max:100'],
             'date_visite_technique' => ['nullable', 'date'],
             'date_assurance' => ['nullable', 'date'],
         ]);

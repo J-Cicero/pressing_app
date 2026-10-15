@@ -309,19 +309,27 @@
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                            Catégorie <span class="text-black dark:text-white">*</span>
+                            Type / Catégorie <span class="text-black dark:text-white">*</span>
                         </label>
-                        <select
+                        <input
+                            type="text"
                             name="type_vehicule"
                             required
+                            list="types_vehicules_admin_suggestions"
+                            value="Moto"
+                            placeholder="ex: Moto, Berline, SUV..."
                             class="w-full px-3 py-2 text-xs rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-black dark:focus:ring-white"
                         >
-                            <option value="voiture">Voiture Particulière</option>
-                            <option value="moto">Moto / Deux-roues</option>
-                            <option value="4x4">4x4 / SUV</option>
-                            <option value="utilitaire">Camionnette / Utilitaire</option>
-                            <option value="autre">Autre</option>
-                        </select>
+                        <datalist id="types_vehicules_admin_suggestions">
+                            <option value="Moto">
+                            <option value="Scooter">
+                            <option value="Berline">
+                            <option value="SUV / 4x4">
+                            <option value="Pick-up">
+                            <option value="Tricycle">
+                            <option value="Camionnette">
+                            <option value="Camion">
+                        </datalist>
                     </div>
                 </div>
                 <div>
@@ -421,19 +429,16 @@
 
                 <div>
                     <label class="block text-[11px] font-semibold text-zinc-700 dark:text-zinc-300 mb-1">
-                        Catégorie de véhicule
+                        Type / Catégorie de véhicule
                     </label>
-                    <select
+                    <input
+                        type="text"
                         name="type_vehicule"
                         id="edit_type_vehicule"
+                        list="types_vehicules_admin_suggestions"
+                        placeholder="ex: Moto, Berline, SUV..."
                         class="w-full px-3 py-2 text-xs rounded-xl border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-zinc-900 dark:text-white focus:outline-hidden focus:ring-1 focus:ring-black dark:focus:ring-white"
                     >
-                        <option value="voiture">Voiture Particulière</option>
-                        <option value="moto">Moto / Deux-roues</option>
-                        <option value="4x4">4x4 / SUV</option>
-                        <option value="utilitaire">Camionnette / Utilitaire</option>
-                        <option value="autre">Autre</option>
-                    </select>
                 </div>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
