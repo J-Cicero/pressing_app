@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bienvenue chez {{ $facture->pressing->nom ?? 'PressingApp' }}</title>
+    <title>{{ $facture->isLavage() ? 'Prise en charge de votre véhicule' : 'Dépôt de vos vêtements' }} — {{ $facture->pressing->nom ?? 'ERP' }}</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f4f4f5; -webkit-font-smoothing: antialiased;">
     <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #09090b; padding: 40px 15px;">
@@ -13,15 +13,15 @@
                     
                     <!-- Header Noir/Gris Monochromatique -->
                     <tr>
-                        <td style="background-color: #18181b; padding: 28px 32px; border-b: 1px solid #27272a; text-align: left;">
+                        <td style="background-color: #18181b; padding: 28px 32px; border-bottom: 1px solid #27272a; text-align: left;">
                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                 <tr>
                                     <td>
                                         <div style="font-size: 19px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-transform: uppercase;">
-                                            {{ $facture->pressing->nom ?? 'PRESSING APP' }}
+                                            {{ $facture->pressing->nom ?? 'ERP SUITE' }}
                                         </div>
                                         <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #a1a1aa; margin-top: 4px; font-weight: 600;">
-                                            Service de Blanchisserie & Soin du Linge
+                                            {{ $facture->isLavage() ? 'Station de Lavage Auto & Moto • Soin Automobile' : 'Service de Blanchisserie & Soin du Linge' }}
                                         </div>
                                     </td>
                                     <td align="right">
@@ -34,29 +34,38 @@
                         </td>
                     </tr>
 
-                    <!-- Chapeau d'accueil chaleureux & humain -->
+                    <!-- Chapeau d'accueil -->
                     <tr>
                         <td style="padding: 32px 32px 24px 32px;">
-                            <h1 style="font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 16px 0; tracking-tight;">
-                                Bonjour {{ $facture->client_nom }}, 👋
+                            <h1 style="font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 16px 0; letter-spacing: -0.5px;">
+                                Bonjour {{ $facture->client_nom }},
                             </h1>
-                            <p style="font-size: 14px; line-height: 1.7; color: #d4d4d8; margin: 0 0 20px 0;">
-                                Nous sommes ravis de vous accueillir dans notre agence <strong style="color: #ffffff;">{{ $facture->pressing->nom }}</strong> ! Nous avons bien enregistré le dépôt de vos vêtements, et notre équipe s'en occupe déjà avec le plus grand soin.
-                            </p>
-                            <p style="font-size: 14px; line-height: 1.7; color: #a1a1aa; margin: 0;">
-                                Voici le récapitulatif détaillé de vos effets confiés à notre blanchisserie :
-                            </p>
+                            @if($facture->isLavage())
+                                <p style="font-size: 14px; line-height: 1.7; color: #d4d4d8; margin: 0 0 20px 0;">
+                                    Nous sommes ravis de vous accueillir dans notre station <strong style="color: #ffffff;">{{ $facture->pressing->nom }}</strong> ! Nous avons bien enregistré la prise en charge de votre véhicule @if($facture->vehicule)<strong style="color: #ffffff;">({{ $facture->vehicule->immatriculation }} — {{ $facture->vehicule->marque_modele }})</strong>@endif, et notre équipe s'en occupe déjà avec le plus grand soin.
+                                </p>
+                                <p style="font-size: 14px; line-height: 1.7; color: #a1a1aa; margin: 0;">
+                                    Voici le récapitulatif détaillé de vos prestations de lavage :
+                                </p>
+                            @else
+                                <p style="font-size: 14px; line-height: 1.7; color: #d4d4d8; margin: 0 0 20px 0;">
+                                    Nous sommes ravis de vous accueillir dans notre agence <strong style="color: #ffffff;">{{ $facture->pressing->nom }}</strong> ! Nous avons bien enregistré le dépôt de vos vêtements, et notre équipe s'en occupe déjà avec le plus grand soin.
+                                </p>
+                                <p style="font-size: 14px; line-height: 1.7; color: #a1a1aa; margin: 0;">
+                                    Voici le récapitulatif détaillé de vos effets confiés à notre blanchisserie :
+                                </p>
+                            @endif
                         </td>
                     </tr>
 
-                    <!-- Grille des détails du dépôt -->
+                    <!-- Grille des détails -->
                     <tr>
                         <td style="padding: 0 32px 24px 32px;">
                             <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #09090b; border-radius: 12px; border: 1px solid #27272a; padding: 20px;">
                                 <tr>
                                     <td width="50%" style="padding-right: 12px; vertical-align: top;">
                                         <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700;">
-                                            Date de dépôt
+                                            {{ $facture->isLavage() ? 'Prise en charge' : 'Date de dépôt' }}
                                         </div>
                                         <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-top: 6px;">
                                             {{ $facture->created_at->format('d/m/Y à H:i') }}
@@ -64,7 +73,7 @@
                                     </td>
                                     <td width="50%" style="padding-left: 12px; border-left: 1px solid #27272a; vertical-align: top;">
                                         <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700;">
-                                            Retrait estimé dès le
+                                            {{ $facture->isLavage() ? 'Restitution estimée dès le' : 'Retrait estimé dès le' }}
                                         </div>
                                         <div style="font-size: 14px; font-weight: 700; color: #ffffff; margin-top: 6px;">
                                             {{ $facture->date_retrait_prevue ? $facture->date_retrait_prevue->format('d/m/Y') : 'Très prochainement' }}
@@ -75,13 +84,15 @@
                         </td>
                     </tr>
 
-                    <!-- Tableau des articles déposés -->
+                    <!-- Tableau des prestations / articles -->
                     <tr>
                         <td style="padding: 0 32px 24px 32px;">
                             <table width="100%" border="0" cellspacing="0" cellpadding="0" style="border-collapse: collapse;">
                                 <thead>
                                     <tr style="border-bottom: 1px solid #27272a; text-align: left;">
-                                        <th style="padding: 10px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700;">Articles</th>
+                                        <th style="padding: 10px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700;">
+                                            {{ $facture->isLavage() ? 'Prestations de Lavage' : 'Articles' }}
+                                        </th>
                                         <th style="padding: 10px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700; text-align: center;">Quantité</th>
                                         <th style="padding: 10px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700; text-align: right;">Prix Unitaire</th>
                                         <th style="padding: 10px 0; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #71717a; font-weight: 700; text-align: right;">Sous-total</th>
@@ -91,7 +102,7 @@
                                     @foreach($facture->ligneFactures as $ligne)
                                         <tr style="border-bottom: 1px solid #27272a;">
                                             <td style="padding: 14px 0; font-size: 13px; color: #f4f4f5; font-weight: 600;">
-                                                {{ $ligne->service->designation ?? 'Article' }}
+                                                {{ $ligne->service->designation ?? 'Prestation' }}
                                             </td>
                                             <td style="padding: 14px 0; font-size: 13px; color: #a1a1aa; text-align: center; font-family: monospace;">
                                                 x{{ $ligne->quantite }}
@@ -109,7 +120,7 @@
                         </td>
                     </tr>
 
-                    <!-- Encadré Total & Note Humaine -->
+                    <!-- Encadré Total & Information -->
                     <tr>
                         <td style="padding: 0 32px 32px 32px;">
                             <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #09090b; border-radius: 12px; border: 1px solid #27272a; padding: 20px; margin-bottom: 20px;">
@@ -124,27 +135,35 @@
                             </table>
 
                             <div style="background-color: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 16px; font-size: 13px; color: #d4d4d8; line-height: 1.6;">
-                                💡 <strong>Pour votre sérénité :</strong> Aucun règlement n'est demandé au dépôt. Vous réglerez le montant total de {{ number_format((float)$facture->montant_total, 2, ',', ' ') }} FCFA directement au guichet lorsque vous viendrez récupérer vos vêtements impeccables.
+                                @if($facture->isLavage())
+                                    <strong>Pour votre sérénité :</strong> Aucun règlement n'est exigé à l'avance. Vous réglerez le montant total de {{ number_format((float)$facture->montant_total, 2, ',', ' ') }} FCFA directement en caisse lorsque vous viendrez récupérer votre véhicule propre et impeccable.
+                                @else
+                                    <strong>Pour votre sérénité :</strong> Aucun règlement n'est demandé au dépôt. Vous réglerez le montant total de {{ number_format((float)$facture->montant_total, 2, ',', ' ') }} FCFA directement au guichet lorsque vous viendrez récupérer vos vêtements impeccables.
+                                @endif
                             </div>
 
                             <p style="font-size: 13px; color: #a1a1aa; line-height: 1.6; margin: 20px 0 0 0;">
-                                Dès que le lavage et le repassage seront terminés, nous vous enverrons un nouvel e-mail pour vous prévenir que tout est prêt !
+                                @if($facture->isLavage())
+                                    Dès que le lavage et les finitions seront terminés, nous vous enverrons un nouvel e-mail pour vous prévenir que votre véhicule est prêt !
+                                @else
+                                    Dès que le lavage et le repassage seront terminés, nous vous enverrons un nouvel e-mail pour vous prévenir que tout est prêt !
+                                @endif
                             </p>
                         </td>
                     </tr>
 
-                    <!-- Footer Chaleureux & Signature -->
+                    <!-- Footer & Signature -->
                     <tr>
                         <td style="background-color: #09090b; padding: 24px 32px; border-top: 1px solid #27272a; text-align: center;">
                             <div style="font-size: 14px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">
                                 L'équipe {{ $facture->pressing->nom }}
                             </div>
                             <div style="font-size: 12px; color: #71717a;">
-                                {{ $facture->pressing->ville }} @if($facture->pressing->quartier) &bull; {{ $facture->pressing->quartier }} @endif
-                                @if($facture->pressing->telephone) &bull; Tél: {{ $facture->pressing->telephone }} @endif
+                                {{ $facture->pressing->ville }} @if($facture->pressing->quartier) • {{ $facture->pressing->quartier }} @endif
+                                @if($facture->pressing->telephone) • Tél: {{ $facture->pressing->telephone }} @endif
                             </div>
                             <div style="font-size: 11px; color: #52525b; margin-top: 16px; font-style: italic;">
-                                Merci de votre confiance ! À très bientôt dans notre agence.
+                                {{ $facture->isLavage() ? 'Merci de confier votre véhicule à notre station. À très bientôt !' : 'Merci de votre confiance ! À très bientôt dans notre agence.' }}
                             </div>
                         </td>
                     </tr>

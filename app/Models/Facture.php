@@ -113,4 +113,22 @@ class Facture extends Model
     {
         return $this->hasMany(LigneFacture::class);
     }
+
+    /**
+     * Check if the invoice is for a car/moto wash service.
+     */
+    public function isLavage(): bool
+    {
+        return $this->vehicule_id !== null
+            || $this->laveur_id !== null
+            || ($this->pressing && $this->pressing->isLavage());
+    }
+
+    /**
+     * Check if the invoice is for pressing/laundry service.
+     */
+    public function isPressing(): bool
+    {
+        return ! $this->isLavage();
+    }
 }

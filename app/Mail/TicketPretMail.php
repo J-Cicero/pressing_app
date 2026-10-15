@@ -18,7 +18,7 @@ class TicketPretMail extends Mailable
      */
     public function __construct(public Facture $facture)
     {
-        $this->facture->loadMissing(['pressing', 'ligneFactures.service']);
+        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule']);
     }
 
     /**
@@ -26,8 +26,12 @@ class TicketPretMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $subject = $this->facture->isLavage()
+            ? 'Votre véhicule est PRÊT ! — Ticket N° '.$this->facture->num_ticket
+            : 'Vos vêtements sont PRÊTS ! — Ticket N° '.$this->facture->num_ticket;
+
         return new Envelope(
-            subject: 'Vos vêtements sont PRÊTS ! — Ticket N° '.$this->facture->num_ticket,
+            subject: $subject,
         );
     }
 

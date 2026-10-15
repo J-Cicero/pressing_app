@@ -18,7 +18,7 @@ class TicketDeposeMail extends Mailable
      */
     public function __construct(public Facture $facture)
     {
-        $this->facture->loadMissing(['pressing', 'ligneFactures.service']);
+        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule']);
     }
 
     /**
@@ -26,8 +26,12 @@ class TicketDeposeMail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $subject = $this->facture->isLavage()
+            ? 'Prise en charge de votre véhicule — Ticket N° '.$this->facture->num_ticket
+            : 'Confirmation de votre dépôt — Ticket N° '.$this->facture->num_ticket;
+
         return new Envelope(
-            subject: 'Confirmation de votre dépôt — Ticket N° '.$this->facture->num_ticket,
+            subject: $subject,
         );
     }
 

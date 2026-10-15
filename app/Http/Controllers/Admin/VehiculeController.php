@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\Vehicule;
 use App\Services\WhatsAppNotificationService;
 use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -80,5 +82,74 @@ class VehiculeController extends Controller
             'countJ7' => $countJ7,
             'countRetard' => $countRetard,
         ]);
+    }
+
+    /**
+     * Store a new vehicle and its deadlines.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'client_telephone' => ['required', 'string', 'max:50'],
+            'client_nom' => ['required', 'string', 'max:255'],
+            'client_email' => ['nullable', 'email', 'max:255'],
+            'immatriculation' => ['required', 'string', 'max:50'],
+            'marque_modele' => ['required', 'string', 'max:100'],
+            'type_vehicule' => ['required', 'string', 'in:moto,voiture,4x4,utilitaire,autre'],
+            'date_visite_technique' => ['nullable', 'date'],
+            'date_assurance' => ['nullable', 'date'],
+        ]);
+
+        $client = Client::firstOrCreate(
+            ['telephone' => trim($validated['client_telephone'])],
+            [
+                'nom' => trim($validated['client_nom']),
+                'email' => $validated['client_email'] ?? null,
+            ]
+        );
+
+        if (! empty($validated['client_nom']) && $client->nom !== $validated['client_nom']) {
+            $client->update([
+                'nom' => trim($validated['client_nom']),
+                'email' => $validated['client_email'] ?? $client->email,
+            ]);
+        }
+
+        $immat = strtoupper(trim($validated['immatriculation']));
+
+        $vehicule = Vehicule::updateOrCreate(
+            ['immatriculation' => $immat],
+            [
+                'client_id' => $client->id,
+                'marque_modele' => trim($validated['marque_modele']),
+                'type_vehicule' => $validated['type_vehicule'],
+                'date_visite_technique' => $validated['date_visite_technique'] ?? null,
+                'date_assurance' => $validated['date_assurance'] ?? null,
+            ]
+        );
+
+        return back()->with('status', "Véhicule {$vehicule->immatriculation} et ses échéances enregistrés avec succès.");
+    }
+
+    /**
+     * Update an existing vehicle's deadlines.
+     */
+    public function update(Request $request, Vehicule $vehicule): RedirectResponse
+    {
+        $validated = $request->validate([
+            'marque_modele' => ['nullable', 'string', 'max:100'],
+            'type_vehicule' => ['nullable', 'string', 'in:moto,voiture,4x4,utilitaire,autre'],
+            'date_visite_technique' => ['nullable', 'date'],
+            'date_assurance' => ['nullable', 'date'],
+        ]);
+
+        $vehicule->update([
+            'marque_modele' => $validated['marque_modele'] ?? $vehicule->marque_modele,
+            'type_vehicule' => $validated['type_vehicule'] ?? $vehicule->type_vehicule,
+            'date_visite_technique' => $validated['date_visite_technique'] ?? null,
+            'date_assurance' => $validated['date_assurance'] ?? null,
+        ]);
+
+        return back()->with('status', "Échéances du véhicule {$vehicule->immatriculation} mises à jour avec succès.");
     }
 }

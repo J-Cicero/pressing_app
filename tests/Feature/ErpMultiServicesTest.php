@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Mail\TicketDeposeMail;
+use App\Mail\TicketPretMail;
 use App\Models\Client;
 use App\Models\Facture;
 use App\Models\Laveur;
@@ -462,5 +464,151 @@ class ErpMultiServicesTest extends TestCase
         $response->assertSee('Derniers Véhicules Pris en Charge');
         $response->assertSee($uniqueTicket);
         $response->assertSee($uniquePlate);
+    }
+
+    public function test_cashier_can_store_and_update_vehicle_and_deadlines(): void
+    {
+        $station = Pressing::factory()->create(['type_activite' => 'lavage']);
+        $caissier = User::factory()->caissier()->create(['pressing_id' => $station->id]);
+
+        $tel = '9'.rand(1000000, 9999999);
+        $plate = 'TG-'.rand(1000, 9999).'-VE';
+
+        // 1. Store
+        $response = $this->actingAs($caissier)->post(route('caisse.vehicules.store'), [
+            'client_telephone' => $tel,
+            'client_nom' => 'Kojo Agbeko',
+            'client_email' => 'kojo@test.com',
+            'immatriculation' => $plate,
+            'marque_modele' => 'Toyota RAV4',
+            'type_vehicule' => '4x4',
+            'date_visite_technique' => '2026-11-20',
+            'date_assurance' => '2026-12-15',
+        ]);
+
+        $response->assertSessionHas('status');
+        $this->assertDatabaseHas('vehicules', [
+            'immatriculation' => $plate,
+            'marque_modele' => 'Toyota RAV4',
+            'type_vehicule' => '4x4',
+            'date_visite_technique' => '2026-11-20',
+        ]);
+        $this->assertDatabaseHas('clients', [
+            'telephone' => $tel,
+            'nom' => 'Kojo Agbeko',
+        ]);
+
+        $vehicule = Vehicule::where('immatriculation', $plate)->firstOrFail();
+
+        // 2. Update
+        $updateResponse = $this->actingAs($caissier)->put(route('caisse.vehicules.update', $vehicule), [
+            'marque_modele' => 'Toyota RAV4 Hybrid',
+            'type_vehicule' => '4x4',
+            'date_visite_technique' => '2027-05-10',
+            'date_assurance' => '2027-06-01',
+        ]);
+
+        $updateResponse->assertSessionHas('status');
+        $this->assertDatabaseHas('vehicules', [
+            'id' => $vehicule->id,
+            'marque_modele' => 'Toyota RAV4 Hybrid',
+            'date_visite_technique' => '2027-05-10',
+        ]);
+    }
+
+    public function test_admin_can_store_and_update_vehicle_and_deadlines(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $tel = '9'.rand(1000000, 9999999);
+        $plate = 'TG-'.rand(1000, 9999).'-AD';
+
+        $response = $this->actingAs($admin)->post(route('admin.vehicules.store'), [
+            'client_telephone' => $tel,
+            'client_nom' => 'Adjoa Mensah',
+            'client_email' => 'adjoa@test.com',
+            'immatriculation' => $plate,
+            'marque_modele' => 'Yamaha MT-07',
+            'type_vehicule' => 'moto',
+            'date_visite_technique' => '2026-10-30',
+        ]);
+
+        $response->assertSessionHas('status');
+        $this->assertDatabaseHas('vehicules', [
+            'immatriculation' => $plate,
+            'type_vehicule' => 'moto',
+        ]);
+    }
+
+    public function test_email_content_adapts_to_lavage_vs_pressing(): void
+    {
+        $station = Pressing::factory()->create(['type_activite' => 'lavage']);
+        $pressing = Pressing::factory()->create(['type_activite' => 'pressing']);
+
+        $client = Client::create([
+            'nom' => 'Edoh Kodjo',
+            'telephone' => '9'.rand(1000000, 9999999),
+            'email' => 'edoh@test.com',
+        ]);
+
+        $vehicule = Vehicule::create([
+            'client_id' => $client->id,
+            'immatriculation' => 'TG-9999-LW',
+            'marque_modele' => 'Honda CR-V',
+            'type_vehicule' => '4x4',
+        ]);
+
+        $admin = User::factory()->admin()->create();
+
+        // 1. Facture Lavage
+        $factureLavage = Facture::create([
+            'pressing_id' => $station->id,
+            'user_id' => $admin->id,
+            'client_id' => $client->id,
+            'vehicule_id' => $vehicule->id,
+            'num_ticket' => 'TCK-LAV-01',
+            'client_nom' => $client->nom,
+            'client_telephone' => $client->telephone,
+            'client_email' => $client->email,
+            'montant_total' => 4500,
+            'statut' => 'depose',
+        ]);
+
+        $mailDeposeLavage = new TicketDeposeMail($factureLavage);
+        $this->assertStringContainsString('Prise en charge de votre véhicule', $mailDeposeLavage->envelope()->subject);
+        $renderedLavage = $mailDeposeLavage->render();
+        $this->assertStringContainsString('prise en charge de votre véhicule', $renderedLavage);
+        $this->assertStringContainsString('TG-9999-LW', $renderedLavage);
+        $this->assertStringNotContainsString('dépôt de vos vêtements', $renderedLavage);
+
+        $mailPretLavage = new TicketPretMail($factureLavage);
+        $this->assertStringContainsString('Votre véhicule est PRÊT', $mailPretLavage->envelope()->subject);
+        $renderedPretLavage = $mailPretLavage->render();
+        $this->assertStringContainsString('Votre véhicule est prêt', $renderedPretLavage);
+        $this->assertStringNotContainsString('Vos vêtements sont prêts', $renderedPretLavage);
+
+        // 2. Facture Pressing
+        $facturePressing = Facture::create([
+            'pressing_id' => $pressing->id,
+            'user_id' => $admin->id,
+            'client_id' => $client->id,
+            'num_ticket' => 'TCK-PRS-01',
+            'client_nom' => $client->nom,
+            'client_telephone' => $client->telephone,
+            'client_email' => $client->email,
+            'montant_total' => 3000,
+            'statut' => 'depose',
+        ]);
+
+        $mailDeposePressing = new TicketDeposeMail($facturePressing);
+        $this->assertStringContainsString('Confirmation de votre dépôt', $mailDeposePressing->envelope()->subject);
+        $renderedPressing = $mailDeposePressing->render();
+        $this->assertStringContainsString('dépôt de vos vêtements', $renderedPressing);
+        $this->assertStringNotContainsString('prise en charge de votre véhicule', $renderedPressing);
+
+        $mailPretPressing = new TicketPretMail($facturePressing);
+        $this->assertStringContainsString('Vos vêtements sont PRÊTS', $mailPretPressing->envelope()->subject);
+        $renderedPretPressing = $mailPretPressing->render();
+        $this->assertStringContainsString('Vos vêtements sont prêts', $renderedPretPressing);
     }
 }

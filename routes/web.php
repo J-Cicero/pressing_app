@@ -68,6 +68,8 @@ Route::middleware('auth')->group(function () {
 
         // Module Rappels Échéances Véhicules (Visite Technique & Assurance)
         Route::get('/vehicules/echeances', [VehiculeController::class, 'echeances'])->name('vehicules.echeances');
+        Route::post('/vehicules', [VehiculeController::class, 'store'])->name('vehicules.store');
+        Route::put('/vehicules/{vehicule}', [VehiculeController::class, 'update'])->name('vehicules.update');
 
         // Vue Consolidée des Factures
         Route::get('/factures', [FactureController::class, 'index'])->name('factures.index');
@@ -95,6 +97,8 @@ Route::middleware('auth')->group(function () {
 
         // Échéances Visite Technique des Véhicules & Rappels WhatsApp
         Route::get('/vehicules/echeances', [CaisseVehiculeController::class, 'echeances'])->name('vehicules.echeances');
+        Route::post('/vehicules', [CaisseVehiculeController::class, 'store'])->name('vehicules.store');
+        Route::put('/vehicules/{vehicule}', [CaisseVehiculeController::class, 'update'])->name('vehicules.update');
 
         // Impression Thermique 80mm
         Route::get('/factures/{facture:num_ticket}/print', [TicketPrintController::class, 'show'])->name('factures.print');
