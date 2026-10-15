@@ -127,28 +127,30 @@
                             <td class="py-4 px-6 text-center font-mono font-bold text-zinc-900 dark:text-white">
                                 {{ $p->factures_count }}
                             </td>
-                            <td class="py-4 px-6 text-right space-x-2">
-                                <a href="{{ route('admin.pressings.edit', $p) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
-                                    Modifier
-                                </a>
+                            <td class="py-4 px-6 text-right whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.pressings.edit', $p) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
+                                        Modifier
+                                    </a>
 
-                                <form method="POST" action="{{ route('admin.pressings.destroy', $p) }}" class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button
-                                        type="button"
-                                        onclick="showConfirmModal({
-                                            title: 'Supprimer l\'établissement',
-                                            message: 'Confirmez-vous la suppression de l\'agence « {{ addslashes($p->nom) }} » ? Cette opération supprimera définitivement ses données.',
-                                            confirmText: 'Supprimer',
-                                            type: 'danger',
-                                            form: this.closest('form')
-                                        })"
-                                        class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </form>
+                                    <form method="POST" action="{{ route('admin.pressings.destroy', $p) }}" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="button"
+                                            onclick="showConfirmModal({
+                                                title: 'Supprimer l\'établissement',
+                                                message: 'Confirmez-vous la suppression de l\'agence « {{ addslashes($p->nom) }} » ? Cette opération supprimera définitivement ses données.',
+                                                confirmText: 'Supprimer',
+                                                type: 'danger',
+                                                form: this.closest('form')
+                                            })"
+                                            class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

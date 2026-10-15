@@ -16,75 +16,9 @@
 <body class="h-full font-sans antialiased text-zinc-900 dark:text-zinc-100 bg-zinc-50 dark:bg-zinc-950 text-xs selection:bg-zinc-900 selection:text-white dark:selection:bg-zinc-800">
     <div class="min-h-screen flex flex-col md:flex-row">
         
-        <!-- Main Content Area (Left on Desktop, Main view) -->
-        <div class="flex-1 flex flex-col min-w-0 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
-            <main class="flex-1">
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
-                    @if (session('status'))
-                        <div class="mb-3 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 flex items-center justify-between shadow-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white"></span>
-                                <span>{{ session('status') }}</span>
-                            </div>
-                            @if(session('whatsapp_url'))
-                                <a href="{{ session('whatsapp_url') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white dark:bg-white dark:text-black font-bold text-[11px] rounded-lg transition hover:opacity-90">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                    </svg>
-                                    <span>Notifier WhatsApp</span>
-                                </a>
-                            @endif
-                        </div>
-                    @endif
-
-                    @if (session('whatsapp_pret_url'))
-                        <div class="mb-3 p-3 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 rounded-xl text-xs font-semibold flex items-center justify-between shadow-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-white dark:bg-zinc-950"></span>
-                                <span>Ticket prêt pour restitution. Envoyer la notification client ?</span>
-                            </div>
-                            <a href="{{ session('whatsapp_pret_url') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-white text-zinc-950 dark:bg-zinc-950 dark:text-white font-bold text-[11px] rounded-lg transition hover:opacity-90">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                                </svg>
-                                <span>Ouvrir WhatsApp</span>
-                            </a>
-                        </div>
-                    @endif
-
-                    @if (session('fidelite_message'))
-                        <div class="mb-3 p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center justify-between shadow-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white"></span>
-                                <span>{{ session('fidelite_message') }}</span>
-                            </div>
-                            @if(session('fidelite_url'))
-                                <a href="{{ session('fidelite_url') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white dark:bg-white dark:text-black font-bold text-[11px] rounded-lg transition hover:opacity-90">
-                                    <span>Féliciter sur WhatsApp</span>
-                                </a>
-                            @endif
-                        </div>
-                    @endif
-
-                    @if ($errors->has('error'))
-                        <div class="mb-3 p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2 shadow-xs">
-                            <span class="w-2 h-2 rounded-full bg-black dark:bg-white"></span>
-                            <span>{{ $errors->first('error') }}</span>
-                        </div>
-                    @endif
-                </div>
-
-                @yield('content')
-            </main>
-
-            <footer class="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800/80 py-3 px-6 text-center text-[10px] text-zinc-500 dark:text-zinc-500 mt-auto print:hidden">
-                &copy; {{ date('Y') }} ERP Multi-Services &bull; Pressing, Blanchisserie & Station de Lavage Auto/Moto
-            </footer>
-        </div>
-
         @auth
-        <!-- Navigation Sidebar (Obligatoirement à DROITE sur Desktop, masquée à l'impression) -->
-        <aside class="w-full md:w-64 bg-zinc-900 dark:bg-zinc-900 text-zinc-300 border-b md:border-b-0 md:border-l border-zinc-800 flex flex-col justify-between shrink-0 md:sticky md:top-0 md:h-screen z-30 print:hidden shadow-xl order-first md:order-last">
+        <!-- Navigation Sidebar (Positionnée à GAUCHE sur Desktop, masquée à l'impression) -->
+        <aside class="w-full md:w-64 bg-zinc-900 dark:bg-zinc-900 text-zinc-300 border-b md:border-b-0 md:border-r border-zinc-800 flex flex-col justify-between shrink-0 md:sticky md:top-0 md:h-screen z-30 print:hidden shadow-xl">
             <div class="overflow-y-auto">
                 <!-- Brand Header -->
                 <div class="p-4 border-b border-zinc-800 flex items-center justify-between">
@@ -294,6 +228,72 @@
             </div>
         </aside>
         @endauth
+
+        <!-- Main Content Area (Right on Desktop, Main view) -->
+        <div class="flex-1 flex flex-col min-w-0 bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100">
+            <main class="flex-1">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-3">
+                    @if (session('status'))
+                        <div class="mb-3 p-3 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 flex items-center justify-between shadow-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white"></span>
+                                <span>{{ session('status') }}</span>
+                            </div>
+                            @if(session('whatsapp_url'))
+                                <a href="{{ session('whatsapp_url') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white dark:bg-white dark:text-black font-bold text-[11px] rounded-lg transition hover:opacity-90">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                    </svg>
+                                    <span>Notifier WhatsApp</span>
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if (session('whatsapp_pret_url'))
+                        <div class="mb-3 p-3 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-950 rounded-xl text-xs font-semibold flex items-center justify-between shadow-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-white dark:bg-zinc-950"></span>
+                                <span>Ticket prêt pour restitution. Envoyer la notification client ?</span>
+                            </div>
+                            <a href="{{ session('whatsapp_pret_url') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-white text-zinc-950 dark:bg-zinc-950 dark:text-white font-bold text-[11px] rounded-lg transition hover:opacity-90">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                                <span>Ouvrir WhatsApp</span>
+                            </a>
+                        </div>
+                    @endif
+
+                    @if (session('fidelite_message'))
+                        <div class="mb-3 p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-bold text-zinc-900 dark:text-zinc-100 flex items-center justify-between shadow-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white"></span>
+                                <span>{{ session('fidelite_message') }}</span>
+                            </div>
+                            @if(session('fidelite_url'))
+                                <a href="{{ session('fidelite_url') }}" target="_blank" class="inline-flex items-center gap-1.5 px-3 py-1 bg-black text-white dark:bg-white dark:text-black font-bold text-[11px] rounded-lg transition hover:opacity-90">
+                                    <span>Féliciter sur WhatsApp</span>
+                                </a>
+                            @endif
+                        </div>
+                    @endif
+
+                    @if ($errors->has('error'))
+                        <div class="mb-3 p-3 bg-zinc-100 dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 rounded-xl text-xs font-medium text-zinc-900 dark:text-zinc-100 flex items-center gap-2 shadow-xs">
+                            <span class="w-2 h-2 rounded-full bg-black dark:bg-white"></span>
+                            <span>{{ $errors->first('error') }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                @yield('content')
+            </main>
+
+            <footer class="bg-white dark:bg-zinc-950 border-t border-zinc-200 dark:border-zinc-800/80 py-3 px-6 text-center text-[10px] text-zinc-500 dark:text-zinc-500 mt-auto print:hidden">
+                &copy; {{ date('Y') }} ERP Multi-Services &bull; Pressing, Blanchisserie & Station de Lavage Auto/Moto
+            </footer>
+        </div>
 
     </div>
 

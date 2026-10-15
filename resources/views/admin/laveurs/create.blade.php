@@ -114,6 +114,11 @@
                 </div>
             </div>
 
+            <div class="p-3 bg-zinc-50 dark:bg-zinc-950/80 border border-zinc-200 dark:border-zinc-800 rounded-xl text-[11px] text-zinc-600 dark:text-zinc-400">
+                <span class="font-bold text-zinc-900 dark:text-white">Règle standard :</span>
+                Par défaut 30% ou forfait fixe (ex: 1 000 FCFA). Cette valeur est pré-remplie automatiquement pour vous éviter de la ressaisir, mais reste personnalisable par laveur selon son niveau ou accord.
+            </div>
+
             <div class="pt-2">
                 <label class="inline-flex items-center gap-2 cursor-pointer">
                     <input

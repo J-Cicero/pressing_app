@@ -223,4 +223,110 @@ class ErpMultiServicesTest extends TestCase
         $this->assertStringStartsWith('https://wa.me/22890123456', $urlRappel);
         $this->assertStringContainsString('TG-2026-OK', $urlRappel);
     }
+
+    public function test_washer_monthly_payout_and_volume_calculation(): void
+    {
+        $station = Pressing::create([
+            'nom' => 'Lavage Mensuel Test',
+            'ville' => 'Lomé',
+            'quartier' => 'Nyékonakpoé',
+            'type_activite' => 'lavage',
+        ]);
+
+        $laveur = Laveur::create([
+            'pressing_id' => $station->id,
+            'nom' => 'Komi Tech',
+            'telephone' => '90998877',
+            'type_remuneration' => 'pourcentage',
+            'valeur_remuneration' => 25, // 25%
+            'actif' => true,
+        ]);
+
+        $user = User::factory()->caissier()->create(['pressing_id' => $station->id]);
+
+        // Create 2 invoices in October 2026
+        $facture1 = Facture::create([
+            'pressing_id' => $station->id,
+            'user_id' => $user->id,
+            'laveur_id' => $laveur->id,
+            'num_ticket' => 'TCK-OCT-01',
+            'client_nom' => 'Client 1',
+            'montant_total' => 6000,
+            'statut' => 'paye_retire',
+        ]);
+        $facture1->created_at = Carbon::parse('2026-10-05 10:00:00');
+        $facture1->save();
+
+        $facture2 = Facture::create([
+            'pressing_id' => $station->id,
+            'user_id' => $user->id,
+            'laveur_id' => $laveur->id,
+            'num_ticket' => 'TCK-OCT-02',
+            'client_nom' => 'Client 2',
+            'montant_total' => 4000,
+            'statut' => 'paye_retire',
+        ]);
+        $facture2->created_at = Carbon::parse('2026-10-12 14:00:00');
+        $facture2->save();
+
+        // Create 1 invoice in November 2026 (different month)
+        $facture3 = Facture::create([
+            'pressing_id' => $station->id,
+            'user_id' => $user->id,
+            'laveur_id' => $laveur->id,
+            'num_ticket' => 'TCK-NOV-01',
+            'client_nom' => 'Client 3',
+            'montant_total' => 8000,
+            'statut' => 'paye_retire',
+        ]);
+        $facture3->created_at = Carbon::parse('2026-11-02 09:00:00');
+        $facture3->save();
+
+        // Monthly assertions for 2026-10
+        $this->assertEquals(2, $laveur->nombreLavagesMois('2026-10'));
+        $this->assertEquals(10000, $laveur->totalCaMois('2026-10'));
+        // 25% of 10000 = 2500 FCFA
+        $this->assertEquals(2500, $laveur->totalCommissionMois('2026-10'));
+
+        // Monthly assertions for 2026-11
+        $this->assertEquals(1, $laveur->nombreLavagesMois('2026-11'));
+        $this->assertEquals(8000, $laveur->totalCaMois('2026-11'));
+        // 25% of 8000 = 2000 FCFA
+        $this->assertEquals(2000, $laveur->totalCommissionMois('2026-11'));
+    }
+
+    public function test_admin_can_filter_washer_payroll_and_services_by_agency(): void
+    {
+        $admin = User::factory()->admin()->create();
+
+        $station = Pressing::create([
+            'nom' => 'Station Filter Test',
+            'ville' => 'Lomé',
+            'quartier' => 'Bè',
+            'type_activite' => 'lavage',
+        ]);
+
+        // Test Laveurs index with month and pressing filter
+        $responseLaveurs = $this->actingAs($admin)->get(route('admin.laveurs.index', [
+            'pressing_id' => $station->id,
+            'mois' => '2026-10',
+        ]));
+        $responseLaveurs->assertOk();
+        $responseLaveurs->assertViewHas('selectedMois', '2026-10');
+        $responseLaveurs->assertViewHas('selectedPressingId', (string) $station->id);
+
+        // Test Services index with pressing filter
+        $responseServices = $this->actingAs($admin)->get(route('admin.services.index', [
+            'pressing_id' => $station->id,
+        ]));
+        $responseServices->assertOk();
+        $responseServices->assertViewHas('selectedPressingId', (string) $station->id);
+
+        // Test Users index with pressing filter
+        $responseUsers = $this->actingAs($admin)->get(route('admin.users.index', [
+            'pressing_id' => $station->id,
+        ]));
+        $responseUsers->assertOk();
+        $responseUsers->assertViewHas('selectedPressingId', (string) $station->id);
+    }
 }

@@ -47,7 +47,7 @@
 
         <!-- Search & Agency Filters on Right -->
         <form method="GET" action="{{ route('admin.services.index') }}" class="flex flex-col sm:flex-row flex-1 lg:justify-end gap-2.5">
-            @if($selectedType)
+            @if($selectedType && !$selectedPressingId)
                 <input type="hidden" name="type_activite" value="{{ $selectedType }}">
             @endif
 
@@ -61,19 +61,36 @@
                     type="text"
                     name="q"
                     value="{{ $search }}"
-                    placeholder="Désignation de la prestation..."
+                    placeholder="Recherche par prestation (ex: Chemise, Moto)..."
                     class="w-full pl-9 pr-4 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                 >
             </div>
 
             <div class="sm:max-w-xs">
-                <select name="pressing_id" class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition">
+                <select
+                    name="pressing_id"
+                    onchange="this.form.submit()"
+                    class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition cursor-pointer"
+                >
                     <option value="">Toutes les agences</option>
-                    @foreach($pressings as $p)
-                        <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
-                            {{ $p->nom }} ({{ $p->isLavage() ? 'Station' : 'Pressing' }})
-                        </option>
-                    @endforeach
+                    @if($pressings->where('type_activite', '!=', 'lavage')->isNotEmpty())
+                        <optgroup label="Agences Pressing">
+                            @foreach($pressings->where('type_activite', '!=', 'lavage') as $p)
+                                <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
+                                    {{ $p->nom }} ({{ $p->ville }})
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+                    @if($pressings->where('type_activite', 'lavage')->isNotEmpty())
+                        <optgroup label="Stations de Lavage Auto/Moto">
+                            @foreach($pressings->where('type_activite', 'lavage') as $p)
+                                <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
+                                    {{ $p->nom }} ({{ $p->ville }})
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endif
                 </select>
             </div>
 
@@ -119,28 +136,30 @@
                                     {{ $s->ligne_factures_count }}
                                 </span>
                             </td>
-                            <td class="py-4 px-6 text-right space-x-2">
-                                <a href="{{ route('admin.services.edit', $s) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
-                                    Modifier
-                                </a>
+                            <td class="py-4 px-6 text-right whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.services.edit', $s) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
+                                        Modifier
+                                    </a>
 
-                                <form method="POST" action="{{ route('admin.services.destroy', $s) }}" class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button
-                                        type="button"
-                                        onclick="showConfirmModal({
-                                            title: 'Supprimer la prestation',
-                                            message: 'Confirmez-vous la suppression de la prestation « {{ addslashes($s->designation) }} » ?',
-                                            confirmText: 'Supprimer',
-                                            type: 'danger',
-                                            form: this.closest('form')
-                                        })"
-                                        class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </form>
+                                    <form method="POST" action="{{ route('admin.services.destroy', $s) }}" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="button"
+                                            onclick="showConfirmModal({
+                                                title: 'Supprimer la prestation',
+                                                message: 'Confirmez-vous la suppression de la prestation « {{ addslashes($s->designation) }} » ?',
+                                                confirmText: 'Supprimer',
+                                                type: 'danger',
+                                                form: this.closest('form')
+                                            })"
+                                            class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

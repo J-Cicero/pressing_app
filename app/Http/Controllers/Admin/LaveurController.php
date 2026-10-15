@@ -18,6 +18,13 @@ class LaveurController extends Controller
     {
         $search = $request->query('q');
         $pressingId = $request->query('pressing_id');
+        $selectedMois = $request->query('mois', date('Y-m'));
+
+        if (! preg_match('/^\d{4}-\d{2}$/', (string) $selectedMois)) {
+            $selectedMois = date('Y-m');
+        }
+
+        [$year, $month] = explode('-', $selectedMois);
 
         $laveurs = Laveur::query()
             ->with('pressing')
@@ -33,13 +40,47 @@ class LaveurController extends Controller
             ->paginate(15)
             ->withQueryString();
 
-        $pressings = Pressing::orderBy('nom')->get();
+        $recapLaveurs = Laveur::query()
+            ->with(['pressing', 'factures' => function ($q) use ($year, $month) {
+                $q->whereYear('created_at', (int) $year)
+                    ->whereMonth('created_at', (int) $month);
+            }])
+            ->when($pressingId, fn ($q) => $q->where('pressing_id', $pressingId))
+            ->where('actif', true)
+            ->orderBy('nom')
+            ->get()
+            ->map(function (Laveur $laveur) {
+                $nbLavages = $laveur->factures->count();
+                $caGenere = (float) $laveur->factures->sum('montant_total');
+                $commissionDue = (float) $laveur->factures->sum(fn ($f) => $laveur->calculerCommission($f));
+
+                return [
+                    'laveur' => $laveur,
+                    'nb_lavages' => $nbLavages,
+                    'ca_genere' => $caGenere,
+                    'commission_due' => $commissionDue,
+                    'part_station' => $caGenere - $commissionDue,
+                ];
+            });
+
+        $totalMoisLavages = $recapLaveurs->sum('nb_lavages');
+        $totalMoisCa = $recapLaveurs->sum('ca_genere');
+        $totalMoisCommissions = $recapLaveurs->sum('commission_due');
+        $totalMoisPartStation = $totalMoisCa - $totalMoisCommissions;
+
+        $pressings = Pressing::orderBy('type_activite')->orderBy('nom')->get();
 
         return view('admin.laveurs.index', [
             'laveurs' => $laveurs,
             'pressings' => $pressings,
             'search' => $search,
             'selectedPressingId' => $pressingId,
+            'selectedMois' => $selectedMois,
+            'recapLaveurs' => $recapLaveurs,
+            'totalMoisLavages' => $totalMoisLavages,
+            'totalMoisCa' => $totalMoisCa,
+            'totalMoisCommissions' => $totalMoisCommissions,
+            'totalMoisPartStation' => $totalMoisPartStation,
         ]);
     }
 
@@ -48,7 +89,7 @@ class LaveurController extends Controller
      */
     public function create(): View
     {
-        $pressings = Pressing::orderBy('nom')->get();
+        $pressings = Pressing::orderByRaw("CASE WHEN type_activite = 'lavage' THEN 0 ELSE 1 END")->orderBy('nom')->get();
 
         return view('admin.laveurs.create', [
             'pressings' => $pressings,

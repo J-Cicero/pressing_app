@@ -106,28 +106,30 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="py-4 px-6 text-right space-x-2">
-                                <a href="{{ route('admin.fidelite.edit', $regle) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
-                                    Modifier
-                                </a>
+                            <td class="py-4 px-6 text-right whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.fidelite.edit', $regle) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
+                                        Modifier
+                                    </a>
 
-                                <form method="POST" action="{{ route('admin.fidelite.destroy', $regle) }}" class="inline-block">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button
-                                        type="button"
-                                        onclick="showConfirmModal({
-                                            title: 'Supprimer la règle de fidélité',
-                                            message: 'Confirmez-vous la suppression du palier de fidélité à {{ $regle->seuil_visites }} visites ({{ addslashes($regle->description) }}) ?',
-                                            confirmText: 'Supprimer',
-                                            type: 'danger',
-                                            form: this.closest('form')
-                                        })"
-                                        class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 transition"
-                                    >
-                                        Supprimer
-                                    </button>
-                                </form>
+                                    <form method="POST" action="{{ route('admin.fidelite.destroy', $regle) }}" class="inline-block">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button
+                                            type="button"
+                                            onclick="showConfirmModal({
+                                                title: 'Supprimer la règle de fidélité',
+                                                message: 'Confirmez-vous la suppression du palier de fidélité à {{ $regle->seuil_visites }} visites ({{ addslashes($regle->description) }}) ?',
+                                                confirmText: 'Supprimer',
+                                                type: 'danger',
+                                                form: this.closest('form')
+                                            })"
+                                            class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 transition cursor-pointer"
+                                        >
+                                            Supprimer
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

@@ -42,20 +42,41 @@
                 >
             </div>
             <div>
-                <select name="role" class="w-full px-3 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition">
+                <select
+                    name="role"
+                    onchange="this.form.submit()"
+                    class="w-full px-3 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition cursor-pointer"
+                >
                     <option value="">Tous les rôles</option>
                     <option value="admin" {{ $selectedRole === 'admin' ? 'selected' : '' }}>Admin</option>
                     <option value="caissier" {{ $selectedRole === 'caissier' ? 'selected' : '' }}>Caissier</option>
                 </select>
             </div>
             <div>
-                <select name="pressing_id" class="w-full px-3 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition">
+                <select
+                    name="pressing_id"
+                    onchange="this.form.submit()"
+                    class="w-full px-3 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition cursor-pointer"
+                >
                     <option value="">Toutes les agences</option>
-                    @foreach($pressings as $p)
-                        <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
-                            {{ $p->nom }} ({{ $p->ville }})
-                        </option>
-                    @endforeach
+                    @if($pressings->where('type_activite', '!=', 'lavage')->isNotEmpty())
+                        <optgroup label="Agences Pressing">
+                            @foreach($pressings->where('type_activite', '!=', 'lavage') as $p)
+                                <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
+                                    {{ $p->nom }} ({{ $p->ville }})
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+                    @if($pressings->where('type_activite', 'lavage')->isNotEmpty())
+                        <optgroup label="Stations de Lavage Auto/Moto">
+                            @foreach($pressings->where('type_activite', 'lavage') as $p)
+                                <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
+                                    {{ $p->nom }} ({{ $p->ville }})
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endif
                 </select>
             </div>
             <div class="flex gap-2">
@@ -117,30 +138,32 @@
                             <td class="py-4 px-6 text-center font-mono font-bold text-zinc-900 dark:text-white">
                                 {{ $u->factures_count }}
                             </td>
-                            <td class="py-4 px-6 text-right space-x-2">
-                                <a href="{{ route('admin.users.edit', $u) }}" class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
-                                    Modifier
-                                </a>
+                            <td class="py-4 px-6 text-right whitespace-nowrap">
+                                <div class="flex items-center justify-end gap-3">
+                                    <a href="{{ route('admin.users.edit', $u) }}" class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700 transition">
+                                        Modifier
+                                    </a>
 
-                                @if($u->id !== auth()->id())
-                                    <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button
-                                            type="button"
-                                            onclick="showConfirmModal({
-                                                title: 'Supprimer l\'utilisateur',
-                                                message: 'Confirmez-vous la suppression du compte de « {{ addslashes($u->name) }} » ({{ $u->email }}) ?',
-                                                confirmText: 'Supprimer',
-                                                type: 'danger',
-                                                form: this.closest('form')
-                                            })"
-                                            class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
-                                        >
-                                            Supprimer
-                                        </button>
-                                    </form>
-                                @endif
+                                    @if($u->id !== auth()->id())
+                                        <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button
+                                                type="button"
+                                                onclick="showConfirmModal({
+                                                    title: 'Supprimer l\'utilisateur',
+                                                    message: 'Confirmez-vous la suppression du compte de « {{ addslashes($u->name) }} » ({{ $u->email }}) ?',
+                                                    confirmText: 'Supprimer',
+                                                    type: 'danger',
+                                                    form: this.closest('form')
+                                                })"
+                                                class="inline-flex items-center px-3 py-1.5 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
+                                            >
+                                                Supprimer
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @empty

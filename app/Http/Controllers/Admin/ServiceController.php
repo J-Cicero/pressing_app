@@ -28,10 +28,11 @@ class ServiceController extends Controller
             })
             ->when($pressingId, function ($query, $pressingId) {
                 $query->where('pressing_id', $pressingId);
-            })
-            ->when($typeActivite, function ($query, $typeActivite) {
-                $query->whereHas('pressing', function ($q) use ($typeActivite) {
-                    $q->where('type_activite', $typeActivite);
+            }, function ($query) use ($typeActivite) {
+                $query->when($typeActivite, function ($q, $typeActivite) {
+                    $q->whereHas('pressing', function ($sub) use ($typeActivite) {
+                        $sub->where('type_activite', $typeActivite);
+                    });
                 });
             })
             ->orderBy('designation')
@@ -42,10 +43,7 @@ class ServiceController extends Controller
         $countPressing = Service::whereHas('pressing', fn ($q) => $q->where('type_activite', 'pressing'))->count();
         $countLavage = Service::whereHas('pressing', fn ($q) => $q->where('type_activite', 'lavage'))->count();
 
-        $pressings = Pressing::query()
-            ->when($typeActivite, fn ($q) => $q->where('type_activite', $typeActivite))
-            ->orderBy('nom')
-            ->get();
+        $pressings = Pressing::orderBy('type_activite')->orderBy('nom')->get();
 
         return view('admin.services.index', [
             'services' => $services,
