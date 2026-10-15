@@ -123,10 +123,20 @@
                                 </a>
 
                                 @if($u->id !== auth()->id())
-                                    <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="inline-block" onsubmit="return confirm('Confirmer la suppression de cet utilisateur ?');">
+                                    <form method="POST" action="{{ route('admin.users.destroy', $u) }}" class="inline-block">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer">
+                                        <button
+                                            type="button"
+                                            onclick="showConfirmModal({
+                                                title: 'Supprimer l\'utilisateur',
+                                                message: 'Confirmez-vous la suppression du compte de « {{ addslashes($u->name) }} » ({{ $u->email }}) ?',
+                                                confirmText: 'Supprimer',
+                                                type: 'danger',
+                                                form: this.closest('form')
+                                            })"
+                                            class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
+                                        >
                                             Supprimer
                                         </button>
                                     </form>

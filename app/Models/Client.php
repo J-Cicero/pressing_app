@@ -42,17 +42,25 @@ class Client extends Model
     }
 
     /**
-     * Total completed/paid visits across all agencies.
+     * Total completed/paid visits across all agencies (all time).
      */
-    public function totalVisites(): int
+    public function countTotalVisites(): int
     {
         return $this->factures()->where('statut', 'paye_retire')->count();
     }
 
     /**
-     * Number of paid visits for laundry/pressing.
+     * Backward-compatible alias for countTotalVisites.
      */
-    public function visitesPressing(): int
+    public function totalVisites(): int
+    {
+        return $this->countTotalVisites();
+    }
+
+    /**
+     * Total completed/paid visits for laundry and pressing (all time).
+     */
+    public function countVisitesPressing(): int
     {
         return $this->factures()
             ->where('statut', 'paye_retire')
@@ -61,9 +69,17 @@ class Client extends Model
     }
 
     /**
-     * Number of paid visits for car wash.
+     * Backward-compatible alias for countVisitesPressing.
      */
-    public function visitesLavage(): int
+    public function visitesPressing(): int
+    {
+        return $this->countVisitesPressing();
+    }
+
+    /**
+     * Total completed/paid visits for vehicle washing (all time).
+     */
+    public function countVisitesLavage(): int
     {
         return $this->factures()
             ->where('statut', 'paye_retire')
@@ -72,19 +88,115 @@ class Client extends Model
     }
 
     /**
-     * Find reached loyalty rule (if any matches current total visits).
+     * Backward-compatible alias for countVisitesLavage.
      */
-    public function fideliteAtteinte(?string $typeActivite = null): ?RegleFidelite
+    public function visitesLavage(): int
     {
-        $visites = $this->totalVisites();
+        return $this->countVisitesLavage();
+    }
 
-        return RegleFidelite::query()
+    /**
+     * Single Responsibility: Count paid visits performed strictly at or after a specific date.
+     */
+    public function countVisitesSince(\DateTimeInterface|string $sinceDate, ?string $typeActivite = null): int
+    {
+        return $this->factures()
+            ->where('statut', 'paye_retire')
+            ->where('created_at', '>=', $sinceDate)
+            ->when($typeActivite, function ($query, $typeActivite) {
+                $query->whereHas('pressing', fn ($q) => $q->where('type_activite', $typeActivite));
+            })
+            ->count();
+    }
+
+    /**
+     * Single Responsibility: Calculate eligible visits for a given loyalty rule based on its creation date.
+     */
+    public function countVisitesPourRegle(RegleFidelite $regle): int
+    {
+        $activite = $regle->type_activite === 'global' ? null : $regle->type_activite;
+
+        // If rule has created_at, count visits from that moment; otherwise count all matching visits
+        if ($regle->created_at) {
+            return $this->countVisitesSince($regle->created_at, $activite);
+        }
+
+        return $activite === 'lavage'
+            ? $this->countVisitesLavage()
+            : ($activite === 'pressing' ? $this->countVisitesPressing() : $this->countTotalVisites());
+    }
+
+    /**
+     * Single Responsibility: Determine if client has reached the threshold for a specific loyalty rule.
+     */
+    public function estEligibleRegle(RegleFidelite $regle): bool
+    {
+        if (! $regle->actif) {
+            return false;
+        }
+
+        return $this->countVisitesPourRegle($regle) >= $regle->seuil_visites;
+    }
+
+    /**
+     * Single Responsibility: Count visits remaining before qualifying for a specific rule.
+     */
+    public function visitesRestantesPourRegle(RegleFidelite $regle): int
+    {
+        $current = $this->countVisitesPourRegle($regle);
+
+        return max(0, $regle->seuil_visites - $current);
+    }
+
+    /**
+     * Single Responsibility: Find highest loyalty rule achieved by client since rule inception.
+     */
+    public function regleFideliteAtteinte(?string $typeActivite = null): ?RegleFidelite
+    {
+        $regles = RegleFidelite::query()
             ->where('actif', true)
-            ->where('seuil_visites', '<=', $visites)
             ->when($typeActivite, function ($q) use ($typeActivite) {
                 $q->whereIn('type_activite', [$typeActivite, 'global']);
             })
             ->orderByDesc('seuil_visites')
-            ->first();
+            ->get();
+
+        foreach ($regles as $regle) {
+            if ($this->estEligibleRegle($regle)) {
+                return $regle;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Backward-compatible alias for regleFideliteAtteinte.
+     */
+    public function fideliteAtteinte(?string $typeActivite = null): ?RegleFidelite
+    {
+        return $this->regleFideliteAtteinte($typeActivite);
+    }
+
+    /**
+     * Single Responsibility: Find the next unreached loyalty rule closest to being unlocked.
+     */
+    public function prochaineRegleFidelite(?string $typeActivite = null): ?RegleFidelite
+    {
+        $regles = RegleFidelite::query()
+            ->where('actif', true)
+            ->when($typeActivite, function ($q) use ($typeActivite) {
+                $q->whereIn('type_activite', [$typeActivite, 'global']);
+            })
+            ->orderBy('seuil_visites')
+            ->get();
+
+        foreach ($regles as $regle) {
+            if (! $this->estEligibleRegle($regle)) {
+                return $regle;
+            }
+        }
+
+        return null;
     }
 }

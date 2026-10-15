@@ -119,66 +119,112 @@
                     @endif
                 </div>
 
-                <!-- Navigation Links with Vector SVG Icons -->
-                <nav class="px-2 py-1 space-y-0.5">
+                <!-- Navigation Links with Vector SVG Icons Grouped by Pole -->
+                <nav class="px-2 py-1 space-y-3">
                     @if(auth()->user()->isAdmin())
-                        <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-500">
-                            Administration Centrale
+                        <!-- Section: Vue Globale & Consolidation -->
+                        <div class="space-y-0.5">
+                            <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-500">
+                                Consolidation Réseau
+                            </div>
+                            <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                                </svg>
+                                <span>Tableau de bord</span>
+                            </a>
+                            <a href="{{ route('admin.clients.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.clients.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                                </svg>
+                                <span>Clients Réseau</span>
+                            </a>
+                            <a href="{{ route('admin.fidelite.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.fidelite.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
+                                </svg>
+                                <span>Règles de Fidélité</span>
+                            </a>
+                            <a href="{{ route('admin.factures.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.factures.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                </svg>
+                                <span>Factures Consolidées</span>
+                            </a>
                         </div>
-                        <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                            </svg>
-                            <span>Tableau de bord</span>
-                        </a>
-                        <a href="{{ route('admin.pressings.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.pressings.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9"/>
-                            </svg>
-                            <span>Établissements (Pressing / Lavage)</span>
-                        </a>
-                        <a href="{{ route('admin.clients.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.clients.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
-                            </svg>
-                            <span>Clients & Fidélité</span>
-                        </a>
-                        <a href="{{ route('admin.fidelite.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.fidelite.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"/>
-                            </svg>
-                            <span>Règles de Fidélité</span>
-                        </a>
-                        <a href="{{ route('admin.vehicules.echeances') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.vehicules.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <span>Échéances Véhicules</span>
-                        </a>
-                        <a href="{{ route('admin.laveurs.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.laveurs.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
-                            </svg>
-                            <span>Personnel Laveurs</span>
-                        </a>
-                        <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-                            </svg>
-                            <span>Caissiers & Gestionnaires</span>
-                        </a>
-                        <a href="{{ route('admin.services.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.services.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-                            </svg>
-                            <span>Catalogue & Tarifs</span>
-                        </a>
-                        <a href="{{ route('admin.factures.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.factures.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
-                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                            </svg>
-                            <span>Factures Consolidées</span>
-                        </a>
+
+                        <!-- Section: Pôle Pressing & Blanchisserie -->
+                        <div class="space-y-1">
+                            <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-400 flex items-center justify-between border-t border-zinc-800/80 pt-2.5">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                                    <span>Pôle Pressing</span>
+                                </span>
+                            </div>
+                            <div class="space-y-0.5">
+                                <a href="{{ route('admin.pressings.index', ['type_activite' => 'pressing']) }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ (request()->routeIs('admin.pressings.*') && request('type_activite') !== 'lavage') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9"/>
+                                    </svg>
+                                    <span>Agences Pressing</span>
+                                </a>
+                                <a href="{{ route('admin.services.index', ['type_activite' => 'pressing']) }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ (request()->routeIs('admin.services.*') && request('type_activite') === 'pressing') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    <span>Prestations Pressing</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Section: Pôle Station Lavage Auto / Moto -->
+                        <div class="space-y-1">
+                            <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-400 flex items-center justify-between border-t border-zinc-800/80 pt-2.5">
+                                <span class="flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+                                    <span>Pôle Lavage Auto/Moto</span>
+                                </span>
+                            </div>
+                            <div class="space-y-0.5">
+                                <a href="{{ route('admin.pressings.index', ['type_activite' => 'lavage']) }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ (request()->routeIs('admin.pressings.*') && request('type_activite') === 'lavage') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0V11m0 0h4m-4 0H9"/>
+                                    </svg>
+                                    <span>Stations de Lavage</span>
+                                </a>
+                                <a href="{{ route('admin.services.index', ['type_activite' => 'lavage']) }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ (request()->routeIs('admin.services.*') && request('type_activite') === 'lavage') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                    </svg>
+                                    <span>Prestations Lavage</span>
+                                </a>
+                                <a href="{{ route('admin.laveurs.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.laveurs.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <span>Personnel Laveurs</span>
+                                </a>
+                                <a href="{{ route('admin.vehicules.echeances') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.vehicules.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                    </svg>
+                                    <span>Échéances Véhicules</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Section: Administration & Paramètres Réseau -->
+                        <div class="space-y-1">
+                            <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-500 border-t border-zinc-800/80 pt-2.5">
+                                Paramètres Réseau
+                            </div>
+                            <a href="{{ route('admin.users.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                                </svg>
+                                <span>Caissiers & Gestionnaires</span>
+                            </a>
+                        </div>
                     @elseif(auth()->user()->isCaissier())
                         <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-500">
                             Espace Guichet Caisse
@@ -250,6 +296,9 @@
         @endauth
 
     </div>
+
+    <!-- Reusable Modal Confirmation & Alert -->
+    <x-modal-confirm />
 
     <script>
         function toggleTheme() {

@@ -18,6 +18,7 @@ class ServiceController extends Controller
     {
         $search = $request->query('q');
         $pressingId = $request->query('pressing_id');
+        $typeActivite = $request->query('type_activite');
 
         $services = Service::query()
             ->with('pressing')
@@ -28,17 +29,33 @@ class ServiceController extends Controller
             ->when($pressingId, function ($query, $pressingId) {
                 $query->where('pressing_id', $pressingId);
             })
+            ->when($typeActivite, function ($query, $typeActivite) {
+                $query->whereHas('pressing', function ($q) use ($typeActivite) {
+                    $q->where('type_activite', $typeActivite);
+                });
+            })
             ->orderBy('designation')
             ->paginate(15)
             ->withQueryString();
 
-        $pressings = Pressing::orderBy('nom')->get();
+        $countTotal = Service::count();
+        $countPressing = Service::whereHas('pressing', fn ($q) => $q->where('type_activite', 'pressing'))->count();
+        $countLavage = Service::whereHas('pressing', fn ($q) => $q->where('type_activite', 'lavage'))->count();
+
+        $pressings = Pressing::query()
+            ->when($typeActivite, fn ($q) => $q->where('type_activite', $typeActivite))
+            ->orderBy('nom')
+            ->get();
 
         return view('admin.services.index', [
             'services' => $services,
             'pressings' => $pressings,
             'search' => $search,
             'selectedPressingId' => $pressingId,
+            'selectedType' => $typeActivite,
+            'countTotal' => $countTotal,
+            'countPressing' => $countPressing,
+            'countLavage' => $countLavage,
         ]);
     }
 

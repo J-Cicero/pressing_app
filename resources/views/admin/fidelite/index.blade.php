@@ -111,10 +111,20 @@
                                     Modifier
                                 </a>
 
-                                <form method="POST" action="{{ route('admin.fidelite.destroy', $regle) }}" class="inline-block" onsubmit="return confirm('Confirmer la suppression de cette règle de fidélité ?');">
+                                <form method="POST" action="{{ route('admin.fidelite.destroy', $regle) }}" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 transition">
+                                    <button
+                                        type="button"
+                                        onclick="showConfirmModal({
+                                            title: 'Supprimer la règle de fidélité',
+                                            message: 'Confirmez-vous la suppression du palier de fidélité à {{ $regle->seuil_visites }} visites ({{ addslashes($regle->description) }}) ?',
+                                            confirmText: 'Supprimer',
+                                            type: 'danger',
+                                            form: this.closest('form')
+                                        })"
+                                        class="inline-flex items-center px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-800 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 transition"
+                                    >
                                         Supprimer
                                     </button>
                                 </form>

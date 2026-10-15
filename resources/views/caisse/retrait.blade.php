@@ -231,11 +231,18 @@
                                     </form>
 
                                     <!-- Action 2 : Encaisser direct -->
-                                    <form method="POST" action="{{ route('caisse.factures.encaisser', $f) }}" class="inline-block" onsubmit="return confirm('Encaisser 100% du montant ({{ number_format($f->montant_total, 0, ',', ' ') }} FCFA) et restituer au client ?');">
+                                    <form method="POST" action="{{ route('caisse.factures.encaisser', $f) }}" class="inline-block">
                                         @csrf
                                         @method('PATCH')
                                         <button
-                                            type="submit"
+                                            type="button"
+                                            onclick="showConfirmModal({
+                                                title: 'Validation de l\'encaissement',
+                                                message: 'Confirmez-vous l\'encaissement intégral de {{ number_format($f->montant_total, 0, ',', ' ') }} FCFA et la restitution du ticket {{ $f->num_ticket }} ?',
+                                                confirmText: 'Encaisser & Valider',
+                                                type: 'info',
+                                                form: this.closest('form')
+                                            })"
                                             class="px-3 py-1 text-[11px] font-bold rounded-lg bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black transition shadow-xs cursor-pointer"
                                         >
                                             Encaisser
@@ -243,11 +250,18 @@
                                     </form>
                                 @elseif($f->statut === 'pret')
                                     <!-- Action 2 : Encaisser & Restituer -->
-                                    <form method="POST" action="{{ route('caisse.factures.encaisser', $f) }}" class="inline-block" onsubmit="return confirm('Encaisser 100% du montant ({{ number_format($f->montant_total, 0, ',', ' ') }} FCFA) et restituer au client ?');">
+                                    <form method="POST" action="{{ route('caisse.factures.encaisser', $f) }}" class="inline-block">
                                         @csrf
                                         @method('PATCH')
                                         <button
-                                            type="submit"
+                                            type="button"
+                                            onclick="showConfirmModal({
+                                                title: 'Restitution & Encaissement',
+                                                message: 'Confirmez-vous la perception de {{ number_format($f->montant_total, 0, ',', ' ') }} FCFA pour la remise du ticket {{ $f->num_ticket }} au client ?',
+                                                confirmText: 'Encaisser & Restituer',
+                                                type: 'info',
+                                                form: this.closest('form')
+                                            })"
                                             class="px-3 py-1 text-[11px] font-bold rounded-lg bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black transition shadow-xs cursor-pointer"
                                         >
                                             Encaisser & Restituer

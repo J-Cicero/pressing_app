@@ -72,7 +72,7 @@
             </div>
             @if($prochaineRegle)
                 <p class="text-[11px] text-zinc-400 dark:text-zinc-600">
-                    Prochain palier dans {{ $prochaineRegle->seuil_visites - $totalVisites }} passage(s) ({{ $prochaineRegle->seuil_visites }} visites)
+                    Prochain palier dans {{ $client->visitesRestantesPourRegle($prochaineRegle) }} passage(s) ({{ $prochaineRegle->seuil_visites }} visites)
                 </p>
             @else
                 <p class="text-[11px] text-zinc-400 dark:text-zinc-600">Palier maximal atteint</p>
@@ -91,7 +91,7 @@
                     <span class="text-sm font-bold text-zinc-950 dark:text-white">Avantage Fidélité Disponible</span>
                 </div>
                 <p class="text-xs text-zinc-600 dark:text-zinc-400">
-                    Ce client a franchi le palier de {{ $fideliteAtteinte->seuil_visites }} visites. Avantage : {{ $fideliteAtteinte->description }}.
+                    Ce client a franchi le palier de {{ $fideliteAtteinte->seuil_visites }} visites. Avantage débloqué : {{ $fideliteAtteinte->description }}.
                 </p>
             </div>
             <a href="{{ $whatsappFideliteUrl }}" target="_blank" class="px-4 py-2 bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black text-xs font-bold rounded-xl transition flex items-center justify-center gap-2 whitespace-nowrap">
@@ -102,6 +102,78 @@
             </a>
         </div>
     @endif
+
+    <!-- Loyalty Rules Detailed Progression Section -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-bold tracking-tight text-zinc-950 dark:text-white">Suivi des Règles & Paliers de Fidélité</h2>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Comptabilisation des passages effectués depuis la création de chaque règle</p>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-zinc-50 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-semibold">
+                        <th class="py-3.5 px-6">Palier & Avantage</th>
+                        <th class="py-3.5 px-6">Portée</th>
+                        <th class="py-3.5 px-6">Lancement</th>
+                        <th class="py-3.5 px-6 text-center">Progression</th>
+                        <th class="py-3.5 px-6 text-right">Statut</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
+                    @forelse($toutesLesRegles as $r)
+                        @php
+                            $visitesRegle = $client->countVisitesPourRegle($r);
+                            $estEligible = $client->estEligibleRegle($r);
+                            $restantes = $client->visitesRestantesPourRegle($r);
+                        @endphp
+                        <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
+                            <td class="py-4 px-6 font-bold text-zinc-950 dark:text-white">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-black">{{ $r->seuil_visites }} visites</span>
+                                    <span class="text-zinc-400 dark:text-zinc-500">&bull;</span>
+                                    <span class="text-zinc-700 dark:text-zinc-300">{{ $r->description }}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6 uppercase text-[10px] font-bold text-zinc-500 dark:text-zinc-400">
+                                {{ $r->type_activite }}
+                            </td>
+                            <td class="py-4 px-6 font-mono text-zinc-500 dark:text-zinc-400 text-[11px]">
+                                {{ $r->created_at ? $r->created_at->format('d/m/Y') : 'Historique' }}
+                            </td>
+                            <td class="py-4 px-6 text-center font-mono">
+                                <span class="font-black text-zinc-900 dark:text-white">{{ $visitesRegle }}</span>
+                                <span class="text-zinc-400 dark:text-zinc-500">/ {{ $r->seuil_visites }}</span>
+                            </td>
+                            <td class="py-4 px-6 text-right">
+                                @if($estEligible)
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-zinc-950 text-white dark:bg-white dark:text-black">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                        </svg>
+                                        <span>Palier Atteint</span>
+                                    </span>
+                                @else
+                                    <span class="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
+                                        {{ $restantes }} visite(s) restante(s)
+                                    </span>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-zinc-500 dark:text-zinc-400">
+                                Aucune règle de fidélité active pour le moment.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <!-- Vehicles Section -->
     <div class="space-y-4">

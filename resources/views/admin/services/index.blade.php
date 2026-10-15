@@ -24,10 +24,34 @@
         </div>
     </div>
 
-    <!-- Filters form -->
-    <div class="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
-        <form method="GET" action="{{ route('admin.services.index') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl">
-            <div class="relative">
+    <!-- Filters & Activity Tabs (Balanced Full Width) -->
+    <div class="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Quick Activity Tabs -->
+        <div class="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-950 rounded-xl text-xs border border-zinc-200 dark:border-zinc-800 shrink-0">
+            <a href="{{ route('admin.services.index', array_filter(['q' => $search, 'pressing_id' => $selectedPressingId])) }}"
+               class="px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 {{ empty($selectedType) ? 'bg-white dark:bg-zinc-800 text-black dark:text-white shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white' }}">
+                <span>Toutes</span>
+                <span class="text-[10px] font-mono opacity-70">({{ $countTotal }})</span>
+            </a>
+            <a href="{{ route('admin.services.index', array_filter(['type_activite' => 'pressing', 'q' => $search, 'pressing_id' => $selectedPressingId])) }}"
+               class="px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 {{ $selectedType === 'pressing' ? 'bg-white dark:bg-zinc-800 text-black dark:text-white shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white' }}">
+                <span>Pressing</span>
+                <span class="text-[10px] font-mono opacity-70">({{ $countPressing }})</span>
+            </a>
+            <a href="{{ route('admin.services.index', array_filter(['type_activite' => 'lavage', 'q' => $search, 'pressing_id' => $selectedPressingId])) }}"
+               class="px-3 py-1.5 rounded-lg font-bold transition flex items-center gap-1.5 {{ $selectedType === 'lavage' ? 'bg-white dark:bg-zinc-800 text-black dark:text-white shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white' }}">
+                <span>Lavage Auto/Moto</span>
+                <span class="text-[10px] font-mono opacity-70">({{ $countLavage }})</span>
+            </a>
+        </div>
+
+        <!-- Search & Agency Filters on Right -->
+        <form method="GET" action="{{ route('admin.services.index') }}" class="flex flex-col sm:flex-row flex-1 lg:justify-end gap-2.5">
+            @if($selectedType)
+                <input type="hidden" name="type_activite" value="{{ $selectedType }}">
+            @endif
+
+            <div class="relative flex-1 sm:max-w-xs">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -37,26 +61,28 @@
                     type="text"
                     name="q"
                     value="{{ $search }}"
-                    placeholder="Désignation du service..."
-                    class="w-full pl-9 pr-4 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                    placeholder="Désignation de la prestation..."
+                    class="w-full pl-9 pr-4 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                 >
             </div>
-            <div>
-                <select name="pressing_id" class="w-full px-3 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition">
+
+            <div class="sm:max-w-xs">
+                <select name="pressing_id" class="w-full px-3 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition">
                     <option value="">Toutes les agences</option>
                     @foreach($pressings as $p)
                         <option value="{{ $p->id }}" {{ (string)$selectedPressingId === (string)$p->id ? 'selected' : '' }}>
-                            {{ $p->nom }} ({{ $p->ville }})
+                            {{ $p->nom }} ({{ $p->isLavage() ? 'Station' : 'Pressing' }})
                         </option>
                     @endforeach
                 </select>
             </div>
+
             <div class="flex gap-2">
-                <button type="submit" class="px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold rounded-xl transition flex-1 shadow-xs">
+                <button type="submit" class="px-4 py-2 bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black text-xs font-bold rounded-xl transition shadow-xs">
                     Filtrer
                 </button>
-                @if($search || $selectedPressingId)
-                    <a href="{{ route('admin.services.index') }}" class="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition border border-zinc-200 dark:border-zinc-700">
+                @if($search || $selectedPressingId || $selectedType)
+                    <a href="{{ route('admin.services.index') }}" class="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition border border-zinc-200 dark:border-zinc-700">
                         Réinit.
                     </a>
                 @endif
@@ -71,9 +97,9 @@
                 <thead>
                     <tr class="bg-zinc-50/80 dark:bg-zinc-950/80 border-b border-zinc-100 dark:border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-semibold">
                         <th class="py-3.5 px-6">Désignation</th>
-                        <th class="py-3.5 px-6">Agence Associée</th>
+                        <th class="py-3.5 px-6">Établissement</th>
                         <th class="py-3.5 px-6 text-right">Prix Unitaire</th>
-                        <th class="py-3.5 px-6 text-center">Utilisations</th>
+                        <th class="py-3.5 px-6 text-center">Commandes</th>
                         <th class="py-3.5 px-6 text-right">Actions</th>
                     </tr>
                 </thead>
@@ -83,7 +109,7 @@
                             <td class="py-4 px-6 font-bold text-zinc-900 dark:text-white">{{ $s->designation }}</td>
                             <td class="py-4 px-6 text-zinc-600 dark:text-zinc-300">
                                 <span class="font-bold text-zinc-900 dark:text-white">{{ $s->pressing->nom }}</span>
-                                <span class="text-zinc-400 dark:text-zinc-500 text-[11px]">({{ $s->pressing->ville }})</span>
+                                <span class="text-zinc-400 dark:text-zinc-500 text-[11px]">({{ $s->pressing->isLavage() ? 'Lavage' : 'Pressing' }})</span>
                             </td>
                             <td class="py-4 px-6 text-right font-mono font-bold text-zinc-900 dark:text-white">
                                 {{ number_format((float) $s->prix_unitaire, 2, ',', ' ') }} FCFA
@@ -98,10 +124,20 @@
                                     Modifier
                                 </a>
 
-                                <form method="POST" action="{{ route('admin.services.destroy', $s) }}" class="inline-block" onsubmit="return confirm('Confirmer la suppression de cette prestation ?');">
+                                <form method="POST" action="{{ route('admin.services.destroy', $s) }}" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer">
+                                    <button
+                                        type="button"
+                                        onclick="showConfirmModal({
+                                            title: 'Supprimer la prestation',
+                                            message: 'Confirmez-vous la suppression de la prestation « {{ addslashes($s->designation) }} » ?',
+                                            confirmText: 'Supprimer',
+                                            type: 'danger',
+                                            form: this.closest('form')
+                                        })"
+                                        class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
+                                    >
                                         Supprimer
                                     </button>
                                 </form>

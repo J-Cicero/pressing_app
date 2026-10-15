@@ -30,29 +30,62 @@ class AdminDashboardController extends Controller
             $endDate = $now->copy()->endOfMonth();
         }
 
-        // 1. CA du jour (statut = 'paye_retire' et paye_at aujourd'hui)
+        // 1. CA Global Consolidé
         $caJour = (float) Facture::where('statut', 'paye_retire')
             ->whereDate('paye_at', $now->toDateString())
             ->sum('montant_total');
 
-        // 2. CA du mois (statut = 'paye_retire' sur le mois en cours)
         $caMois = (float) Facture::where('statut', 'paye_retire')
             ->whereYear('paye_at', $now->year)
             ->whereMonth('paye_at', $now->month)
             ->sum('montant_total');
 
-        // 3. Total impayés / en attente (statut != 'paye_retire')
         $totalImpayes = (float) Facture::where('statut', '!=', 'paye_retire')
             ->sum('montant_total');
 
-        // 4. CA période filtrée
         $caPeriodeQuery = Facture::where('statut', 'paye_retire');
         if ($startDate && $endDate) {
             $caPeriodeQuery->whereBetween('paye_at', [$startDate, $endDate]);
         }
         $caPeriode = (float) $caPeriodeQuery->sum('montant_total');
 
-        // Métriques de volume
+        // 2. Ségrégation : Pôle Blanchisserie & Pressing
+        $caPressingJour = (float) Facture::where('statut', 'paye_retire')
+            ->whereDate('paye_at', $now->toDateString())
+            ->whereHas('pressing', fn ($q) => $q->where('type_activite', 'pressing'))
+            ->sum('montant_total');
+
+        $caPressingPeriodeQuery = Facture::where('statut', 'paye_retire')
+            ->whereHas('pressing', fn ($q) => $q->where('type_activite', 'pressing'));
+        if ($startDate && $endDate) {
+            $caPressingPeriodeQuery->whereBetween('paye_at', [$startDate, $endDate]);
+        }
+        $caPressingPeriode = (float) $caPressingPeriodeQuery->sum('montant_total');
+
+        $ticketsPressingPayes = Facture::where('statut', 'paye_retire')
+            ->whereHas('pressing', fn ($q) => $q->where('type_activite', 'pressing'))
+            ->when($startDate && $endDate, fn ($q) => $q->whereBetween('paye_at', [$startDate, $endDate]))
+            ->count();
+
+        // 3. Ségrégation : Pôle Station de Lavage Auto/Moto
+        $caLavageJour = (float) Facture::where('statut', 'paye_retire')
+            ->whereDate('paye_at', $now->toDateString())
+            ->whereHas('pressing', fn ($q) => $q->where('type_activite', 'lavage'))
+            ->sum('montant_total');
+
+        $caLavagePeriodeQuery = Facture::where('statut', 'paye_retire')
+            ->whereHas('pressing', fn ($q) => $q->where('type_activite', 'lavage'));
+        if ($startDate && $endDate) {
+            $caLavagePeriodeQuery->whereBetween('paye_at', [$startDate, $endDate]);
+        }
+        $caLavagePeriode = (float) $caLavagePeriodeQuery->sum('montant_total');
+
+        $lavagesPayes = Facture::where('statut', 'paye_retire')
+            ->whereHas('pressing', fn ($q) => $q->where('type_activite', 'lavage'))
+            ->when($startDate && $endDate, fn ($q) => $q->whereBetween('paye_at', [$startDate, $endDate]))
+            ->count();
+
+        // Métriques de volume globales
         $totalTickets = Facture::count();
         $ticketsPayes = Facture::where('statut', 'paye_retire')->count();
         $ticketsEnAttente = Facture::where('statut', '!=', 'paye_retire')->count();
@@ -75,6 +108,7 @@ class AdminDashboardController extends Controller
                 $q->where('statut', '!=', 'paye_retire');
             }], 'montant_total')
             ->withCount('users as total_personnel')
+            ->orderBy('type_activite')
             ->orderBy('nom')
             ->get();
 
@@ -84,6 +118,12 @@ class AdminDashboardController extends Controller
             'caMois' => $caMois,
             'totalImpayes' => $totalImpayes,
             'caPeriode' => $caPeriode,
+            'caPressingJour' => $caPressingJour,
+            'caPressingPeriode' => $caPressingPeriode,
+            'ticketsPressingPayes' => $ticketsPressingPayes,
+            'caLavageJour' => $caLavageJour,
+            'caLavagePeriode' => $caLavagePeriode,
+            'lavagesPayes' => $lavagesPayes,
             'totalTickets' => $totalTickets,
             'ticketsPayes' => $ticketsPayes,
             'ticketsEnAttente' => $ticketsEnAttente,

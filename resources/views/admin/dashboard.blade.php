@@ -40,107 +40,106 @@
         </div>
     </div>
 
-    <!-- Financial KPI Cards (Real DB Aggregates) -->
+    <!-- Financial KPI Cards with Clear Activity Segregation -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <!-- CA du Jour -->
-        <div class="bg-white dark:bg-zinc-900 rounded-xl p-5 border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 relative overflow-hidden group">
+        <!-- 1. CA Global Consolidé -->
+        <div class="bg-black text-white dark:bg-white dark:text-zinc-950 rounded-2xl p-5 border border-zinc-900 dark:border-zinc-200 shadow-md relative overflow-hidden group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">CA du Jour</span>
-                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700">
-                    Aujourd'hui
-                </span>
-            </div>
-            <div class="mt-3 flex items-baseline gap-1">
-                <span class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white font-mono">
-                    {{ number_format($caJour, 2, ',', ' ') }}
-                </span>
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-500">FCFA</span>
-            </div>
-            <div class="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-white inline-block"></span>
-                Paiement 100% perçu au retrait
-            </div>
-        </div>
-
-        <!-- CA du Mois / Filtré -->
-        <div class="bg-white dark:bg-zinc-900 rounded-xl p-5 border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 relative overflow-hidden group">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                <span class="text-xs font-bold text-zinc-400 dark:text-zinc-600 uppercase tracking-wider">CA Global Consolidé</span>
+                <span class="px-2 py-0.5 text-[10px] font-mono font-bold uppercase tracking-wider rounded-md bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900">
                     @if($periode === 'jour')
-                        CA Sélectionné
+                        Aujourd'hui
                     @elseif($periode === 'tout')
-                        CA Cumulé Global
-                    @else
-                        CA du Mois
-                    @endif
-                </span>
-                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 font-bold">
-                    @if($periode === 'jour')
-                        Jour
-                    @elseif($periode === 'tout')
-                        Global
+                        Historique
                     @else
                         {{ date('M Y') }}
                     @endif
                 </span>
             </div>
             <div class="mt-3 flex items-baseline gap-1">
-                <span class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white font-mono">
+                <span class="text-2xl font-black tracking-tight font-mono">
                     {{ number_format($caPeriode, 2, ',', ' ') }}
                 </span>
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-500">FCFA</span>
+                <span class="text-xs font-semibold opacity-75">FCFA</span>
             </div>
-            <div class="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center gap-1.5">
-                <span class="w-1.5 h-1.5 rounded-full bg-zinc-400 dark:bg-zinc-400 inline-block"></span>
-                Recette selon filtre actif
+            <div class="mt-2 text-[11px] text-zinc-400 dark:text-zinc-600 flex items-center justify-between">
+                <span>Jour : {{ number_format($caJour, 0, ',', ' ') }} FCFA</span>
+                <span class="font-mono">{{ $ticketsPayes }} payés</span>
             </div>
         </div>
 
-        <!-- Total Impayés / En Attente -->
-        <div class="bg-white dark:bg-zinc-900 rounded-xl p-5 border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 relative overflow-hidden group">
+        <!-- 2. Pôle Blanchisserie & Pressing -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 relative overflow-hidden group">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Total Impayés</span>
-                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
-                    En attente
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-zinc-900 dark:bg-white"></span>
+                    <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Pôle Pressing</span>
+                </div>
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                    Linge
+                </span>
+            </div>
+            <div class="mt-3 flex items-baseline gap-1">
+                <span class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white font-mono">
+                    {{ number_format($caPressingPeriode, 2, ',', ' ') }}
+                </span>
+                <span class="text-xs font-semibold text-zinc-500">FCFA</span>
+            </div>
+            <div class="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
+                <span>Jour : {{ number_format($caPressingJour, 0, ',', ' ') }} FCFA</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">{{ $ticketsPressingPayes }} tickets</span>
+            </div>
+        </div>
+
+        <!-- 3. Pôle Station Lavage Auto / Moto -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-500"></span>
+                    <span class="text-xs font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-wider">Pôle Lavage Auto</span>
+                </div>
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                    Véhicules
+                </span>
+            </div>
+            <div class="mt-3 flex items-baseline gap-1">
+                <span class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white font-mono">
+                    {{ number_format($caLavagePeriode, 2, ',', ' ') }}
+                </span>
+                <span class="text-xs font-semibold text-zinc-500">FCFA</span>
+            </div>
+            <div class="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400 flex items-center justify-between">
+                <span>Jour : {{ number_format($caLavageJour, 0, ',', ' ') }} FCFA</span>
+                <span class="font-mono font-bold text-zinc-900 dark:text-white">{{ $lavagesPayes }} lavages</span>
+            </div>
+        </div>
+
+        <!-- 4. Total Impayés / En Attente -->
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl p-5 border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 relative overflow-hidden group">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Impayés En Cours</span>
+                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
+                    À percevoir
                 </span>
             </div>
             <div class="mt-3 flex items-baseline gap-1">
                 <span class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white font-mono">
                     {{ number_format($totalImpayes, 2, ',', ' ') }}
                 </span>
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-500">FCFA</span>
+                <span class="text-xs font-semibold text-zinc-500">FCFA</span>
             </div>
-            <div class="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
-                <span class="font-bold text-zinc-900 dark:text-white font-mono">{{ $ticketsEnAttente }}</span> ticket(s) déposé(s) non retiré(s)
-            </div>
-        </div>
-
-        <!-- Total Volume Tickets -->
-        <div class="bg-white dark:bg-zinc-900 rounded-xl p-5 border border-zinc-200/80 dark:border-zinc-800 shadow-xs hover:border-zinc-300 dark:hover:border-zinc-700 transition duration-200 relative overflow-hidden group">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Volume Tickets</span>
-                <span class="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-md bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">
-                    Global
-                </span>
-            </div>
-            <div class="mt-3 flex items-baseline gap-1">
-                <span class="text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white font-mono">
-                    {{ $totalTickets }}
-                </span>
-                <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-500">tickets</span>
-            </div>
-            <div class="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
-                <span class="text-zinc-900 dark:text-white font-bold">{{ $ticketsPayes }} payés</span> &bull; <span class="text-zinc-500 dark:text-zinc-400 font-semibold">{{ $ticketsEnAttente }} en cours</span>
+            <div class="mt-2 text-[11px] text-zinc-500 dark:text-zinc-400">
+                <span class="font-bold text-zinc-900 dark:text-white font-mono">{{ $ticketsEnAttente }}</span> commande(s) non retirée(s)
             </div>
         </div>
     </div>
 
     <!-- Comparative Table by Agency -->
-    <div class="bg-white dark:bg-zinc-900 rounded-xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
+    <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
         <div class="p-5 border-b border-zinc-100 dark:border-zinc-800/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div>
                 <h2 class="text-sm font-bold text-zinc-900 dark:text-white">Tableau comparatif dynamique par agence</h2>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Données d'activité et chiffre d'affaires consolidés par point de vente</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Performance consolidée, recettes et activité ventilées par établissement</p>
             </div>
             <a href="{{ route('admin.pressings.create') }}" class="inline-flex items-center justify-center px-3.5 py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold rounded-xl shadow-xs transition gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -154,7 +153,8 @@
             <table class="w-full text-left border-collapse text-xs">
                 <thead>
                     <tr class="bg-zinc-50/80 dark:bg-zinc-950/80 border-b border-zinc-100 dark:border-zinc-800 text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-semibold">
-                        <th class="py-3 px-5">Pressing</th>
+                        <th class="py-3 px-5">Établissement</th>
+                        <th class="py-3 px-5">Activité</th>
                         <th class="py-3 px-5">Localisation</th>
                         <th class="py-3 px-5 text-center">Personnel</th>
                         <th class="py-3 px-5 text-center">Tickets Émis</th>
@@ -179,6 +179,17 @@
                                 </a>
                                 @if($p->telephone)
                                     <div class="text-[11px] text-zinc-500 dark:text-zinc-400 font-mono mt-0.5">Tél: {{ $p->telephone }}</div>
+                                @endif
+                            </td>
+                            <td class="py-3.5 px-5">
+                                @if($p->isLavage())
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-900 text-white dark:bg-white dark:text-black">
+                                        Lavage Auto
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700">
+                                        Pressing
+                                    </span>
                                 @endif
                             </td>
                             <td class="py-3.5 px-5 text-zinc-600 dark:text-zinc-300">

@@ -59,7 +59,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
 
         // Règles de Fidélité Paramétrables
-        Route::resource('fidelite', RegleFideliteController::class)->except(['show']);
+        Route::resource('fidelite', RegleFideliteController::class)->parameters(['fidelite' => 'regle'])->except(['show']);
 
         // Gestion des Laveurs (Personnel de Terrain)
         Route::resource('laveurs', LaveurController::class)->except(['show']);

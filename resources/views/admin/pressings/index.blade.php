@@ -25,8 +25,29 @@
     </div>
 
     <!-- Search form -->
-    <div class="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
-        <form method="GET" action="{{ route('admin.pressings.index') }}" class="flex flex-col sm:flex-row max-w-md gap-3">
+    <!-- Filters & Activity Tabs (Balanced Full Width) -->
+    <div class="bg-white dark:bg-zinc-900 p-4 rounded-2xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Quick Activity Tabs -->
+        <div class="flex items-center gap-1.5 p-1 bg-zinc-100 dark:bg-zinc-950 rounded-xl text-xs border border-zinc-200 dark:border-zinc-800 shrink-0">
+            <a href="{{ route('admin.pressings.index', array_filter(['q' => $search])) }}"
+               class="px-3 py-1.5 rounded-lg font-bold transition {{ empty($selectedType) ? 'bg-white dark:bg-zinc-800 text-black dark:text-white shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white' }}">
+                Tous
+            </a>
+            <a href="{{ route('admin.pressings.index', array_filter(['type_activite' => 'pressing', 'q' => $search])) }}"
+               class="px-3 py-1.5 rounded-lg font-bold transition {{ $selectedType === 'pressing' ? 'bg-white dark:bg-zinc-800 text-black dark:text-white shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white' }}">
+                Pressing
+            </a>
+            <a href="{{ route('admin.pressings.index', array_filter(['type_activite' => 'lavage', 'q' => $search])) }}"
+               class="px-3 py-1.5 rounded-lg font-bold transition {{ $selectedType === 'lavage' ? 'bg-white dark:bg-zinc-800 text-black dark:text-white shadow-xs' : 'text-zinc-600 dark:text-zinc-400 hover:text-black dark:hover:text-white' }}">
+                Station Lavage
+            </a>
+        </div>
+
+        <!-- Search Form on Right -->
+        <form method="GET" action="{{ route('admin.pressings.index') }}" class="flex flex-1 sm:justify-end gap-2.5 max-w-lg">
+            @if($selectedType)
+                <input type="hidden" name="type_activite" value="{{ $selectedType }}">
+            @endif
             <div class="relative flex-1">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -38,19 +59,17 @@
                     name="q"
                     value="{{ $search }}"
                     placeholder="Rechercher par nom, ville, quartier..."
-                    class="w-full pl-9 pr-4 py-2 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                    class="w-full pl-9 pr-4 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                 >
             </div>
-            <div class="flex gap-2">
-                <button type="submit" class="px-4 py-2 bg-zinc-900 hover:bg-black dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-zinc-950 text-xs font-bold rounded-xl transition shadow-xs">
-                    Filtrer
-                </button>
-                @if($search)
-                    <a href="{{ route('admin.pressings.index') }}" class="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold transition border border-zinc-200 dark:border-zinc-700">
-                        Réinitialiser
-                    </a>
-                @endif
-            </div>
+            <button type="submit" class="px-4 py-2 bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black text-xs font-bold rounded-xl transition shadow-xs">
+                Filtrer
+            </button>
+            @if($search || $selectedType)
+                <a href="{{ route('admin.pressings.index') }}" class="px-3 py-2 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition border border-zinc-200 dark:border-zinc-700">
+                    Réinit.
+                </a>
+            @endif
         </form>
     </div>
 
@@ -113,10 +132,20 @@
                                     Modifier
                                 </a>
 
-                                <form method="POST" action="{{ route('admin.pressings.destroy', $p) }}" class="inline-block" onsubmit="return confirm('Confirmer la suppression de cette agence ?');">
+                                <form method="POST" action="{{ route('admin.pressings.destroy', $p) }}" class="inline-block">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer">
+                                    <button
+                                        type="button"
+                                        onclick="showConfirmModal({
+                                            title: 'Supprimer l\'établissement',
+                                            message: 'Confirmez-vous la suppression de l\'agence « {{ addslashes($p->nom) }} » ? Cette opération supprimera définitivement ses données.',
+                                            confirmText: 'Supprimer',
+                                            type: 'danger',
+                                            form: this.closest('form')
+                                        })"
+                                        class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-zinc-100 dark:bg-zinc-950 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-800 transition cursor-pointer"
+                                    >
                                         Supprimer
                                     </button>
                                 </form>

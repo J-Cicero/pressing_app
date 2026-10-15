@@ -51,11 +51,11 @@ class ClientController extends Controller
 
         $fideliteAtteinte = $client->fideliteAtteinte();
         $whatsappFideliteUrl = $fideliteAtteinte ? $whatsApp->urlFidelite($client, $fideliteAtteinte) : null;
+        $prochaineRegle = $client->prochaineRegleFidelite();
 
-        $prochaineRegle = RegleFidelite::where('actif', true)
-            ->where('seuil_visites', '>', $totalVisites)
+        $toutesLesRegles = RegleFidelite::where('actif', true)
             ->orderBy('seuil_visites')
-            ->first();
+            ->get();
 
         return view('admin.clients.show', [
             'client' => $client,
@@ -65,6 +65,7 @@ class ClientController extends Controller
             'fideliteAtteinte' => $fideliteAtteinte,
             'whatsappFideliteUrl' => $whatsappFideliteUrl,
             'prochaineRegle' => $prochaineRegle,
+            'toutesLesRegles' => $toutesLesRegles,
         ]);
     }
 }
