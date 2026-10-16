@@ -7,7 +7,7 @@
         <div>
             <div class="flex items-center gap-2.5">
                 <h1 class="text-xl font-black tracking-tight text-zinc-950 dark:text-white uppercase">
-                    Gestion des Retraits & Encaissement
+                    Gestion des {{ $pressing->isLavage() ? 'Restitutions & Encaissement' : 'Retraits & Encaissement' }}
                 </h1>
                 <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-black dark:bg-white text-white dark:text-black flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -17,7 +17,7 @@
                 </span>
             </div>
             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Recherche par N° de ticket, téléphone client ou immatriculation & encaissement lors de la restitution
+                Recherche par N° de ticket, téléphone client{{ $pressing->isLavage() ? ', plaque immatriculation' : '' }} & encaissement lors de la restitution
             </p>
         </div>
         <div>
@@ -65,7 +65,7 @@
         <form method="GET" action="{{ route('caisse.retrait') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Recherche par Ticket, Téléphone, Nom ou Plaque
+                    Recherche par Ticket, Téléphone, Nom {{ $pressing->isLavage() ? 'ou Plaque' : '' }}
                 </label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
@@ -77,7 +77,7 @@
                         type="text"
                         name="q"
                         value="{{ $search }}"
-                        placeholder="Ex: TCK-2026..., 90000000, Koffi, TG-1234..."
+                        placeholder="{{ $pressing->isLavage() ? 'Ex: TCK-2026..., TG-1234, 90000000, Koffi...' : 'Ex: TCK-2026..., 90000000, Koffi...' }}"
                         class="w-full pl-9 pr-3.5 py-1.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                     >
                 </div>
@@ -90,13 +90,13 @@
                 <select name="statut" class="w-full px-3.5 py-1.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition">
                     <option value="">Tous les statuts</option>
                     <option value="depose" {{ $selectedStatut === 'depose' ? 'selected' : '' }}>
-                        Déposés (En cours) ({{ $countDepose }})
+                        {{ $pressing->isLavage() ? 'En cours de lavage' : 'Déposés (En cours)' }} ({{ $countDepose }})
                     </option>
                     <option value="pret" {{ $selectedStatut === 'pret' ? 'selected' : '' }}>
-                        Prêts au retrait (Non retirés) ({{ $countPret }})
+                        {{ $pressing->isLavage() ? 'Prêts à la restitution' : 'Prêts au retrait (Non retirés)' }} ({{ $countPret }})
                     </option>
                     <option value="paye_retire" {{ $selectedStatut === 'paye_retire' ? 'selected' : '' }}>
-                        Payés & Retirés (Clôturés) ({{ $countPayeRetire }})
+                        {{ $pressing->isLavage() ? 'Restitués & Encaissés' : 'Payés & Retirés (Clôturés)' }} ({{ $countPayeRetire }})
                     </option>
                 </select>
             </div>
@@ -125,17 +125,17 @@
         </a>
         <a href="{{ route('caisse.retrait', ['statut' => 'depose']) }}"
            class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'depose' ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white' }}">
-            <span>Déposés</span>
+            <span>{{ $pressing->isLavage() ? 'En Lavage' : 'Déposés' }}</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] {{ $selectedStatut === 'depose' ? 'bg-white text-black dark:bg-black dark:text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countDepose }}</span>
         </a>
         <a href="{{ route('caisse.retrait', ['statut' => 'pret']) }}"
            class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'pret' ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white' }}">
-            <span>Prêts au Retrait</span>
+            <span>{{ $pressing->isLavage() ? 'Prêts' : 'Prêts au Retrait' }}</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] {{ $selectedStatut === 'pret' ? 'bg-white text-black dark:bg-black dark:text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countPret }}</span>
         </a>
         <a href="{{ route('caisse.retrait', ['statut' => 'paye_retire']) }}"
            class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'paye_retire' ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white' }}">
-            <span>Payés & Retirés</span>
+            <span>{{ $pressing->isLavage() ? 'Restitués & Encaissés' : 'Payés & Retirés' }}</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] {{ $selectedStatut === 'paye_retire' ? 'bg-white text-black dark:bg-black dark:text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countPayeRetire }}</span>
         </a>
     </div>
@@ -148,7 +148,8 @@
                     <tr class="bg-zinc-50 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800 text-[10px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-semibold">
                         <th class="py-3 px-4">N° Ticket</th>
                         <th class="py-3 px-4">Client & Contact</th>
-                        <th class="py-3 px-4">Véhicule / Prestations</th>
+                        <th class="py-3 px-4">{{ $pressing->isLavage() ? 'Véhicule & Prestations' : 'Articles & Prestations' }}</th>
+                        <th class="py-3 px-4">{{ $pressing->isLavage() ? 'Laveur Terrain' : 'Opérateur' }}</th>
                         <th class="py-3 px-4">Dépôt & Prévu</th>
                         <th class="py-3 px-4 text-center">Statut</th>
                         <th class="py-3 px-4 text-right">Montant (100% dû)</th>
@@ -182,8 +183,45 @@
                                     </div>
                                 @endif
                                 <div class="text-[11px] text-zinc-500 dark:text-zinc-400 truncate max-w-xs mt-0.5">
-                                    {{ $f->ligneFactures->map(fn($l) => ($l->service ? $l->service->designation : 'Article') . ' (x' . $l->quantite . ')')->join(', ') }}
+                                    {{ $f->ligneFactures->map(fn($l) => ($l->service ? $l->service->designation : 'Prestation') . ' (x' . $l->quantite . ')')->join(', ') }}
                                 </div>
+                            </td>
+
+                            <!-- Opérateur / Laveur assigné -->
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                @if($f->laveur)
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="w-6 h-6 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white flex items-center justify-center text-[10px] font-bold border border-zinc-200 dark:border-zinc-700">
+                                            {{ substr($f->laveur->nom, 0, 1) }}
+                                        </span>
+                                        <div>
+                                            <div class="font-bold text-zinc-950 dark:text-white text-xs">
+                                                {{ $f->laveur->nom }}
+                                            </div>
+                                            <div class="text-[10px] text-zinc-400 font-mono">
+                                                Com.: {{ number_format($f->laveur->calculerCommission($f), 0, ',', ' ') }} F
+                                            </div>
+                                        </div>
+                                    </div>
+                                @elseif($f->statut !== 'paye_retire' && $laveurs->isNotEmpty())
+                                    <form method="POST" action="{{ route('caisse.factures.assigner-laveur', $f) }}" class="inline">
+                                        @csrf
+                                        @method('PATCH')
+                                        <select
+                                            name="laveur_id"
+                                            onchange="this.form.submit()"
+                                            class="text-[11px] py-1 px-2 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-zinc-600 dark:text-zinc-400 focus:outline-none cursor-pointer"
+                                            title="Assigner un laveur à ce ticket"
+                                        >
+                                            <option value="">+ Assigner laveur</option>
+                                            @foreach($laveurs as $l)
+                                                <option value="{{ $l->id }}">{{ $l->nom }}</option>
+                                            @endforeach
+                                        </select>
+                                    </form>
+                                @else
+                                    <span class="text-zinc-400 text-[11px] italic">Non assigné</span>
+                                @endif
                             </td>
 
                             <!-- Dates -->
@@ -196,15 +234,15 @@
                             <td class="py-3.5 px-4 text-center">
                                 @if($f->statut === 'paye_retire')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-black text-white dark:bg-white dark:text-black">
-                                        Payé & Retiré
+                                        {{ $pressing->isLavage() ? 'Restitué & Réglé' : 'Payé & Retiré' }}
                                     </span>
                                 @elseif($f->statut === 'pret')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white">
-                                        Prêt pour Retrait
+                                        {{ $pressing->isLavage() ? 'Prêt à restituer' : 'Prêt pour Retrait' }}
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
-                                        En Cours (Déposé)
+                                        {{ $pressing->isLavage() ? 'En Lavage' : 'En Cours (Déposé)' }}
                                     </span>
                                 @endif
                             </td>
@@ -292,7 +330,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="py-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
+                            <td colspan="8" class="py-10 text-center text-xs text-zinc-500 dark:text-zinc-400">
                                 <div class="max-w-xs mx-auto space-y-2">
                                     <div class="w-10 h-10 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500 flex items-center justify-center mx-auto text-base">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

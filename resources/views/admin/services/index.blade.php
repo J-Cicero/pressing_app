@@ -11,7 +11,7 @@
                 </span>
             </div>
             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-                Grille tarifaire des services de blanchisserie et nettoyage par agence (Devise : FCFA)
+                Grille tarifaire des prestations de blanchisserie et de lavage auto/moto par agence (Devise : FCFA)
             </p>
         </div>
         <div>

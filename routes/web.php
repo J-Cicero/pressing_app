@@ -92,6 +92,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/retrait', [RetraitController::class, 'index'])->name('retrait');
         Route::patch('/factures/{facture:num_ticket}/pret', [RetraitController::class, 'marquerPret'])->name('factures.pret');
         Route::patch('/factures/{facture:num_ticket}/encaisser', [RetraitController::class, 'encaisser'])->name('factures.encaisser');
+        Route::patch('/factures/{facture:num_ticket}/laveur', [RetraitController::class, 'assignerLaveur'])->name('factures.assigner-laveur');
 
         // Suivi des Laveurs et Commissions Journalières (Station Lavage)
         Route::get('/laveurs', [CaisseLaveurController::class, 'index'])->name('laveurs.index');

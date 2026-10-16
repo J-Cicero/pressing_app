@@ -117,8 +117,8 @@
 
         <!-- Financial Rule Reminder -->
         <div class="p-4 bg-zinc-50 dark:bg-zinc-950 rounded-xl border border-zinc-200/80 dark:border-zinc-800 text-xs text-zinc-600 dark:text-zinc-400 space-y-1">
-            <p class="font-bold text-zinc-900 dark:text-white uppercase text-[10px] tracking-wider">Règle Financière du Pressing :</p>
-            <p class="leading-relaxed">Le client effectue 100% de son règlement lors du <strong>RETRAIT</strong> de ses vêtements (aucun acompte n'est perçu au dépôt). L'encaissement est formalisé dès que le statut passe à <strong>paye_retire</strong> avec horodatage strict.</p>
+            <p class="font-bold text-zinc-900 dark:text-white uppercase text-[10px] tracking-wider">{{ $facture->isLavage() ? 'Règle Financière Station de Lavage :' : 'Règle Financière du Pressing :' }}</p>
+            <p class="leading-relaxed">Le client effectue 100% de son règlement lors de la <strong>{{ $facture->isLavage() ? 'RESTITUTION' : 'DU RETRAIT' }}</strong> {{ $facture->isLavage() ? 'de son véhicule' : 'de ses vêtements' }} (aucun acompte n'est perçu au dépôt/enregistrement). L'encaissement est formalisé dès que le statut passe à <strong>paye_retire</strong> avec horodatage strict.</p>
         </div>
     </div>
 </div>

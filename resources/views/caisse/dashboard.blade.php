@@ -8,7 +8,7 @@
             <div class="flex items-center gap-2.5">
                 <h1 class="text-xl font-extrabold tracking-tight text-zinc-900 dark:text-white">Espace Guichet Caisse</h1>
                 <span class="px-2.5 py-0.5 text-xs font-bold bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 rounded-full shadow-xs">
-                    📍 {{ $pressing->nom }}
+                    {{ $pressing->nom }}
                 </span>
             </div>
             <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
@@ -22,7 +22,7 @@
                 <svg class="w-4 h-4 text-white dark:text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                 </svg>
-                <span>Nouveau Dépôt</span>
+                <span>{{ $pressing->isLavage() ? 'Nouveau Lavage' : 'Nouveau Dépôt' }}</span>
             </a>
             <a href="{{ route('caisse.retrait') }}" class="px-3.5 py-2 bg-zinc-100 dark:bg-zinc-900 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-800 text-xs font-bold rounded-xl shadow-xs transition duration-150 flex items-center gap-1.5">
                 <svg class="w-4 h-4 text-zinc-400 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
                 <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-500">prêts</span>
             </div>
             <div class="mt-1.5 text-[11px] text-zinc-500 dark:text-zinc-400">
-                Vêtements lavés en attente du client
+                {{ $pressing->isLavage() ? 'Véhicules lavés prêts pour restitution' : 'Vêtements lavés en attente du client' }}
             </div>
         </div>
 
@@ -129,13 +129,13 @@
                         <svg class="w-4 h-4 text-white dark:text-zinc-950" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        <span>Nouveau Dépôt Client</span>
+                        <span>{{ $pressing->isLavage() ? 'Nouveau Lavage Véhicule' : 'Nouveau Dépôt Client' }}</span>
                     </a>
                     <a href="{{ route('caisse.retrait') }}" class="w-full py-2.5 px-4 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white text-xs font-bold rounded-xl transition duration-150 flex items-center justify-center gap-2 border border-zinc-200 dark:border-zinc-700">
                         <svg class="w-4 h-4 text-zinc-400 dark:text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
-                        <span>Recherche / Retrait Client</span>
+                        <span>{{ $pressing->isLavage() ? 'Recherche / Restitution Véhicule' : 'Recherche / Retrait Client' }}</span>
                     </a>
                 </div>
             </div>
@@ -149,7 +149,7 @@
                     <span>Règle Financière</span>
                 </div>
                 <p class="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
-                    <strong class="text-zinc-900 dark:text-white">100% du paiement est encaissé au retrait</strong> des vêtements. Aucun acompte à la création du dépôt.
+                    <strong class="text-zinc-900 dark:text-white">{{ $pressing->isLavage() ? '100% du paiement est encaissé à la restitution' : '100% du paiement est encaissé au retrait' }}</strong> {{ $pressing->isLavage() ? 'du véhicule. Aucun acompte à l\'enregistrement.' : 'des vêtements. Aucun acompte à la création du dépôt.' }}
                 </p>
             </div>
         </div>
@@ -233,7 +233,7 @@
                                             </div>
                                             <p class="font-medium text-zinc-700 dark:text-zinc-200">Aucun ticket enregistré aujourd'hui</p>
                                             <a href="{{ route('caisse.depot') }}" class="inline-block px-3.5 py-1.5 bg-zinc-900 dark:bg-white text-white dark:text-zinc-950 rounded-xl text-xs font-bold">
-                                                Créer le premier dépôt
+                                                {{ $pressing->isLavage() ? 'Créer le premier lavage' : 'Créer le premier dépôt' }}
                                             </a>
                                         </div>
                                     </td>

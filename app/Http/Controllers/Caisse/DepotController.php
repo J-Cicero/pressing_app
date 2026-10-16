@@ -109,16 +109,22 @@ class DepotController extends Controller
                 ]);
             }
 
-            // 2. Gestion du véhicule si station de lavage et immatriculation renseignée
+            // 2. Gestion du véhicule si station de lavage
             $vehicule = null;
-            if ($pressing->isLavage() && ! empty($validated['immatriculation'])) {
-                $immat = strtoupper(trim($validated['immatriculation']));
+            if ($pressing->isLavage()) {
+                $immat = ! empty($validated['immatriculation'])
+                    ? strtoupper(trim($validated['immatriculation']))
+                    : 'VEH-'.date('ymd').'-'.strtoupper(Str::random(3));
+
+                $typeVehicule = ! empty($validated['type_vehicule']) ? trim($validated['type_vehicule']) : 'Moto';
+                $marqueModele = ! empty($validated['marque_modele']) ? trim($validated['marque_modele']) : $typeVehicule;
+
                 $vehicule = Vehicule::firstOrCreate(
                     ['immatriculation' => $immat],
                     [
                         'client_id' => $client->id,
-                        'marque_modele' => $validated['marque_modele'] ?? 'Véhicule',
-                        'type_vehicule' => $validated['type_vehicule'] ?? 'voiture',
+                        'marque_modele' => $marqueModele,
+                        'type_vehicule' => $typeVehicule,
                         'date_visite_technique' => $validated['date_visite_technique'] ?? null,
                         'date_assurance' => $validated['date_assurance'] ?? null,
                     ]
@@ -195,6 +201,9 @@ class DepotController extends Controller
 
             return $facture;
         });
+
+        // Charger toutes les relations indispensables pour les emails, tickets et notifications
+        $facture->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
 
         // Email notification (optionnel)
         if (! empty($facture->client_email)) {

@@ -310,7 +310,7 @@
             <span>{{ $facture->user->name }}</span>
         </div>
         <div class="info-row">
-            <span>Retrait prévu :</span>
+            <span>{{ $facture->isLavage() ? 'Restitution prévue :' : 'Retrait prévu :' }}</span>
             <span class="bold">{{ $facture->date_retrait_prevue ? $facture->date_retrait_prevue->format('d/m/Y') : 'À convenir' }}</span>
         </div>
 
@@ -363,9 +363,13 @@
         <!-- Mentions Obligatoires -->
         <div class="footer-note">
             <div class="bold" style="text-transform: uppercase; margin-bottom: 3px;">
-                PAIEMENT À 100% LORS DU RETRAIT DE VOS ARTICLES.
+                @if($facture->isLavage())
+                    PAIEMENT À 100% LORS DE LA RESTITUTION DU VÉHICULE.
+                @else
+                    PAIEMENT À 100% LORS DU RETRAIT DE VOS ARTICLES.
+                @endif
             </div>
-            <div>Présentez ce ticket lors de la récupération.</div>
+            <div>{{ $facture->isLavage() ? 'Présentez ce ticket lors de la restitution.' : 'Présentez ce ticket lors de la récupération.' }}</div>
             <div style="margin-top: 3px;">Merci pour votre fidélité !</div>
             <div style="font-size: 8px; margin-top: 4px;">ERP SUITE &bull; {{ date('d/m/Y H:i') }}</div>
         </div>

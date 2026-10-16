@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Caisse;
 use App\Http\Controllers\Controller;
 use App\Mail\TicketPretMail;
 use App\Models\Facture;
+use App\Models\Laveur;
 use App\Services\WhatsAppNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -64,9 +65,12 @@ class RetraitController extends Controller
             return $f;
         });
 
+        $laveurs = Laveur::where('pressing_id', $pressing->id)->where('actif', true)->orderBy('nom')->get();
+
         return view('caisse.retrait', [
             'pressing' => $pressing,
             'factures' => $factures,
+            'laveurs' => $laveurs,
             'search' => $search,
             'selectedStatut' => $statut,
             'countDepose' => $countDepose,
@@ -95,6 +99,7 @@ class RetraitController extends Controller
         $facture->update([
             'statut' => 'pret',
         ]);
+        $facture->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
 
         if (! empty($facture->client_email)) {
             try {
@@ -105,9 +110,10 @@ class RetraitController extends Controller
         }
 
         $whatsappUrl = $whatsApp->urlPret($facture);
+        $msgLaveur = $facture->laveur ? " (Opérateur/Laveur : {$facture->laveur->nom})" : '';
 
         return back()
-            ->with('status', 'Le ticket '.$facture->num_ticket.' est désormais PRÊT pour le retrait.')
+            ->with('status', 'Le ticket '.$facture->num_ticket.$msgLaveur.' est désormais PRÊT pour le retrait.')
             ->with('whatsapp_pret_url', $whatsappUrl);
     }
 
@@ -132,7 +138,37 @@ class RetraitController extends Controller
             'statut' => 'paye_retire',
             'paye_at' => now(),
         ]);
+        $facture->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
 
-        return back()->with('status', 'Paiement de '.number_format((float) $facture->montant_total, 2, ',', ' ').' FCFA encaissé avec succès pour le ticket '.$facture->num_ticket.'. Restitution effectuée.');
+        $msgLaveur = $facture->laveur
+            ? " (Laveur : {$facture->laveur->nom} — Commission : ".number_format($facture->laveur->calculerCommission($facture), 0, ',', ' ').' FCFA)'
+            : '';
+
+        return back()->with('status', 'Paiement de '.number_format((float) $facture->montant_total, 2, ',', ' ').' FCFA encaissé avec succès pour le ticket '.$facture->num_ticket.'. Restitution effectuée'.$msgLaveur.'.');
+    }
+
+    /**
+     * Assign or change the washer / operator for a ticket.
+     */
+    public function assignerLaveur(Request $request, Facture $facture): RedirectResponse
+    {
+        $user = Auth::user();
+
+        if ($facture->pressing_id !== $user->pressing_id) {
+            abort(403, 'Accès non autorisé.');
+        }
+
+        $validated = $request->validate([
+            'laveur_id' => ['nullable', 'exists:laveurs,id'],
+        ]);
+
+        $facture->update([
+            'laveur_id' => $validated['laveur_id'] ?? null,
+        ]);
+        $facture->load('laveur');
+
+        $nom = $facture->laveur ? $facture->laveur->nom : 'Aucun';
+
+        return back()->with('status', "Personnel / Laveur assigné au ticket {$facture->num_ticket} : {$nom}.");
     }
 }

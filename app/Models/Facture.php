@@ -119,9 +119,18 @@ class Facture extends Model
      */
     public function isLavage(): bool
     {
-        return $this->vehicule_id !== null
-            || $this->laveur_id !== null
-            || ($this->pressing && $this->pressing->isLavage());
+        if ($this->relationLoaded('pressing') && $this->pressing) {
+            return $this->pressing->isLavage();
+        }
+
+        if ($this->pressing_id) {
+            $pressing = Pressing::find($this->pressing_id);
+            if ($pressing) {
+                return $pressing->isLavage();
+            }
+        }
+
+        return $this->vehicule_id !== null;
     }
 
     /**

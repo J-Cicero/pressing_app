@@ -45,22 +45,27 @@ class WhatsAppNotificationService
      */
     public function urlDepot(Facture $facture): string
     {
+        $facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule', 'client']);
         $clientNom = $facture->client_nom ?? ($facture->client?->nom ?? 'Cher(e) Client(e)');
         $phone = $facture->client_telephone ?? ($facture->client?->telephone ?? '');
         $pressingNom = $facture->pressing?->nom ?? 'Notre Agence';
         $dateRetrait = $facture->date_retrait_prevue ? $facture->date_retrait_prevue->format('d/m/Y') : 'À convenir';
         $montant = number_format((float) $facture->montant_total, 0, ',', ' ');
-        $activiteType = $facture->pressing?->isLavage() ? 'votre lavage de véhicule' : 'vos vêtements';
+        $activiteType = $facture->isLavage() ? 'votre véhicule' : 'vos vêtements';
+        $vehiculeLigne = ($facture->isLavage() && $facture->vehicule)
+            ? "Véhicule : {$facture->vehicule->immatriculation} ({$facture->vehicule->marque_modele})\n"
+            : '';
 
         $articles = $facture->ligneFactures->map(function ($ligne) {
-            $nom = $ligne->service ? $ligne->service->designation : 'Article';
+            $nom = $ligne->service ? $ligne->service->designation : 'Prestation';
 
             return "- {$nom} (x{$ligne->quantite})";
         })->implode("\n");
 
         $message = "Bonjour {$clientNom},\n\n"
-            ."Votre bon de dépôt a été enregistré avec succès chez {$pressingNom}.\n"
+            ."Votre ticket a été enregistré avec succès chez {$pressingNom}.\n"
             ."Ticket N° : {$facture->num_ticket}\n"
+            .$vehiculeLigne
             ."Prestations :\n{$articles}\n"
             ."Montant à régler au retrait : {$montant} FCFA\n"
             ."Date prévue : {$dateRetrait}\n\n"
@@ -75,11 +80,14 @@ class WhatsAppNotificationService
      */
     public function urlPret(Facture $facture): string
     {
+        $facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule', 'client']);
         $clientNom = $facture->client_nom ?? ($facture->client?->nom ?? 'Cher(e) Client(e)');
         $phone = $facture->client_telephone ?? ($facture->client?->telephone ?? '');
         $pressingNom = $facture->pressing?->nom ?? 'Notre Agence';
         $montant = number_format((float) $facture->montant_total, 0, ',', ' ');
-        $activiteType = $facture->pressing?->isLavage() ? 'Votre véhicule est propre et prêt' : 'Vos vêtements sont prêts';
+        $activiteType = $facture->isLavage()
+            ? ($facture->vehicule ? "Votre véhicule ({$facture->vehicule->immatriculation}) est propre et prêt" : 'Votre véhicule est propre et prêt')
+            : 'Vos vêtements sont prêts';
 
         $message = "Bonjour {$clientNom},\n\n"
             ."Bonne nouvelle ! {$activiteType} pour le retrait chez {$pressingNom} (Ticket : {$facture->num_ticket}).\n"
