@@ -14,16 +14,32 @@ class CaisseClientLookupController extends Controller
      */
     public function __invoke(Request $request): JsonResponse
     {
-        $phone = $request->query('telephone');
+        $email = trim((string) $request->query('email', ''));
+        $phone = trim((string) $request->query('telephone', ''));
+        $q = trim((string) $request->query('q', ''));
 
-        if (! $phone) {
+        if ($email === '' && $phone === '' && $q === '') {
             return response()->json(['found' => false]);
         }
 
-        $client = Client::where('telephone', $phone)
-            ->orWhere('telephone', 'like', "%{$phone}%")
-            ->with('vehicules')
-            ->first();
+        $clientQuery = Client::query()->with('vehicules');
+
+        if ($email !== '') {
+            $clientQuery->where('email', $email);
+        } elseif ($phone !== '') {
+            $clientQuery->where(function ($sub) use ($phone) {
+                $sub->where('telephone', $phone)
+                    ->orWhere('telephone', 'like', "%{$phone}%");
+            });
+        } elseif ($q !== '') {
+            $clientQuery->where(function ($sub) use ($q) {
+                $sub->where('email', $q)
+                    ->orWhere('telephone', $q)
+                    ->orWhere('telephone', 'like', "%{$q}%");
+            });
+        }
+
+        $client = $clientQuery->first();
 
         if (! $client) {
             return response()->json(['found' => false]);

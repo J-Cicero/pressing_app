@@ -60,15 +60,16 @@ class Laveur extends Model
     }
 
     /**
-     * Compute salary or commission for a given invoice.
+     * Compute commission for a given invoice (strictly 30% of prestation amount).
      */
     public function calculerCommission(Facture $facture): float
     {
-        if ($this->type_remuneration === 'pourcentage') {
-            return round(((float) $facture->montant_total * (float) $this->valeur_remuneration) / 100, 2);
-        }
+        // Règle d'entreprise stricte : 30% du montant total des prestations accomplies
+        $taux = ($this->type_remuneration === 'pourcentage' && (float) $this->valeur_remuneration > 0)
+            ? ((float) $this->valeur_remuneration / 100)
+            : 0.30;
 
-        return (float) $this->valeur_remuneration;
+        return round((float) $facture->montant_total * $taux, 2);
     }
 
     /**

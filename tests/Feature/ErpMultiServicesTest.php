@@ -347,14 +347,14 @@ class ErpMultiServicesTest extends TestCase
             'pressing_id' => $station->id,
             'nom' => 'Yao Paye',
             'telephone' => '91223344',
-            'type_remuneration' => 'forfait',
-            'valeur_remuneration' => 1000, // 1000 FCFA / lavage
+            'type_remuneration' => 'pourcentage',
+            'valeur_remuneration' => 30, // 30% / lavage
             'actif' => true,
         ]);
 
         $caissier = User::factory()->caissier()->create(['pressing_id' => $station->id]);
 
-        // Create 3 washes in October 2026 => 3 000 FCFA
+        // Create 3 washes in October 2026 => 3 * (4 000 * 30%) = 3 600 FCFA
         for ($i = 1; $i <= 3; $i++) {
             $f = Facture::create([
                 'pressing_id' => $station->id,
@@ -369,15 +369,15 @@ class ErpMultiServicesTest extends TestCase
             $f->save();
         }
 
-        // Before payment: due = 3000, reste = 3000, estPaye = false
-        $this->assertEquals(3000, $laveur->totalCommissionMois('2026-10'));
-        $this->assertEquals(3000, $laveur->resteAPayerMois('2026-10'));
+        // Before payment: due = 3600, reste = 3600, estPaye = false
+        $this->assertEquals(3600, $laveur->totalCommissionMois('2026-10'));
+        $this->assertEquals(3600, $laveur->resteAPayerMois('2026-10'));
         $this->assertFalse($laveur->estPayeMois('2026-10'));
 
         // Admin records physical cash payment
         $response = $this->actingAs($admin)->post(route('admin.laveurs.paiement', $laveur), [
             'mois' => '2026-10',
-            'montant' => 3000,
+            'montant' => 3600,
             'notes' => 'Remis en mains propres en espèces',
         ]);
 
@@ -385,7 +385,7 @@ class ErpMultiServicesTest extends TestCase
         $this->assertDatabaseHas('paiements_laveurs', [
             'laveur_id' => $laveur->id,
             'mois' => '2026-10',
-            'montant_paye' => 3000,
+            'montant_paye' => 3600,
             'statut' => 'paye',
             'mode_paiement' => 'especes',
         ]);
@@ -408,7 +408,7 @@ class ErpMultiServicesTest extends TestCase
 
         $laveur->refresh();
         $this->assertFalse($laveur->estPayeMois('2026-10'));
-        $this->assertEquals(3000, $laveur->resteAPayerMois('2026-10'));
+        $this->assertEquals(3600, $laveur->resteAPayerMois('2026-10'));
     }
 
     public function test_admin_can_view_washer_show_profile_and_salary_history(): void

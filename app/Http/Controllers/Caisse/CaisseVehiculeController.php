@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Caisse;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use App\Models\Vehicule;
+use App\Models\VisiteTechnique;
 use App\Services\WhatsAppNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -107,18 +108,25 @@ class CaisseVehiculeController extends Controller
             'date_assurance' => ['nullable', 'date'],
         ]);
 
-        $client = Client::firstOrCreate(
-            ['telephone' => trim($validated['client_telephone'])],
-            [
-                'nom' => trim($validated['client_nom']),
-                'email' => $validated['client_email'] ?? null,
-            ]
-        );
+        $client = null;
+        if (! empty($validated['client_email'])) {
+            $client = Client::where('email', trim($validated['client_email']))->first();
+        }
+        if (! $client && ! empty($validated['client_telephone'])) {
+            $client = Client::where('telephone', trim($validated['client_telephone']))->first();
+        }
 
-        if (! empty($validated['client_nom']) && $client->nom !== $validated['client_nom']) {
+        if (! $client) {
+            $client = Client::create([
+                'telephone' => trim($validated['client_telephone']),
+                'nom' => trim($validated['client_nom']),
+                'email' => ! empty($validated['client_email']) ? trim($validated['client_email']) : null,
+            ]);
+        } else {
             $client->update([
                 'nom' => trim($validated['client_nom']),
-                'email' => $validated['client_email'] ?? $client->email,
+                'telephone' => trim($validated['client_telephone']),
+                'email' => ! empty($validated['client_email']) ? trim($validated['client_email']) : $client->email,
             ]);
         }
 
@@ -134,6 +142,22 @@ class CaisseVehiculeController extends Controller
                 'date_assurance' => $validated['date_assurance'] ?? null,
             ]
         );
+
+        if (! empty($validated['date_visite_technique'])) {
+            VisiteTechnique::updateOrCreate(
+                [
+                    'vehicule_id' => $vehicule->id,
+                    'date_echeance' => $validated['date_visite_technique'],
+                ],
+                [
+                    'client_id' => $client->id,
+                    'date_visite' => now()->toDateString(),
+                    'date_assurance' => $validated['date_assurance'] ?? null,
+                    'centre_controle' => 'Station '.($pressing->nom ?? ''),
+                    'statut' => Carbon::parse($validated['date_visite_technique'])->isPast() ? 'expire' : 'valide',
+                ]
+            );
+        }
 
         return back()->with('status', "Véhicule {$vehicule->immatriculation} et ses échéances enregistrés avec succès.");
     }
@@ -156,6 +180,22 @@ class CaisseVehiculeController extends Controller
             'date_visite_technique' => $validated['date_visite_technique'] ?? null,
             'date_assurance' => $validated['date_assurance'] ?? null,
         ]);
+
+        if (! empty($validated['date_visite_technique'])) {
+            VisiteTechnique::updateOrCreate(
+                [
+                    'vehicule_id' => $vehicule->id,
+                    'date_echeance' => $validated['date_visite_technique'],
+                ],
+                [
+                    'client_id' => $vehicule->client_id,
+                    'date_visite' => now()->toDateString(),
+                    'date_assurance' => $validated['date_assurance'] ?? null,
+                    'centre_controle' => 'Station',
+                    'statut' => Carbon::parse($validated['date_visite_technique'])->isPast() ? 'expire' : 'valide',
+                ]
+            );
+        }
 
         return back()->with('status', "Échéances du véhicule {$vehicule->immatriculation} mises à jour avec succès.");
     }

@@ -80,6 +80,66 @@
         </div>
     </div>
 
+    <!-- Répartition des Visites par Établissement (Agences Pressing & Stations Lavage) -->
+    <div class="space-y-4">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-lg font-bold tracking-tight text-zinc-950 dark:text-white">Fréquentation par Établissement</h2>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Répartition des passages du client entre les différentes agences pressing et stations de lavage</p>
+            </div>
+        </div>
+
+        <div class="bg-white dark:bg-zinc-900 rounded-2xl border border-zinc-200 dark:border-zinc-800 shadow-xs overflow-hidden">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                    <tr class="bg-zinc-50 dark:bg-zinc-950/80 border-b border-zinc-200 dark:border-zinc-800 text-[11px] uppercase tracking-wider text-zinc-500 dark:text-zinc-400 font-semibold">
+                        <th class="py-3.5 px-6">Établissement</th>
+                        <th class="py-3.5 px-6">Pôle d'Activité</th>
+                        <th class="py-3.5 px-6">Ville / Emplacement</th>
+                        <th class="py-3.5 px-6 text-center">Visites Payées</th>
+                        <th class="py-3.5 px-6 text-right">Part dans le Réseau</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-zinc-200/60 dark:divide-zinc-800/60">
+                    @forelse($pressings as $p)
+                        @php
+                            $visitesAgence = $client->countVisitesParAgence($p->id);
+                            $pct = $totalVisites > 0 ? round(($visitesAgence / $totalVisites) * 100) : 0;
+                        @endphp
+                        <tr class="hover:bg-zinc-50/60 dark:hover:bg-zinc-800/40 transition">
+                            <td class="py-4 px-6 font-bold text-zinc-950 dark:text-white">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2 h-2 rounded-full {{ $p->isLavage() ? 'bg-zinc-400' : 'bg-black dark:bg-white' }}"></span>
+                                    <span>{{ $p->nom }}</span>
+                                </div>
+                            </td>
+                            <td class="py-4 px-6">
+                                <span class="px-2.5 py-1 text-[10px] font-bold rounded-full {{ $p->isLavage() ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300' : 'bg-black text-white dark:bg-white dark:text-black' }}">
+                                    {{ $p->isLavage() ? 'Station Lavage' : 'Agence Pressing' }}
+                                </span>
+                            </td>
+                            <td class="py-4 px-6 text-zinc-500 dark:text-zinc-400">
+                                {{ $p->ville }} @if($p->quartier) &bull; {{ $p->quartier }} @endif
+                            </td>
+                            <td class="py-4 px-6 text-center font-mono font-black text-zinc-950 dark:text-white">
+                                {{ $visitesAgence }}
+                            </td>
+                            <td class="py-4 px-6 text-right font-mono text-zinc-500 dark:text-zinc-400">
+                                <span class="font-bold text-zinc-900 dark:text-white">{{ $pct }}%</span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="py-8 text-center text-zinc-500 dark:text-zinc-400">
+                                Aucun établissement configuré dans le réseau.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     <!-- Loyalty Alert Banner if milestone reached -->
     @if($fideliteAtteinte && $whatsappFideliteUrl)
         <div class="p-5 bg-zinc-100 dark:bg-zinc-800/80 border border-zinc-300 dark:border-zinc-700 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">

@@ -67,7 +67,9 @@ class RetraitController extends Controller
 
         $laveurs = Laveur::where('pressing_id', $pressing->id)->where('actif', true)->orderBy('nom')->get();
 
-        return view('caisse.retrait', [
+        $viewName = $pressing->isLavage() ? 'caisse.lavage.retrait' : 'caisse.pressing.retrait';
+
+        return view($viewName, [
             'pressing' => $pressing,
             'factures' => $factures,
             'laveurs' => $laveurs,

@@ -10,7 +10,9 @@ use App\Models\Laveur;
 use App\Models\LigneFacture;
 use App\Models\Service;
 use App\Models\Vehicule;
+use App\Models\VisiteTechnique;
 use App\Services\WhatsAppNotificationService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -43,7 +45,9 @@ class DepotController extends Controller
             ->orderBy('nom')
             ->get();
 
-        return view('caisse.depot', [
+        $viewName = $pressing->isLavage() ? 'caisse.lavage.depot' : 'caisse.pressing.depot';
+
+        return view($viewName, [
             'pressing' => $pressing,
             'services' => $services,
             'laveurs' => $laveurs,
@@ -62,11 +66,10 @@ class DepotController extends Controller
             abort(403, 'Aucune agence assignée.');
         }
 
-        $validated = $request->validate([
+        $rules = [
             'client_nom' => ['required', 'string', 'max:255'],
             'client_telephone' => ['required', 'string', 'max:50'],
             'client_email' => ['nullable', 'string', 'email', 'max:255'],
-            'date_retrait_prevue' => ['required', 'date', 'after_or_equal:today'],
             'lignes' => ['required', 'array', 'min:1'],
             'lignes.*.service_id' => ['required', 'exists:services,id'],
             'lignes.*.quantite' => ['required', 'integer', 'min:1', 'max:1000'],
@@ -77,7 +80,19 @@ class DepotController extends Controller
             'type_vehicule' => ['nullable', 'string', 'max:100'],
             'date_visite_technique' => ['nullable', 'date'],
             'date_assurance' => ['nullable', 'date'],
-        ]);
+        ];
+
+        if ($pressing->isLavage()) {
+            $rules['date_retrait_prevue'] = ['nullable', 'date', 'after_or_equal:today'];
+        } else {
+            $rules['date_retrait_prevue'] = ['required', 'date', 'after_or_equal:today'];
+        }
+
+        $validated = $request->validate($rules);
+
+        if (empty($validated['date_retrait_prevue'])) {
+            $validated['date_retrait_prevue'] = now()->toDateString();
+        }
 
         // Vérifier l'isolation des services : doivent appartenir à l'établissement du caissier
         $serviceIds = collect($validated['lignes'])->pluck('service_id')->unique();
@@ -93,33 +108,43 @@ class DepotController extends Controller
         }
 
         $facture = DB::transaction(function () use ($validated, $pressing, $user, $services) {
-            // 1. Centraliser ou mettre à jour le client
-            $client = Client::firstOrCreate(
-                ['telephone' => trim($validated['client_telephone'])],
-                [
-                    'nom' => trim($validated['client_nom']),
-                    'email' => $validated['client_email'] ?? null,
-                ]
-            );
+            // 1. Centraliser ou mettre à jour le client (priorité email, fallback téléphone)
+            $email = ! empty($validated['client_email']) ? trim($validated['client_email']) : null;
+            $phone = trim($validated['client_telephone']);
 
-            if ($client->nom !== $validated['client_nom'] || (! empty($validated['client_email']) && $client->email !== $validated['client_email'])) {
+            $client = null;
+            if ($email) {
+                $client = Client::where('email', $email)->first();
+            }
+            if (! $client && $phone) {
+                $client = Client::where('telephone', $phone)->first();
+            }
+
+            if (! $client) {
+                $client = Client::create([
+                    'nom' => trim($validated['client_nom']),
+                    'telephone' => $phone,
+                    'email' => $email,
+                ]);
+            } else {
                 $client->update([
                     'nom' => trim($validated['client_nom']),
-                    'email' => $validated['client_email'] ?? $client->email,
+                    'telephone' => $phone,
+                    'email' => $email ?? $client->email,
                 ]);
             }
 
-            // 2. Gestion du véhicule si station de lavage
+            // 2. Gestion du véhicule si station de lavage et enregistrement détaché des visites techniques
             $vehicule = null;
             if ($pressing->isLavage()) {
                 $immat = ! empty($validated['immatriculation'])
                     ? strtoupper(trim($validated['immatriculation']))
                     : 'VEH-'.date('ymd').'-'.strtoupper(Str::random(3));
 
-                $typeVehicule = ! empty($validated['type_vehicule']) ? trim($validated['type_vehicule']) : 'Moto';
-                $marqueModele = ! empty($validated['marque_modele']) ? trim($validated['marque_modele']) : $typeVehicule;
+                $marqueModele = ! empty($validated['marque_modele']) ? trim($validated['marque_modele']) : 'Véhicule';
+                $typeVehicule = ! empty($validated['type_vehicule']) ? trim($validated['type_vehicule']) : 'Moto/Auto';
 
-                $vehicule = Vehicule::firstOrCreate(
+                $vehicule = Vehicule::updateOrCreate(
                     ['immatriculation' => $immat],
                     [
                         'client_id' => $client->id,
@@ -130,22 +155,17 @@ class DepotController extends Controller
                     ]
                 );
 
-                // Mettre à jour les informations du véhicule si renseignées
-                $updateData = [];
-                if (! empty($validated['marque_modele'])) {
-                    $updateData['marque_modele'] = $validated['marque_modele'];
-                }
-                if (! empty($validated['type_vehicule'])) {
-                    $updateData['type_vehicule'] = $validated['type_vehicule'];
-                }
+                // Enregistrement dédié et détaché de la visite technique dans la table spécifique
                 if (! empty($validated['date_visite_technique'])) {
-                    $updateData['date_visite_technique'] = $validated['date_visite_technique'];
-                }
-                if (! empty($validated['date_assurance'])) {
-                    $updateData['date_assurance'] = $validated['date_assurance'];
-                }
-                if (! empty($updateData)) {
-                    $vehicule->update($updateData);
+                    VisiteTechnique::create([
+                        'vehicule_id' => $vehicule->id,
+                        'client_id' => $client->id,
+                        'date_visite' => now()->toDateString(),
+                        'date_echeance' => $validated['date_visite_technique'],
+                        'date_assurance' => $validated['date_assurance'] ?? null,
+                        'statut' => Carbon::parse($validated['date_visite_technique'])->isPast() ? 'expire' : 'valide',
+                        'centre_controle' => 'Station '.$pressing->nom,
+                    ]);
                 }
             }
 
@@ -172,14 +192,14 @@ class DepotController extends Controller
                 ];
             }
 
-            // 5. Création de la facture
+            // 5. Création de la facture (laveur uniquement si station de lavage, nul pour pressing)
             $facture = Facture::create([
                 'num_ticket' => $numTicket,
                 'pressing_id' => $pressing->id,
                 'user_id' => $user->id,
                 'client_id' => $client->id,
                 'vehicule_id' => $vehicule?->id,
-                'laveur_id' => $validated['laveur_id'] ?? null,
+                'laveur_id' => $pressing->isLavage() ? ($validated['laveur_id'] ?? null) : null,
                 'client_nom' => $client->nom,
                 'client_telephone' => $client->telephone,
                 'client_email' => $client->email,

@@ -42,6 +42,27 @@ class Client extends Model
     }
 
     /**
+     * Get the technical visits recorded for this client.
+     *
+     * @return HasMany<VisiteTechnique, $this>
+     */
+    public function visitesTechniques(): HasMany
+    {
+        return $this->hasMany(VisiteTechnique::class);
+    }
+
+    /**
+     * Count completed paid visits for a specific agency/boutique.
+     */
+    public function countVisitesParAgence(int $pressingId): int
+    {
+        return $this->factures()
+            ->where('statut', 'paye_retire')
+            ->where('pressing_id', $pressingId)
+            ->count();
+    }
+
+    /**
      * Total completed/paid visits across all agencies (all time).
      */
     public function countTotalVisites(): int

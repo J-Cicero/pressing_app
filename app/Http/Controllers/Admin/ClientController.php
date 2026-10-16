@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Pressing;
 use App\Models\RegleFidelite;
 use App\Services\WhatsAppNotificationService;
 use Illuminate\Http\Request;
@@ -57,6 +58,8 @@ class ClientController extends Controller
             ->orderBy('seuil_visites')
             ->get();
 
+        $pressings = Pressing::orderBy('type_activite')->orderBy('nom')->get();
+
         return view('admin.clients.show', [
             'client' => $client,
             'totalVisites' => $totalVisites,
@@ -66,6 +69,7 @@ class ClientController extends Controller
             'whatsappFideliteUrl' => $whatsappFideliteUrl,
             'prochaineRegle' => $prochaineRegle,
             'toutesLesRegles' => $toutesLesRegles,
+            'pressings' => $pressings,
         ]);
     }
 }

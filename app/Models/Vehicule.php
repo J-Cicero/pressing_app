@@ -60,6 +60,24 @@ class Vehicule extends Model
     }
 
     /**
+     * Get technical visit history and records for this vehicle.
+     *
+     * @return HasMany<VisiteTechnique, $this>
+     */
+    public function visitesTechniques(): HasMany
+    {
+        return $this->hasMany(VisiteTechnique::class);
+    }
+
+    /**
+     * Get the latest technical visit record.
+     */
+    public function derniereVisiteTechnique(): ?VisiteTechnique
+    {
+        return $this->visitesTechniques()->latest('date_echeance')->first();
+    }
+
+    /**
      * Get the remaining days before technical inspection expires.
      */
     public function joursAvantVisiteTechnique(): ?int
