@@ -98,6 +98,42 @@
                 </div>
             </div>
 
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="space-y-1.5">
+                    <label for="nombre_utilisations" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                        Nombre d'utilisations autorisées
+                    </label>
+                    <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        name="nombre_utilisations"
+                        id="nombre_utilisations"
+                        value="{{ old('nombre_utilisations', $regle->nombre_utilisations ?? 1) }}"
+                        class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs font-mono focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition"
+                        placeholder="Ex: 1 ou 4"
+                    >
+                    <p class="text-[10px] text-zinc-500">Ex: 4 lavages offerts ou 4 réductions consécutives</p>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="duree_jours" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                        Durée de validité en jours (Optionnel)
+                    </label>
+                    <input
+                        type="number"
+                        min="1"
+                        max="1000"
+                        name="duree_jours"
+                        id="duree_jours"
+                        value="{{ old('duree_jours', $regle->duree_jours) }}"
+                        class="w-full px-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs font-mono focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition"
+                        placeholder="Ex: 30 pour 1 mois (laisser vide si illimité)"
+                    >
+                    <p class="text-[10px] text-zinc-500">Laisser vide pour une validité permanente sans date limite</p>
+                </div>
+            </div>
+
             <div class="space-y-1.5">
                 <label for="description" class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
                     Description client & Message de félicitations <span class="text-black dark:text-white font-bold">*</span>

@@ -39,11 +39,14 @@ class RegleFideliteController extends Controller
             'seuil_visites' => ['required', 'integer', 'min:1'],
             'type_avantage' => ['required', 'string', 'in:pourcentage,montant_fixe,cadeau,service_offert'],
             'valeur_avantage' => ['nullable', 'numeric', 'min:0'],
+            'nombre_utilisations' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'duree_jours' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'description' => ['required', 'string', 'max:255'],
             'type_activite' => ['required', 'string', 'in:pressing,lavage,global'],
             'actif' => ['boolean'],
         ]);
 
+        $validated['nombre_utilisations'] = ! empty($validated['nombre_utilisations']) ? (int) $validated['nombre_utilisations'] : 1;
         $validated['actif'] = $request->boolean('actif', true);
 
         RegleFidelite::create($validated);
@@ -71,11 +74,14 @@ class RegleFideliteController extends Controller
             'seuil_visites' => ['required', 'integer', 'min:1'],
             'type_avantage' => ['required', 'string', 'in:pourcentage,montant_fixe,cadeau,service_offert'],
             'valeur_avantage' => ['nullable', 'numeric', 'min:0'],
+            'nombre_utilisations' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'duree_jours' => ['nullable', 'integer', 'min:1', 'max:1000'],
             'description' => ['required', 'string', 'max:255'],
             'type_activite' => ['required', 'string', 'in:pressing,lavage,global'],
             'actif' => ['boolean'],
         ]);
 
+        $validated['nombre_utilisations'] = ! empty($validated['nombre_utilisations']) ? (int) $validated['nombre_utilisations'] : 1;
         $validated['actif'] = $request->boolean('actif', true);
 
         $regle->update($validated);

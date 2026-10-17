@@ -71,6 +71,27 @@
                 </div>
             </div>
 
+            <!-- Privilège Fidélité Débloqué (Optionnel à appliquer) -->
+            <div id="loyaltyOfferCard" class="hidden p-4 rounded-2xl border-2 border-black dark:border-white bg-zinc-50 dark:bg-zinc-950 transition">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-black text-white dark:bg-white dark:text-black">
+                                Récompense Fidélité Disponible
+                            </span>
+                            <span id="loyaltyQuotaBadge" class="text-xs font-mono font-bold text-zinc-700 dark:text-zinc-300"></span>
+                        </div>
+                        <div id="loyaltyDescription" class="text-xs font-bold text-zinc-950 dark:text-white"></div>
+                        <div id="loyaltyExpiration" class="text-[11px] text-zinc-500 dark:text-zinc-400 font-medium"></div>
+                    </div>
+                    <label class="inline-flex items-center gap-2.5 cursor-pointer bg-white dark:bg-zinc-900 border border-zinc-300 dark:border-zinc-700 px-4 py-2.5 rounded-xl shrink-0 hover:border-black dark:hover:border-white transition shadow-xs">
+                        <input type="checkbox" id="toggleFidelite" class="w-4 h-4 rounded border-zinc-300 dark:border-zinc-700 text-black focus:ring-black dark:focus:ring-white">
+                        <span class="text-xs font-bold text-zinc-950 dark:text-white">Appliquer la réduction</span>
+                    </label>
+                    <input type="hidden" name="client_fidelite_avantage_id" id="clientFideliteAvantageId" value="">
+                </div>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <!-- Email (Priorité Reconnaissance Unique) -->
                 <div class="space-y-1.5">
@@ -197,14 +218,26 @@
                 <span>Synthèse Financière & Règlement</span>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Total -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Montant Brut -->
                 <div class="border border-zinc-200 dark:border-zinc-800 p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 space-y-1">
-                    <div class="text-[10px] uppercase font-bold text-zinc-500 dark:text-zinc-400">Montant Total Prestations</div>
+                    <div class="text-[10px] uppercase font-bold text-zinc-500 dark:text-zinc-400">Montant Brut Articles</div>
                     <div class="text-2xl font-mono font-black text-zinc-950 dark:text-white">
                         <span id="displayTotal">0</span> <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">FCFA</span>
                     </div>
-                    <div class="text-[11px] text-zinc-500 dark:text-zinc-400 pt-1">Total calculé sur vos articles</div>
+                    <div class="text-[11px] text-zinc-500 dark:text-zinc-400 pt-1">Tarif ordinaire catalogué</div>
+                </div>
+
+                <!-- Remise Fidélité Déduite (Dynamique) -->
+                <div id="cardRemiseFidelite" class="border border-zinc-300 dark:border-zinc-700 p-5 rounded-2xl bg-zinc-100 dark:bg-zinc-800/60 space-y-1 hidden">
+                    <div class="flex items-center justify-between">
+                        <div class="text-[10px] uppercase font-bold text-zinc-900 dark:text-white">Remise Fidélité</div>
+                        <span class="text-[9px] font-mono uppercase px-2 py-0.5 rounded-full bg-black text-white dark:bg-white dark:text-black font-bold">Privilège</span>
+                    </div>
+                    <div class="text-2xl font-mono font-black text-zinc-950 dark:text-white">
+                        <span id="displayRemise">0</span> <span class="text-xs font-semibold text-zinc-500 dark:text-zinc-400">FCFA</span>
+                    </div>
+                    <div class="text-[11px] text-zinc-600 dark:text-zinc-400 pt-1 font-medium" id="displayRemiseLabel">Avantage déduit</div>
                 </div>
 
                 <!-- Acompte (0 FCFA) -->
@@ -217,18 +250,18 @@
                         0 <span class="text-xs font-semibold">FCFA</span>
                     </div>
                     <div class="text-[11px] text-zinc-500 dark:text-zinc-400 pt-1 font-medium">
-                        Règle stricte : Aucun acompte au dépôt
+                        Règle stricte : Aucun acompte
                     </div>
                 </div>
 
-                <!-- Reste à Payer au Retrait -->
+                <!-- Net à Payer au Retrait -->
                 <div class="border-2 border-black dark:border-white p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 space-y-1">
-                    <div class="text-[10px] uppercase font-bold text-zinc-950 dark:text-white">Reste à Payer au Retrait</div>
+                    <div class="text-[10px] uppercase font-bold text-zinc-950 dark:text-white">Net à Payer au Retrait</div>
                     <div class="text-2xl font-mono font-black text-zinc-950 dark:text-white">
                         <span id="displayReste">0</span> <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">FCFA</span>
                     </div>
                     <div class="text-[11px] text-zinc-600 dark:text-zinc-300 pt-1 font-medium">
-                        100% exigible à la récupération des vêtements
+                        100% exigible à la récupération
                     </div>
                 </div>
             </div>
@@ -266,11 +299,15 @@
         const services = @json($services);
         const container = document.getElementById('lignesContainer');
         const btnAdd = document.getElementById('btnAddLigne');
+        // Financial Elements
         const displayTotal = document.getElementById('displayTotal');
         const displayReste = document.getElementById('displayReste');
+        const cardRemiseFidelite = document.getElementById('cardRemiseFidelite');
+        const displayRemise = document.getElementById('displayRemise');
+        const displayRemiseLabel = document.getElementById('displayRemiseLabel');
         const noAlert = document.getElementById('noLignesAlert');
 
-        // Lookup Elements
+        // Lookup & Loyalty Elements
         const emailInput = document.getElementById('client_email');
         const phoneInput = document.getElementById('client_telephone');
         const nameInput = document.getElementById('client_nom');
@@ -280,8 +317,15 @@
         const lookupVisites = document.getElementById('clientLookupVisites');
         const loyaltyBadge = document.getElementById('clientLoyaltyBadge');
         const loyaltyText = document.getElementById('clientLoyaltyText');
+        const loyaltyOfferCard = document.getElementById('loyaltyOfferCard');
+        const loyaltyQuotaBadge = document.getElementById('loyaltyQuotaBadge');
+        const loyaltyDescription = document.getElementById('loyaltyDescription');
+        const loyaltyExpiration = document.getElementById('loyaltyExpiration');
+        const toggleFidelite = document.getElementById('toggleFidelite');
+        const clientFideliteAvantageId = document.getElementById('clientFideliteAvantageId');
 
         let rowIndex = 0;
+        let activeAvantage = null;
 
         function formatMoney(amount) {
             return new Intl.NumberFormat('fr-FR', {
@@ -291,7 +335,7 @@
         }
 
         function calculateTotals() {
-            let total = 0;
+            let grossTotal = 0;
             const rows = container.querySelectorAll('tr.ligne-row');
 
             if (rows.length === 0) {
@@ -314,11 +358,42 @@
                 priceEl.textContent = formatMoney(price) + ' FCFA';
                 subtotalEl.textContent = formatMoney(subtotal) + ' FCFA';
 
-                total += subtotal;
+                grossTotal += subtotal;
             });
 
-            displayTotal.textContent = formatMoney(total);
-            displayReste.textContent = formatMoney(total);
+            // Loyalty discount calculation
+            let remise = 0;
+            if (toggleFidelite && toggleFidelite.checked && activeAvantage) {
+                if (activeAvantage.type_avantage === 'pourcentage') {
+                    remise = Math.round(grossTotal * (activeAvantage.valeur_avantage / 100));
+                } else if (activeAvantage.type_avantage === 'service_offert') {
+                    remise = grossTotal;
+                } else if (activeAvantage.type_avantage === 'montant_fixe') {
+                    remise = Math.min(grossTotal, activeAvantage.valeur_avantage);
+                }
+            }
+
+            const netTotal = Math.max(0, grossTotal - remise);
+
+            displayTotal.textContent = formatMoney(grossTotal);
+
+            if (cardRemiseFidelite) {
+                if (remise > 0) {
+                    displayRemise.textContent = '-' + formatMoney(remise);
+                    if (displayRemiseLabel && activeAvantage) {
+                        displayRemiseLabel.textContent = activeAvantage.description;
+                    }
+                    cardRemiseFidelite.classList.remove('hidden');
+                } else {
+                    cardRemiseFidelite.classList.add('hidden');
+                }
+            }
+
+            displayReste.textContent = formatMoney(netTotal);
+        }
+
+        if (toggleFidelite) {
+            toggleFidelite.addEventListener('change', calculateTotals);
         }
 
         function addRow(selectedServiceId = '', defaultQty = 1) {
@@ -390,6 +465,11 @@
             clearTimeout(lookupTimer);
             if (!paramValue || paramValue.trim().length < 3) {
                 lookupBanner.classList.add('hidden');
+                if (loyaltyOfferCard) loyaltyOfferCard.classList.add('hidden');
+                activeAvantage = null;
+                if (toggleFidelite) toggleFidelite.checked = false;
+                if (clientFideliteAvantageId) clientFideliteAvantageId.value = '';
+                calculateTotals();
                 return;
             }
 
@@ -421,8 +501,31 @@
                             } else {
                                 loyaltyBadge.classList.add('hidden');
                             }
+
+                            // Active Loyalty Rewards (Advantages)
+                            if (data.avantages && data.avantages.length > 0) {
+                                activeAvantage = data.avantages[0];
+                                loyaltyDescription.textContent = activeAvantage.description;
+                                loyaltyQuotaBadge.textContent = `${activeAvantage.utilisations_restantes} utilisation(s) restante(s)`;
+                                loyaltyExpiration.textContent = activeAvantage.date_expiration ? `Valable jusqu'au ${activeAvantage.date_expiration}` : 'Validité permanente';
+                                clientFideliteAvantageId.value = activeAvantage.id;
+                                toggleFidelite.checked = true; // Auto-checked for convenience, user can uncheck
+                                loyaltyOfferCard.classList.remove('hidden');
+                            } else {
+                                activeAvantage = null;
+                                loyaltyOfferCard.classList.add('hidden');
+                                toggleFidelite.checked = false;
+                                clientFideliteAvantageId.value = '';
+                            }
+
+                            calculateTotals();
                         } else {
                             lookupBanner.classList.add('hidden');
+                            if (loyaltyOfferCard) loyaltyOfferCard.classList.add('hidden');
+                            activeAvantage = null;
+                            if (toggleFidelite) toggleFidelite.checked = false;
+                            if (clientFideliteAvantageId) clientFideliteAvantageId.value = '';
+                            calculateTotals();
                         }
                     })
                     .catch(() => {

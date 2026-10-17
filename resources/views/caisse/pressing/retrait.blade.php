@@ -62,10 +62,10 @@
 
     <!-- Search & Filters -->
     <div class="bg-white dark:bg-zinc-900 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800 shadow-xs">
-        <form method="GET" action="{{ route('caisse.retrait') }}" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="space-y-1">
+        <form method="GET" action="{{ route('caisse.retrait') }}" id="retraitSearchForm" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="space-y-1 sm:col-span-2">
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Recherche par Ticket, Nom ou Téléphone
+                    Recherche par N° Ticket, Nom, Téléphone, E-mail ou Prestation
                 </label>
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400 dark:text-zinc-500">
@@ -76,64 +76,56 @@
                     <input
                         type="text"
                         name="q"
+                        id="retraitSearchInput"
                         value="{{ $search }}"
-                        placeholder="Ex: TCK-2026..., 90000000, Koffi..."
-                        class="w-full pl-9 pr-3.5 py-1.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
+                        placeholder="Rechercher par N° ticket, nom, tél (ex: 90123456), e-mail, costume, robe..."
+                        class="w-full pl-9 pr-9 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-mono text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
                     >
+                    @if($search)
+                        <a href="{{ route('caisse.retrait', array_filter(['statut' => $selectedStatut])) }}" class="absolute inset-y-0 right-0 pr-3 flex items-center text-zinc-400 hover:text-black dark:hover:text-white transition" title="Effacer la recherche">
+                            &times;
+                        </a>
+                    @endif
                 </div>
             </div>
 
             <div class="space-y-1">
                 <label class="block text-[10px] font-bold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
-                    Filtrer par Statut
+                    Filtre Rapide Statut
                 </label>
-                <select name="statut" class="w-full px-3.5 py-1.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition">
+                <select name="statut" id="retraitStatutSelect" onchange="document.getElementById('retraitSearchForm').submit()" class="w-full px-3.5 py-2 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs text-zinc-900 dark:text-white focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-black dark:focus:border-white transition">
                     <option value="">Tous les statuts</option>
                     <option value="depose" {{ $selectedStatut === 'depose' ? 'selected' : '' }}>
                         Déposés (En cours) ({{ $countDepose }})
                     </option>
                     <option value="pret" {{ $selectedStatut === 'pret' ? 'selected' : '' }}>
-                        Prêts au retrait (Non retirés) ({{ $countPret }})
+                        Prêts au retrait ({{ $countPret }})
                     </option>
                     <option value="paye_retire" {{ $selectedStatut === 'paye_retire' ? 'selected' : '' }}>
-                        Payés & Retirés (Clôturés) ({{ $countPayeRetire }})
+                        Payés & Retirés ({{ $countPayeRetire }})
                     </option>
                 </select>
-            </div>
-
-            <div class="flex items-end gap-2">
-                <button type="submit" class="px-4 py-1.5 bg-black hover:bg-zinc-800 dark:bg-white dark:hover:bg-zinc-200 text-white dark:text-black text-xs font-bold rounded-xl shadow-xs transition flex-1 h-[34px] flex items-center justify-center gap-1.5 cursor-pointer">
-                    <svg class="w-3.5 h-3.5 text-white dark:text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                    </svg>
-                    <span>Rechercher</span>
-                </button>
-                @if($search || $selectedStatut)
-                    <a href="{{ route('caisse.retrait') }}" class="px-3 py-1.5 bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 text-zinc-700 dark:text-zinc-300 rounded-xl text-xs font-semibold transition h-[34px] flex items-center border border-zinc-200 dark:border-zinc-700">
-                        Réinit.
-                    </a>
-                @endif
             </div>
         </form>
     </div>
 
-    <!-- Status Tabs / Counters -->
+    <!-- Status Tabs / Counters (Preserving search query) -->
     <div class="flex overflow-x-auto gap-2 text-xs">
-        <a href="{{ route('caisse.retrait') }}"
+        <a href="{{ route('caisse.retrait', array_filter(['q' => $search])) }}"
            class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap {{ empty($selectedStatut) ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white' }}">
             Tous les dépôts
         </a>
-        <a href="{{ route('caisse.retrait', ['statut' => 'depose']) }}"
+        <a href="{{ route('caisse.retrait', array_filter(['statut' => 'depose', 'q' => $search])) }}"
            class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'depose' ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white' }}">
             <span>Déposés (En cours)</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] {{ $selectedStatut === 'depose' ? 'bg-white text-black dark:bg-black dark:text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countDepose }}</span>
         </a>
-        <a href="{{ route('caisse.retrait', ['statut' => 'pret']) }}"
+        <a href="{{ route('caisse.retrait', array_filter(['statut' => 'pret', 'q' => $search])) }}"
            class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'pret' ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white' }}">
             <span>Prêts au Retrait</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] {{ $selectedStatut === 'pret' ? 'bg-white text-black dark:bg-black dark:text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countPret }}</span>
         </a>
-        <a href="{{ route('caisse.retrait', ['statut' => 'paye_retire']) }}"
+        <a href="{{ route('caisse.retrait', array_filter(['statut' => 'paye_retire', 'q' => $search])) }}"
            class="px-3.5 py-1.5 rounded-xl border transition font-bold whitespace-nowrap flex items-center gap-2 {{ $selectedStatut === 'paye_retire' ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-xs' : 'bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 hover:text-black dark:hover:text-white' }}">
             <span>Payés & Retirés</span>
             <span class="px-2 py-0.5 rounded-full text-[10px] {{ $selectedStatut === 'paye_retire' ? 'bg-white text-black dark:bg-black dark:text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700' }} font-mono font-bold">{{ $countPayeRetire }}</span>

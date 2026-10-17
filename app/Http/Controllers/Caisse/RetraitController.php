@@ -28,27 +28,57 @@ class RetraitController extends Controller
             abort(403, 'Aucune agence assignée.');
         }
 
-        $search = $request->query('q');
-        $statut = $request->query('statut');
+        $search = trim((string) $request->query('q', ''));
+        $statut = trim((string) $request->query('statut', ''));
 
-        $query = Facture::where('pressing_id', $pressing->id)
+        $baseQuery = Facture::where('pressing_id', $pressing->id)
             ->with(['ligneFactures.service', 'user', 'client', 'vehicule', 'laveur'])
-            ->when($search, function ($q, $search) {
-                $q->where(function ($sub) use ($search) {
+            ->when($search !== '', function ($q) use ($search) {
+                $cleanDigits = preg_replace('/[^0-9]/', '', $search);
+                $q->where(function ($sub) use ($search, $cleanDigits) {
                     $sub->where('num_ticket', 'like', "%{$search}%")
-                        ->orWhere('client_telephone', 'like', "%{$search}%")
                         ->orWhere('client_nom', 'like', "%{$search}%")
-                        ->orWhereHas('vehicule', fn ($v) => $v->where('immatriculation', 'like', "%{$search}%"));
+                        ->orWhere('client_telephone', 'like', "%{$search}%")
+                        ->orWhere('client_email', 'like', "%{$search}%");
+
+                    if (! empty($cleanDigits) && strlen($cleanDigits) >= 4) {
+                        $sub->orWhere('client_telephone', 'like', "%{$cleanDigits}%");
+                    }
+
+                    $sub->orWhereHas('client', function ($c) use ($search, $cleanDigits) {
+                        $c->where('nom', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('telephone', 'like', "%{$search}%");
+                        if (! empty($cleanDigits) && strlen($cleanDigits) >= 4) {
+                            $c->orWhere('telephone', 'like', "%{$cleanDigits}%");
+                        }
+                    });
+
+                    $sub->orWhereHas('vehicule', function ($v) use ($search) {
+                        $v->where('immatriculation', 'like', "%{$search}%")
+                            ->orWhere('marque_modele', 'like', "%{$search}%")
+                            ->orWhere('type_vehicule', 'like', "%{$search}%");
+                    });
+
+                    $sub->orWhereHas('laveur', function ($l) use ($search) {
+                        $l->where('nom', 'like', "%{$search}%");
+                    });
+
+                    $sub->orWhereHas('ligneFactures.service', function ($s) use ($search) {
+                        $s->where('designation', 'like', "%{$search}%");
+                    });
                 });
-            })
-            ->when($statut, function ($q, $statut) {
-                $q->where('statut', $statut);
             });
 
-        // Totaux pour les indicateurs rapides
-        $countDepose = Facture::where('pressing_id', $pressing->id)->where('statut', 'depose')->count();
-        $countPret = Facture::where('pressing_id', $pressing->id)->where('statut', 'pret')->count();
-        $countPayeRetire = Facture::where('pressing_id', $pressing->id)->where('statut', 'paye_retire')->count();
+        // Totaux pour les indicateurs rapides (contextuels à la recherche si active)
+        $countDepose = (clone $baseQuery)->where('statut', 'depose')->count();
+        $countPret = (clone $baseQuery)->where('statut', 'pret')->count();
+        $countPayeRetire = (clone $baseQuery)->where('statut', 'paye_retire')->count();
+
+        $query = (clone $baseQuery)
+            ->when($statut !== '' && in_array($statut, ['depose', 'pret', 'paye_retire'], true), function ($q) use ($statut) {
+                $q->where('statut', $statut);
+            });
 
         $factures = $query->latest('id')
             ->paginate(15)
@@ -122,7 +152,7 @@ class RetraitController extends Controller
     /**
      * Process 100% payment and collection ('pret' or 'depose' -> 'paye_retire').
      */
-    public function encaisser(Facture $facture): RedirectResponse
+    public function encaisser(Facture $facture, WhatsAppNotificationService $whatsApp): RedirectResponse
     {
         $user = Auth::user();
 
@@ -142,11 +172,33 @@ class RetraitController extends Controller
         ]);
         $facture->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
 
+        $fideliteMessage = null;
+        $fideliteUrl = null;
+
+        if ($facture->client) {
+            $nouveaux = $facture->client->debloquerAvantagesEligibles($facture->pressing?->type_activite);
+            if (! empty($nouveaux)) {
+                $premier = $nouveaux[0];
+                $regle = $premier->regleFidelite;
+                if ($regle) {
+                    $fideliteMessage = "Nouveau palier de fidélité atteint : {$regle->seuil_visites} visites ({$regle->description}) !";
+                    $fideliteUrl = $whatsApp->urlFidelite($facture->client, $regle);
+                }
+            }
+        }
+
         $msgLaveur = $facture->laveur
             ? " (Laveur : {$facture->laveur->nom} — Commission : ".number_format($facture->laveur->calculerCommission($facture), 0, ',', ' ').' FCFA)'
             : '';
 
-        return back()->with('status', 'Paiement de '.number_format((float) $facture->montant_total, 2, ',', ' ').' FCFA encaissé avec succès pour le ticket '.$facture->num_ticket.'. Restitution effectuée'.$msgLaveur.'.');
+        $redirect = back()->with('status', 'Paiement de '.number_format((float) $facture->montant_total, 2, ',', ' ').' FCFA encaissé avec succès pour le ticket '.$facture->num_ticket.'. Restitution effectuée'.$msgLaveur.'.');
+
+        if ($fideliteMessage) {
+            $redirect->with('fidelite_message', $fideliteMessage)
+                ->with('fidelite_url', $fideliteUrl);
+        }
+
+        return $redirect;
     }
 
     /**

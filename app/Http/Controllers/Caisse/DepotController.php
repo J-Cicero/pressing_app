@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Caisse;
 use App\Http\Controllers\Controller;
 use App\Mail\TicketDeposeMail;
 use App\Models\Client;
+use App\Models\ClientFideliteAvantage;
 use App\Models\Facture;
 use App\Models\Laveur;
 use App\Models\LigneFacture;
+use App\Models\RegleFidelite;
 use App\Models\Service;
 use App\Models\Vehicule;
 use App\Models\VisiteTechnique;
@@ -80,6 +82,9 @@ class DepotController extends Controller
             'type_vehicule' => ['nullable', 'string', 'max:100'],
             'date_visite_technique' => ['nullable', 'date'],
             'date_assurance' => ['nullable', 'date'],
+            // Loyalty reward application
+            'client_fidelite_avantage_id' => ['nullable', 'exists:client_fidelite_avantages,id'],
+            'regle_fidelite_id' => ['nullable', 'exists:regles_fidelite,id'],
         ];
 
         if ($pressing->isLavage()) {
@@ -175,15 +180,15 @@ class DepotController extends Controller
                 $numTicket = $datePrefix.strtoupper(Str::random(4));
             } while (Facture::where('num_ticket', $numTicket)->exists());
 
-            // 4. Calcul du montant total
-            $montantTotal = 0;
+            // 4. Calcul du montant brut des prestations
+            $montantBrut = 0;
             $itemsData = [];
 
             foreach ($validated['lignes'] as $ligne) {
                 $service = $services->get($ligne['service_id']);
                 $quantite = (int) $ligne['quantite'];
                 $prixApplique = (float) $service->prix_unitaire;
-                $montantTotal += ($prixApplique * $quantite);
+                $montantBrut += ($prixApplique * $quantite);
 
                 $itemsData[] = [
                     'service_id' => $service->id,
@@ -192,7 +197,42 @@ class DepotController extends Controller
                 ];
             }
 
-            // 5. Création de la facture (laveur uniquement si station de lavage, nul pour pressing)
+            // 5. Calcul de la remise de fidélité accordée au client
+            $remiseFidelite = 0.0;
+            $regleFideliteId = null;
+            $avantageId = null;
+            $detailsRemise = null;
+            $avantageAUtiliser = null;
+
+            if (! empty($validated['client_fidelite_avantage_id'])) {
+                $avantage = ClientFideliteAvantage::where('id', $validated['client_fidelite_avantage_id'])
+                    ->where('client_id', $client->id)
+                    ->with('regleFidelite')
+                    ->first();
+
+                if ($avantage && $avantage->estValide()) {
+                    $regle = $avantage->regleFidelite;
+                    if ($regle && $regle->actif) {
+                        $remiseFidelite = min($montantBrut, $regle->calculerRemise($montantBrut));
+                        $regleFideliteId = $regle->id;
+                        $avantageId = $avantage->id;
+                        $detailsRemise = "Privilège Fidélité : {$regle->description}";
+                        $avantageAUtiliser = $avantage;
+                    }
+                }
+            } elseif (! empty($validated['regle_fidelite_id'])) {
+                $regle = RegleFidelite::find($validated['regle_fidelite_id']);
+                if ($regle && $regle->actif && $client->estEligibleRegle($regle)) {
+                    $remiseFidelite = min($montantBrut, $regle->calculerRemise($montantBrut));
+                    $regleFideliteId = $regle->id;
+                    $detailsRemise = "Privilège Fidélité : {$regle->description}";
+                }
+            }
+
+            $montantNet = max(0.0, $montantBrut - $remiseFidelite);
+
+            // 6. Création de la facture
+            // Règle fondamentale : laveur_id est associé au lavage avec rémunération calculée sur le montant_brut
             $facture = Facture::create([
                 'num_ticket' => $numTicket,
                 'pressing_id' => $pressing->id,
@@ -203,11 +243,21 @@ class DepotController extends Controller
                 'client_nom' => $client->nom,
                 'client_telephone' => $client->telephone,
                 'client_email' => $client->email,
+                'montant_brut' => $montantBrut,
+                'remise_fidelite' => $remiseFidelite,
+                'regle_fidelite_id' => $regleFideliteId,
+                'client_fidelite_avantage_id' => $avantageId,
+                'details_remise' => $detailsRemise,
                 'date_retrait_prevue' => $validated['date_retrait_prevue'],
-                'montant_total' => $montantTotal,
+                'montant_total' => $montantNet,
                 'statut' => 'depose',
                 'paye_at' => null,
             ]);
+
+            // Décompte de l'avantage fidélité utilisé
+            if ($avantageAUtiliser) {
+                $avantageAUtiliser->consommer($facture, $remiseFidelite);
+            }
 
             // 6. Lignes de facturation
             foreach ($itemsData as $item) {

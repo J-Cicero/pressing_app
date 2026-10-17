@@ -60,16 +60,18 @@ class Laveur extends Model
     }
 
     /**
-     * Compute commission for a given invoice (strictly 30% of prestation amount).
+     * Compute commission for a given invoice (strictly 30% of prestation gross amount).
+     * Customer promotions / free washes NEVER reduce the washer's remuneration.
      */
     public function calculerCommission(Facture $facture): float
     {
-        // Règle d'entreprise stricte : 30% du montant total des prestations accomplies
+        $base = (float) ($facture->montant_brut ?? $facture->montant_total);
+
         $taux = ($this->type_remuneration === 'pourcentage' && (float) $this->valeur_remuneration > 0)
             ? ((float) $this->valeur_remuneration / 100)
             : 0.30;
 
-        return round((float) $facture->montant_total * $taux, 2);
+        return round($base * $taux, 2);
     }
 
     /**

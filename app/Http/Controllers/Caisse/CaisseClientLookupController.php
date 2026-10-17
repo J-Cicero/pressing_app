@@ -45,7 +45,11 @@ class CaisseClientLookupController extends Controller
             return response()->json(['found' => false]);
         }
 
-        $fidelite = $client->fideliteAtteinte();
+        $pressing = $request->user()?->pressing;
+        $activite = $pressing?->type_activite;
+
+        $fidelite = $client->fideliteAtteinte($activite);
+        $avantages = $client->avantagesDisponibles($activite);
 
         return response()->json([
             'found' => true,
@@ -73,6 +77,15 @@ class CaisseClientLookupController extends Controller
                 'valeur_avantage' => $fidelite->valeur_avantage,
                 'description' => $fidelite->description,
             ] : null,
+            'avantages' => $avantages->map(fn ($av) => [
+                'id' => $av->id,
+                'regle_id' => $av->regle_fidelite_id,
+                'description' => $av->regleFidelite?->description,
+                'type_avantage' => $av->regleFidelite?->type_avantage,
+                'valeur_avantage' => (float) ($av->regleFidelite?->valeur_avantage ?? 0),
+                'utilisations_restantes' => $av->utilisations_restantes,
+                'date_expiration' => $av->date_expiration?->format('d/m/Y'),
+            ])->values(),
         ]);
     }
 }

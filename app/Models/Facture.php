@@ -26,6 +26,11 @@ class Facture extends Model
         'client_nom',
         'client_telephone',
         'client_email',
+        'montant_brut',
+        'remise_fidelite',
+        'regle_fidelite_id',
+        'client_fidelite_avantage_id',
+        'details_remise',
         'montant_total',
         'statut',
         'date_retrait_prevue',
@@ -48,6 +53,8 @@ class Facture extends Model
     protected function casts(): array
     {
         return [
+            'montant_brut' => 'decimal:2',
+            'remise_fidelite' => 'decimal:2',
             'montant_total' => 'decimal:2',
             'date_retrait_prevue' => 'date',
             'paye_at' => 'datetime',
@@ -139,5 +146,33 @@ class Facture extends Model
     public function isPressing(): bool
     {
         return ! $this->isLavage();
+    }
+
+    /**
+     * Get the loyalty rule applied to this invoice.
+     *
+     * @return BelongsTo<RegleFidelite, $this>
+     */
+    public function regleFidelite(): BelongsTo
+    {
+        return $this->belongsTo(RegleFidelite::class, 'regle_fidelite_id');
+    }
+
+    /**
+     * Get the client loyalty advantage used for this invoice.
+     *
+     * @return BelongsTo<ClientFideliteAvantage, $this>
+     */
+    public function fideliteAvantage(): BelongsTo
+    {
+        return $this->belongsTo(ClientFideliteAvantage::class, 'client_fidelite_avantage_id');
+    }
+
+    /**
+     * Check if a loyalty discount was applied to this invoice.
+     */
+    public function hasRemiseFidelite(): bool
+    {
+        return (float) $this->remise_fidelite > 0;
     }
 }

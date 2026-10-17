@@ -344,15 +344,31 @@
 
         <!-- Totaux & Règle Financière -->
         <div class="total-section">
-            <div class="total-row total-big">
-                <span>TOTAL :</span>
-                <span>{{ number_format((float) $facture->montant_total, 0, ',', ' ') }} FCFA</span>
-            </div>
+            @if((float) $facture->remise_fidelite > 0)
+                <div class="total-row">
+                    <span>Montant Brut :</span>
+                    <span>{{ number_format((float) ($facture->montant_brut ?: $facture->montant_total), 0, ',', ' ') }} FCFA</span>
+                </div>
+                <div class="total-row bold" style="color: #000;">
+                    <span>Remise Fidélité :</span>
+                    <span>-{{ number_format((float) $facture->remise_fidelite, 0, ',', ' ') }} FCFA</span>
+                </div>
+                @if($facture->details_remise)
+                    <div style="font-size: 8px; text-align: right; color: #555; margin-bottom: 3px;">
+                        ({{ $facture->details_remise }})
+                    </div>
+                @endif
+            @else
+                <div class="total-row total-big">
+                    <span>TOTAL :</span>
+                    <span>{{ number_format((float) $facture->montant_total, 0, ',', ' ') }} FCFA</span>
+                </div>
+            @endif
             <div class="total-row">
                 <span>Acompte versé :</span>
                 <span>0 FCFA</span>
             </div>
-            <div class="total-row bold" style="border-top: 1px dashed #000; padding-top: 3px;">
+            <div class="total-row bold total-big" style="border-top: 1px dashed #000; padding-top: 3px;">
                 <span>NET A PAYER :</span>
                 <span>{{ number_format((float) $facture->montant_total, 0, ',', ' ') }} FCFA</span>
             </div>

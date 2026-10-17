@@ -96,6 +96,7 @@ Route::middleware('auth')->group(function () {
 
         // Suivi des Laveurs et Commissions Journalières (Station Lavage)
         Route::get('/laveurs', [CaisseLaveurController::class, 'index'])->name('laveurs.index');
+        Route::post('/laveurs', [CaisseLaveurController::class, 'store'])->name('laveurs.store');
 
         // Échéances Visite Technique des Véhicules & Rappels WhatsApp
         Route::get('/vehicules/echeances', [CaisseVehiculeController::class, 'echeances'])->name('vehicules.echeances');

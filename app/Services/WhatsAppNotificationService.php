@@ -62,11 +62,16 @@ class WhatsAppNotificationService
             return "- {$nom} (x{$ligne->quantite})";
         })->implode("\n");
 
+        $remiseLigne = ((float) $facture->remise_fidelite > 0)
+            ? 'Remise fidélité accordée : -'.number_format((float) $facture->remise_fidelite, 0, ',', ' ')." FCFA\n"
+            : '';
+
         $message = "Bonjour {$clientNom},\n\n"
             ."Votre ticket a été enregistré avec succès chez {$pressingNom}.\n"
             ."Ticket N° : {$facture->num_ticket}\n"
             .$vehiculeLigne
             ."Prestations :\n{$articles}\n"
+            .$remiseLigne
             ."Montant à régler au retrait : {$montant} FCFA\n"
             ."Date prévue : {$dateRetrait}\n\n"
             ."Rappel : 100% du paiement est exigible lors de la restitution de {$activiteType}.\n"
