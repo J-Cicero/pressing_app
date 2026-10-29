@@ -69,7 +69,7 @@
                         id="email"
                         name="email"
                         type="email"
-                        value="{{ old('email', app()->environment(['local', 'testing']) ? 'admin@pressing.com' : '') }}"
+                        value="{{ old('email', app()->environment(['local', 'testing']) ? 'direction@pressing-suite.tg' : '') }}"
                         required
                         autocomplete="email"
                         autofocus
@@ -94,7 +94,7 @@
                         id="password"
                         name="password"
                         type="password"
-                        @if(app()->environment(['local', 'testing'])) value="password" @endif
+                        @if(app()->environment(['local', 'testing'])) value="Pressing@2026!" @endif
                         required
                         autocomplete="current-password"
                         class="w-full pl-10 pr-10 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs focus:bg-white dark:focus:bg-zinc-950 focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
@@ -157,15 +157,15 @@
             <!-- Super Admin -->
             <button
                 type="button"
-                onclick="fillCredentials('admin@pressing.com', 'password')"
+                onclick="fillCredentials('direction@pressing-suite.tg', 'Pressing@2026!')"
                 class="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-850 transition text-left group cursor-pointer flex items-center justify-between"
             >
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-zinc-950 dark:text-white text-xs">Super Administrateur</span>
+                        <span class="font-bold text-zinc-950 dark:text-white text-xs">Direction Générale (Super Admin)</span>
                         <span class="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-bold">Global</span>
                     </div>
-                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">admin@pressing.com &bull; password</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">direction@pressing-suite.tg &bull; Pressing@2026!</p>
                 </div>
                 <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-1 group-hover:text-black dark:group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -175,15 +175,15 @@
             <!-- Caissier Lavage -->
             <button
                 type="button"
-                onclick="fillCredentials('caissier.lavage@pressing.com', 'password')"
+                onclick="fillCredentials('lavage@pressing-suite.tg', 'Lavage@2026!')"
                 class="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-850 transition text-left group cursor-pointer flex items-center justify-between"
             >
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-zinc-950 dark:text-white text-xs">Caissier Station Lavage</span>
+                        <span class="font-bold text-zinc-950 dark:text-white text-xs">Responsable Caisse Lavage</span>
                         <span class="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-black text-white dark:bg-white dark:text-black font-bold">AutoWash</span>
                     </div>
-                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">caissier.lavage@pressing.com &bull; password</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">lavage@pressing-suite.tg &bull; Lavage@2026!</p>
                 </div>
                 <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-1 group-hover:text-black dark:group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
@@ -193,15 +193,15 @@
             <!-- Caissier Pressing -->
             <button
                 type="button"
-                onclick="fillCredentials('caissier@pressing.com', 'password')"
+                onclick="fillCredentials('guichet@pressing-suite.tg', 'Guichet@2026!')"
                 class="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-850 transition text-left group cursor-pointer flex items-center justify-between"
             >
                 <div>
                     <div class="flex items-center gap-2">
-                        <span class="font-bold text-zinc-950 dark:text-white text-xs">Caissier Pressing</span>
+                        <span class="font-bold text-zinc-950 dark:text-white text-xs">Responsable Guichet Pressing</span>
                         <span class="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-200 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 font-bold">Déckon</span>
                     </div>
-                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">caissier@pressing.com &bull; password</p>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">guichet@pressing-suite.tg &bull; Guichet@2026!</p>
                 </div>
                 <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-1 group-hover:text-black dark:group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
