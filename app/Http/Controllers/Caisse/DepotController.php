@@ -288,9 +288,10 @@ class DepotController extends Controller
         $facture->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
 
         // Email notification (optionnel)
-        if (! empty($facture->client_email)) {
+        $recipientEmail = $facture->client_email ?: $facture->client?->email;
+        if (! empty($recipientEmail)) {
             try {
-                Mail::to($facture->client_email)->send(new TicketDeposeMail($facture));
+                Mail::to($recipientEmail)->send(new TicketDeposeMail($facture));
             } catch (\Throwable $e) {
                 Log::error('Erreur lors de l\'envoi de l\'e-mail de dépôt : '.$e->getMessage());
             }

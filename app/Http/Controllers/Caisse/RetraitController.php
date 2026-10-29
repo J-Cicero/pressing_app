@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Caisse;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TicketEncaisseMail;
 use App\Mail\TicketPretMail;
 use App\Models\Facture;
 use App\Models\Laveur;
@@ -136,9 +137,13 @@ class RetraitController extends Controller
         ]);
         $facture->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
 
-        if (! empty($facture->client_email)) {
+        $recipientEmail = $facture->client?->email ?: $facture->client_email;
+        if (! empty($recipientEmail)) {
+            if ($facture->client_email !== $recipientEmail) {
+                $facture->update(['client_email' => $recipientEmail]);
+            }
             try {
-                Mail::to($facture->client_email)->send(new TicketPretMail($facture));
+                Mail::to($recipientEmail)->send(new TicketPretMail($facture));
             } catch (\Throwable $e) {
                 Log::error('Erreur lors de l\'envoi de l\'e-mail de prêt : '.$e->getMessage());
             }
@@ -195,13 +200,27 @@ class RetraitController extends Controller
 
         $fideliteMessage = null;
         $fideliteUrl = null;
+        $regleDebloquee = null;
 
         if ($facture->client && ! empty($nouveaux)) {
             $premier = $nouveaux[0];
             $regle = $premier->regleFidelite;
             if ($regle) {
+                $regleDebloquee = $regle;
                 $fideliteMessage = "Nouveau palier de fidélité atteint : {$regle->seuil_visites} visites ({$regle->description}) !";
                 $fideliteUrl = $whatsApp->urlFidelite($facture->client, $regle);
+            }
+        }
+
+        $recipientEmail = $facture->client?->email ?: $facture->client_email;
+        if (! empty($recipientEmail)) {
+            if ($facture->client_email !== $recipientEmail) {
+                $facture->update(['client_email' => $recipientEmail]);
+            }
+            try {
+                Mail::to($recipientEmail)->send(new TicketEncaisseMail($facture, $regleDebloquee));
+            } catch (\Throwable $e) {
+                Log::error('Erreur lors de l\'envoi de l\'e-mail d\'encaissement : '.$e->getMessage());
             }
         }
 

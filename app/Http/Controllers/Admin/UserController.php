@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\UserCreatedMail;
 use App\Models\Pressing;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -10,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -84,9 +87,16 @@ class UserController extends Controller
             ],
         ]);
 
+        $plainPassword = $validated['password'];
         $validated['password'] = Hash::make($validated['password']);
 
-        User::create($validated);
+        $user = User::create($validated);
+
+        try {
+            Mail::to($user->email)->send(new UserCreatedMail($user, $plainPassword));
+        } catch (\Throwable $e) {
+            Log::error('Erreur lors de l\'envoi de l\'e-mail de création utilisateur : '.$e->getMessage());
+        }
 
         return redirect()->route('admin.users.index')
             ->with('status', 'Compte utilisateur créé avec succès.');
