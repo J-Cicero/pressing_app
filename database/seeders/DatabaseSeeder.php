@@ -10,19 +10,19 @@ use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Clean production-ready initialization seeder.
-     * Contains only foundational configurations: Admin accounts, establishments,
-     * realistic service catalogs, washers (30% commission), and loyalty rules.
-     *
-     * Zero mock clients, zero mock vehicles, and zero mock invoices.
+     * Clean production-ready initialization seeder (compatible PostgreSQL, MySQL & SQLite).
+     * Contains only foundational configurations: Admin & Cashier accounts, establishments,
+     * realistic service catalogs, washers (30% commission), and loyalty rules with limited duration.
      */
     public function run(): void
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        Schema::disableForeignKeyConstraints();
+        DB::table('client_fidelite_avantages')->truncate();
         DB::table('paiements_laveurs')->truncate();
         DB::table('visites_techniques')->truncate();
         DB::table('ligne_factures')->truncate();
@@ -34,13 +34,13 @@ class DatabaseSeeder extends Seeder
         DB::table('services')->truncate();
         DB::table('users')->truncate();
         DB::table('pressings')->truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        Schema::enableForeignKeyConstraints();
 
         // 1. Super Administrateur Réseau (Accès global centralisé)
         User::create([
-            'name' => 'Super Administrateur',
-            'email' => 'admin@pressing.com',
-            'password' => Hash::make('password'),
+            'name' => 'Direction Générale',
+            'email' => 'direction@pressing-suite.tg',
+            'password' => Hash::make('Pressing@2026!'),
             'role' => 'admin',
             'pressing_id' => null,
         ]);
@@ -64,26 +64,17 @@ class DatabaseSeeder extends Seeder
 
         // 3. Utilisateurs Guichet / Caissiers assignés à leurs pôles respectifs
         User::create([
-            'name' => 'Caissier Pressing',
-            'email' => 'caissier.pressing@pressing.com',
-            'password' => Hash::make('password'),
-            'role' => 'caissier',
-            'pressing_id' => $pressingCentral->id,
-        ]);
-
-        // Alias conventionnel pour accès rapide
-        User::create([
-            'name' => 'Guichet Blanchisserie',
-            'email' => 'caissier@pressing.com',
-            'password' => Hash::make('password'),
+            'name' => 'Responsable Guichet Pressing',
+            'email' => 'guichet@pressing-suite.tg',
+            'password' => Hash::make('Guichet@2026!'),
             'role' => 'caissier',
             'pressing_id' => $pressingCentral->id,
         ]);
 
         User::create([
-            'name' => 'Caissier Station Lavage',
-            'email' => 'caissier.lavage@pressing.com',
-            'password' => Hash::make('password'),
+            'name' => 'Responsable Caisse Lavage',
+            'email' => 'lavage@pressing-suite.tg',
+            'password' => Hash::make('Lavage@2026!'),
             'role' => 'caissier',
             'pressing_id' => $stationLavage->id,
         ]);
@@ -130,13 +121,13 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
-        // 6. Équipe Laveurs de Terrain (Règle stricte des 30% de commission)
+        // 6. Équipe Laveurs de Terrain (Règle stricte des 30% de commission sur montant brut)
         Laveur::create([
             'pressing_id' => $stationLavage->id,
             'nom' => 'Kokou Agbeko',
             'telephone' => '+228 92 11 00 22',
             'type_remuneration' => 'pourcentage',
-            'valeur_remuneration' => 30, // 30% du montant de la prestation
+            'valeur_remuneration' => 30,
             'actif' => true,
         ]);
 
@@ -158,13 +149,15 @@ class DatabaseSeeder extends Seeder
             'actif' => true,
         ]);
 
-        // 7. Règles du Programme de Fidélité Réseau
+        // 7. Règles du Programme de Fidélité Réseau (avec quotas d'utilisation et durées limitées)
         RegleFidelite::create([
             'seuil_visites' => 5,
             'type_activite' => 'global',
             'type_avantage' => 'pourcentage',
             'valeur_avantage' => 10,
-            'description' => '10% de remise sur le prochain passage',
+            'nombre_utilisations' => 2,
+            'duree_jours' => 15,
+            'description' => '10% de remise pendant 15 jours (valable sur 2 passages)',
             'actif' => true,
         ]);
 
@@ -173,21 +166,21 @@ class DatabaseSeeder extends Seeder
             'type_activite' => 'lavage',
             'type_avantage' => 'service_offert',
             'valeur_avantage' => 0,
-            'description' => 'Un lavage moto complet ou extérieur offert',
+            'nombre_utilisations' => 1,
+            'duree_jours' => 30,
+            'description' => 'Un lavage complet offert (valable pendant 30 jours)',
             'actif' => true,
         ]);
 
         RegleFidelite::create([
             'seuil_visites' => 15,
             'type_activite' => 'global',
-            'type_avantage' => 'cadeau',
-            'valeur_avantage' => 0,
-            'description' => 'Cadeau privilège VIP offert au guichet',
+            'type_avantage' => 'pourcentage',
+            'valeur_avantage' => 20,
+            'nombre_utilisations' => 4,
+            'duree_jours' => 30,
+            'description' => 'Privilège VIP : -20% sur 4 passages pendant 30 jours',
             'actif' => true,
         ]);
-
-        // NOTE : Les tables clients, vehicules, factures, ligne_factures,
-        // visites_techniques et paiements_laveurs restent 100% vierges de
-        // données mock. Le système est prêt pour les clients réels.
     }
 }

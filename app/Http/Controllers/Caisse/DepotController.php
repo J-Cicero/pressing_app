@@ -119,16 +119,19 @@ class DepotController extends Controller
         }
 
         $facture = DB::transaction(function () use ($validated, $pressing, $user, $services) {
-            // 1. Centraliser ou mettre à jour le client (priorité email, fallback téléphone)
-            $email = ! empty($validated['client_email']) ? trim($validated['client_email']) : null;
+            // 1. Centraliser ou mettre à jour le profil client (identification principale par email, fallback téléphone)
+            $email = ! empty($validated['client_email']) ? strtolower(trim($validated['client_email'])) : null;
             $phone = trim($validated['client_telephone']);
 
             $client = null;
             if ($email) {
-                $client = Client::where('email', $email)->first();
+                $client = Client::whereRaw('LOWER(email) = ?', [$email])->first();
             }
             if (! $client && $phone) {
-                $client = Client::where('telephone', $phone)->first();
+                $clientByPhone = Client::where('telephone', $phone)->first();
+                if ($clientByPhone && (! $email || empty($clientByPhone->email) || strtolower($clientByPhone->email) === $email)) {
+                    $client = $clientByPhone;
+                }
             }
 
             if (! $client) {

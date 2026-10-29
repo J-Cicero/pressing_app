@@ -493,14 +493,11 @@
                     .then(data => {
                         if (emailSpinner) emailSpinner.classList.add('hidden');
                         if (data.found && data.client) {
-                            if (!nameInput.value || nameInput.value.trim().length === 0) {
+                            if (data.client.nom) {
                                 nameInput.value = data.client.nom;
                             }
-                            if (paramName === 'email' && data.client.telephone) {
+                            if (data.client.telephone) {
                                 phoneInput.value = data.client.telephone;
-                            }
-                            if (paramName === 'telephone' && data.client.email && (!emailInput.value || emailInput.value.trim().length === 0)) {
-                                emailInput.value = data.client.email;
                             }
 
                             lookupName.textContent = `Client reconnu : ${data.client.nom}`;

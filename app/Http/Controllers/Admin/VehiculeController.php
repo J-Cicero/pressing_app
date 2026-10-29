@@ -101,25 +101,31 @@ class VehiculeController extends Controller
             'date_assurance' => ['nullable', 'date'],
         ]);
 
+        $email = ! empty($validated['client_email']) ? strtolower(trim($validated['client_email'])) : null;
+        $phone = trim($validated['client_telephone']);
+
         $client = null;
-        if (! empty($validated['client_email'])) {
-            $client = Client::where('email', trim($validated['client_email']))->first();
+        if ($email) {
+            $client = Client::whereRaw('LOWER(email) = ?', [$email])->first();
         }
-        if (! $client && ! empty($validated['client_telephone'])) {
-            $client = Client::where('telephone', trim($validated['client_telephone']))->first();
+        if (! $client && $phone) {
+            $clientByPhone = Client::where('telephone', $phone)->first();
+            if ($clientByPhone && (! $email || empty($clientByPhone->email) || strtolower($clientByPhone->email) === $email)) {
+                $client = $clientByPhone;
+            }
         }
 
         if (! $client) {
             $client = Client::create([
-                'telephone' => trim($validated['client_telephone']),
+                'telephone' => $phone,
                 'nom' => trim($validated['client_nom']),
-                'email' => ! empty($validated['client_email']) ? trim($validated['client_email']) : null,
+                'email' => $email,
             ]);
         } else {
             $client->update([
                 'nom' => trim($validated['client_nom']),
-                'telephone' => trim($validated['client_telephone']),
-                'email' => ! empty($validated['client_email']) ? trim($validated['client_email']) : $client->email,
+                'telephone' => $phone,
+                'email' => $email ?? $client->email,
             ]);
         }
 
