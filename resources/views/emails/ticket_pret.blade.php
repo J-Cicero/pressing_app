@@ -2,118 +2,28 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $facture->isLavage() ? 'Votre véhicule est prêt' : 'Vos vêtements sont prêts' }} — {{ $facture->pressing->nom ?? 'ERP' }}</title>
+    <title>{{ $facture->num_ticket }} — {{ $facture->pressing->nom ?? 'ERP' }}</title>
 </head>
-<body style="margin: 0; padding: 0; background-color: #09090b; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #f4f4f5; -webkit-font-smoothing: antialiased;">
-    <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #09090b; padding: 40px 15px;">
-        <tr>
-            <td align="center">
-                <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 580px; background-color: #18181b; border-radius: 16px; border: 1px solid #27272a; overflow: hidden; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);">
-                    
-                    <!-- Header -->
-                    <tr>
-                        <td style="background-color: #18181b; padding: 28px 32px; border-bottom: 1px solid #27272a; text-align: left;">
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0">
-                                <tr>
-                                    <td>
-                                        <div style="font-size: 19px; font-weight: 900; letter-spacing: -0.5px; color: #ffffff; text-transform: uppercase;">
-                                            {{ $facture->pressing->nom ?? 'ERP SUITE' }}
-                                        </div>
-                                        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #a1a1aa; margin-top: 4px; font-weight: 600;">
-                                            {{ $facture->isLavage() ? 'Votre véhicule est lavé et prêt' : 'Vos vêtements sont prêts' }}
-                                        </div>
-                                    </td>
-                                    <td align="right">
-                                        <span style="display: inline-block; background-color: #ffffff; color: #09090b; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; font-family: monospace;">
-                                            N° {{ $facture->num_ticket }}
-                                        </span>
-                                    </td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
+<body style="margin: 0; padding: 20px; background-color: #f4f4f5; font-family: Arial, sans-serif; color: #18181b; font-size: 13px;">
+    <div style="max-width: 480px; margin: 0 auto; background: #ffffff; border: 1px solid #e4e4e7; border-radius: 10px; padding: 20px;">
+        <div style="border-bottom: 1px solid #e4e4e7; padding-bottom: 10px; margin-bottom: 12px;">
+            <strong style="font-size: 15px;">{{ $facture->pressing->nom ?? 'ERP SUITE' }}</strong>
+            <span style="float: right; font-family: monospace; font-weight: bold;">{{ $facture->num_ticket }}</span>
+        </div>
 
-                    <!-- Hero Notification Banner -->
-                    <tr>
-                        <td style="background-color: #09090b; border-bottom: 1px solid #27272a; padding: 28px 32px; text-align: center;">
-                            <div style="display: inline-block; width: 48px; height: 48px; line-height: 48px; background-color: #ffffff; color: #09090b; font-size: 20px; font-weight: bold; border-radius: 50%; margin-bottom: 12px;">
-                                ✓
-                            </div>
-                            <h2 style="font-size: 20px; font-weight: 800; color: #ffffff; margin: 0 0 6px 0; letter-spacing: -0.5px;">
-                                {{ $facture->isLavage() ? 'Votre véhicule est prêt à être récupéré !' : 'Vos vêtements sont prêts à être retirés !' }}
-                            </h2>
-                            <p style="font-size: 13px; color: #a1a1aa; margin: 0;">
-                                {{ $facture->isLavage() ? 'Lavage & finitions soigneusement terminés.' : 'Nettoyage & repassage soigneusement terminés.' }}
-                            </p>
-                        </td>
-                    </tr>
+        <p style="margin: 0 0 12px 0;">
+            Bonjour <strong>{{ $facture->client_nom }}</strong>,<br>
+            @if($facture->isLavage())
+                <strong>Votre véhicule est prêt</strong> @if($facture->vehicule)({{ $facture->vehicule->immatriculation }})@endif.
+            @else
+                <strong>Vos vêtements sont prêts</strong> à être retirés.
+            @endif
+        </p>
 
-                    <!-- Body Content -->
-                    <tr>
-                        <td style="padding: 32px;">
-                            <h1 style="font-size: 22px; font-weight: 700; color: #ffffff; margin: 0 0 16px 0; letter-spacing: -0.5px;">
-                                Excellente nouvelle, {{ $facture->client_nom }} !
-                            </h1>
-                            @if($facture->isLavage())
-                                <p style="font-size: 14px; line-height: 1.7; color: #d4d4d8; margin: 0 0 24px 0;">
-                                    Les équipes de notre station <strong style="color: #ffffff;">{{ $facture->pressing->nom }}</strong> ont terminé le lavage complet de votre véhicule @if($facture->vehicule)<strong style="color: #ffffff;">({{ $facture->vehicule->immatriculation }} — {{ $facture->vehicule->marque_modele }})</strong>@endif (ticket <strong style="color: #ffffff; font-family: monospace;">{{ $facture->num_ticket }}</strong>). Votre véhicule est propre, impeccable et n'attend plus que vous !
-                                </p>
-                            @else
-                                <p style="font-size: 14px; line-height: 1.7; color: #d4d4d8; margin: 0 0 24px 0;">
-                                    Les équipes de notre agence <strong style="color: #ffffff;">{{ $facture->pressing->nom }}</strong> ont terminé le soin complet de votre linge (ticket <strong style="color: #ffffff; font-family: monospace;">{{ $facture->num_ticket }}</strong>). Vos affaires sont propres, repassées et n'attendent plus que vous !
-                                </p>
-                            @endif
-
-                            <!-- Total Encadré -->
-                            <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #09090b; border-radius: 12px; border: 1px solid #27272a; padding: 20px; margin-bottom: 24px; text-align: center;">
-                                <tr>
-                                    <td>
-                                        <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; color: #71717a; font-weight: 700;">
-                                            Montant à régler au guichet
-                                        </div>
-                                        <div style="font-size: 28px; font-weight: 900; color: #ffffff; font-family: monospace; margin-top: 8px;">
-                                            {{ number_format((float)$facture->montant_total, 2, ',', ' ') }} FCFA
-                                        </div>
-                                    </td>
-                                </tr>
-                            </table>
-
-                            <!-- Encadré Récupération -->
-                            <div style="background-color: #18181b; border: 1px solid #27272a; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
-                                <div style="font-size: 13px; font-weight: 800; color: #ffffff; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px;">
-                                    Point de récupération :
-                                </div>
-                                <div style="font-size: 13px; color: #d4d4d8; line-height: 1.6;">
-                                    <strong style="color: #ffffff;">Établissement :</strong> {{ $facture->pressing->nom }}<br>
-                                    <strong style="color: #ffffff;">Localisation :</strong> {{ $facture->pressing->ville }} @if($facture->pressing->quartier) — {{ $facture->pressing->quartier }} @endif<br>
-                                    @if($facture->pressing->telephone)
-                                        <strong style="color: #ffffff;">Contact :</strong> {{ $facture->pressing->telephone }}
-                                    @endif
-                                </div>
-                            </div>
-
-                            <p style="font-size: 13px; color: #a1a1aa; line-height: 1.6; margin: 0;">
-                                Présentez simplement votre numéro de ticket <strong style="color: #ffffff; font-family: monospace;">{{ $facture->num_ticket }}</strong> ou votre nom au caissier lors de votre venue.
-                            </p>
-                        </td>
-                    </tr>
-
-                    <!-- Footer -->
-                    <tr>
-                        <td style="background-color: #09090b; padding: 24px 32px; border-top: 1px solid #27272a; text-align: center;">
-                            <div style="font-size: 14px; font-weight: 800; color: #ffffff; margin-bottom: 6px;">
-                                Toute l'équipe {{ $facture->pressing->nom }} vous remercie !
-                            </div>
-                            <div style="font-size: 11px; color: #52525b; margin-top: 12px;">
-                                {{ $facture->isLavage() ? 'ERP Suite • Solution de Gestion Lavage Automobile & Moto' : 'ERP Suite • Solution de Blanchisserie & Soin du Linge' }}
-                            </div>
-                        </td>
-                    </tr>
-
-                </table>
-            </td>
-        </tr>
-    </table>
+        <div style="background: #f4f4f5; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+            <strong>Montant à régler :</strong> <span style="font-family: monospace; font-weight: bold;">{{ number_format((float)$facture->montant_total, 0, ',', ' ') }} FCFA</span><br>
+            <strong>Agence :</strong> {{ $facture->pressing->nom }} ({{ $facture->pressing->ville }}{{ $facture->pressing->quartier ? ' - '.$facture->pressing->quartier : '' }})
+        </div>
+    </div>
 </body>
 </html>
