@@ -69,12 +69,12 @@
                         id="email"
                         name="email"
                         type="email"
-                        value="{{ old('email', 'admin@pressing.com') }}"
+                        value="{{ old('email', app()->environment(['local', 'testing']) ? 'admin@pressing.com' : '') }}"
                         required
                         autocomplete="email"
                         autofocus
                         class="w-full pl-10 pr-3.5 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs focus:bg-white dark:focus:bg-zinc-950 focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
-                        placeholder="admin@pressing.com"
+                        placeholder="votre.email@domaine.com"
                     >
                 </div>
             </div>
@@ -94,7 +94,7 @@
                         id="password"
                         name="password"
                         type="password"
-                        value="password"
+                        @if(app()->environment(['local', 'testing'])) value="password" @endif
                         required
                         autocomplete="current-password"
                         class="w-full pl-10 pr-10 py-2.5 bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs focus:bg-white dark:focus:bg-zinc-950 focus:outline-none focus:border-black dark:focus:border-white focus:ring-1 focus:ring-black dark:focus:ring-white transition placeholder:text-zinc-400 dark:placeholder:text-zinc-600"
@@ -146,6 +146,7 @@
             </div>
         </form>
 
+        @if(app()->environment(['local', 'testing']))
         <!-- Quick Fill Accounts Cards (For testing) -->
         <div class="pt-4 border-t border-zinc-100 dark:border-zinc-800 space-y-2">
             <div class="flex items-center justify-between mb-1">
@@ -207,6 +208,7 @@
                 </svg>
             </button>
         </div>
+        @endif
     </div>
 </div>
 

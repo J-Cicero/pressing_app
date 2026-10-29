@@ -34,7 +34,7 @@ Route::get('/', function () {
 // Authentification (Invités)
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:login');
 });
 
 // Routes Authentifiées
@@ -86,7 +86,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/depot', [DepotController::class, 'store'])->name('depot.store');
 
         // API Lookup Client automatique par téléphone
-        Route::get('/clients/lookup', CaisseClientLookupController::class)->name('clients.lookup');
+        Route::get('/clients/lookup', CaisseClientLookupController::class)
+            ->middleware('throttle:client-lookup')
+            ->name('clients.lookup');
 
         // Recherche & Encaissement au Retrait
         Route::get('/retrait', [RetraitController::class, 'index'])->name('retrait');

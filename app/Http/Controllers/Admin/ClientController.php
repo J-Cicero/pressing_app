@@ -21,9 +21,12 @@ class ClientController extends Controller
 
         $clients = Client::query()
             ->when($search, function ($q, $search) {
-                $q->where('nom', 'like', "%{$search}%")
-                    ->orWhere('telephone', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
+                $escaped = addcslashes((string) $search, '%_\\');
+                $q->where(function ($sub) use ($escaped) {
+                    $sub->where('nom', 'like', "%{$escaped}%")
+                        ->orWhere('telephone', 'like', "%{$escaped}%")
+                        ->orWhere('email', 'like', "%{$escaped}%");
+                });
             })
             ->withCount(['factures as total_factures', 'vehicules'])
             ->withCount(['factures as factures_payees' => function ($q) {

@@ -8,7 +8,9 @@ use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -120,13 +122,28 @@ class UserController extends Controller
             ],
         ]);
 
-        if (! empty($validated['password'])) {
+        if ($user->id === Auth::id() && $validated['role'] !== 'admin') {
+            return back()->withErrors([
+                'error' => 'Vous ne pouvez pas rétrograder votre propre rôle administrateur.',
+            ]);
+        }
+
+        $passwordChanged = ! empty($validated['password']);
+        $roleOrAgencyChanged = $user->role !== $validated['role']
+            || (int) $user->pressing_id !== (int) ($validated['pressing_id'] ?? 0);
+
+        if ($passwordChanged) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
 
         $user->update($validated);
+
+        if (($passwordChanged || $roleOrAgencyChanged) && $user->id !== Auth::id()) {
+            $user->forceFill(['remember_token' => Str::random(60)])->save();
+            $this->revokeUserSessions($user->id);
+        }
 
         return redirect()->route('admin.users.index')
             ->with('status', 'Compte utilisateur mis à jour avec succès.');
@@ -143,9 +160,24 @@ class UserController extends Controller
             ]);
         }
 
+        $this->revokeUserSessions($user->id);
         $user->delete();
 
         return redirect()->route('admin.users.index')
             ->with('status', 'Compte utilisateur supprimé avec succès.');
+    }
+
+    /**
+     * Invalidate active database sessions for a given user ID.
+     */
+    private function revokeUserSessions(int $userId): void
+    {
+        try {
+            DB::table(config('session.table', 'sessions'))
+                ->where('user_id', $userId)
+                ->delete();
+        } catch (\Throwable) {
+            // Session table may not be used when driver is array/file
+        }
     }
 }

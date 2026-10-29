@@ -514,6 +514,15 @@
             toggleFidelite.addEventListener('change', calculateTotals);
         }
 
+        function escapeHtml(value) {
+            return String(value ?? '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function addRow(selectedServiceId = '', defaultQty = 1) {
             const tr = document.createElement('tr');
             tr.className = 'ligne-row hover:bg-zinc-50 dark:hover:bg-zinc-800/40 transition duration-150';
@@ -521,7 +530,10 @@
             let optionsHtml = '<option value="">-- Choisir une prestation de lavage --</option>';
             services.forEach(s => {
                 const isSelected = String(s.id) === String(selectedServiceId) ? 'selected' : '';
-                optionsHtml += `<option value="${s.id}" data-prix="${s.prix_unitaire}" ${isSelected}>${s.designation} (${formatMoney(s.prix_unitaire)} FCFA)</option>`;
+                const safeId = escapeHtml(s.id);
+                const safePrix = escapeHtml(s.prix_unitaire);
+                const safeDesignation = escapeHtml(s.designation);
+                optionsHtml += `<option value="${safeId}" data-prix="${safePrix}" ${isSelected}>${safeDesignation} (${formatMoney(s.prix_unitaire)} FCFA)</option>`;
             });
 
             tr.innerHTML = `

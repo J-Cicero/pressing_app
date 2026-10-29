@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\DB;
 
 class Client extends Model
 {
@@ -264,48 +265,53 @@ class Client extends Model
      */
     public function debloquerAvantagesEligibles(?string $typeActivite = null): array
     {
-        $regles = RegleFidelite::query()
-            ->where('actif', true)
-            ->when($typeActivite, function ($q) use ($typeActivite) {
-                $q->whereIn('type_activite', [$typeActivite, 'global']);
-            })
-            ->get();
+        return DB::transaction(function () use ($typeActivite): array {
+            static::whereKey($this->id)->lockForUpdate()->first();
 
-        $nouveaux = [];
-
-        foreach ($regles as $regle) {
-            if (! $this->estEligibleRegle($regle)) {
-                continue;
-            }
-
-            // Check if advantage already granted and active, or if already granted for this tier
-            $existant = $this->avantagesFidelite()
-                ->where('regle_fidelite_id', $regle->id)
-                ->where(function ($q) {
-                    $q->where('statut', 'disponible')
-                        ->orWhere('created_at', '>=', now()->subHours(12));
+            $regles = RegleFidelite::query()
+                ->where('actif', true)
+                ->when($typeActivite, function ($q) use ($typeActivite) {
+                    $q->whereIn('type_activite', [$typeActivite, 'global']);
                 })
-                ->first();
+                ->get();
 
-            if (! $existant) {
-                $dureeJours = $regle->duree_jours;
-                $dateExp = $dureeJours ? now()->addDays($dureeJours) : null;
-                $quota = $regle->nombre_utilisations ?: 1;
+            $nouveaux = [];
 
-                $avantage = ClientFideliteAvantage::create([
-                    'client_id' => $this->id,
-                    'regle_fidelite_id' => $regle->id,
-                    'statut' => 'disponible',
-                    'utilisations_restantes' => $quota,
-                    'date_expiration' => $dateExp,
-                    'debloque_at' => now(),
-                ]);
+            foreach ($regles as $regle) {
+                if (! $this->estEligibleRegle($regle)) {
+                    continue;
+                }
 
-                $avantage->setRelation('regleFidelite', $regle);
-                $nouveaux[] = $avantage;
+                // Check if advantage already granted and active, or if already granted for this tier
+                $existant = $this->avantagesFidelite()
+                    ->where('regle_fidelite_id', $regle->id)
+                    ->where(function ($q) {
+                        $q->where('statut', 'disponible')
+                            ->orWhere('created_at', '>=', now()->subHours(12));
+                    })
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $existant) {
+                    $dureeJours = $regle->duree_jours;
+                    $dateExp = $dureeJours ? now()->addDays($dureeJours) : null;
+                    $quota = $regle->nombre_utilisations ?: 1;
+
+                    $avantage = ClientFideliteAvantage::create([
+                        'client_id' => $this->id,
+                        'regle_fidelite_id' => $regle->id,
+                        'statut' => 'disponible',
+                        'utilisations_restantes' => $quota,
+                        'date_expiration' => $dateExp,
+                        'debloque_at' => now(),
+                    ]);
+
+                    $avantage->setRelation('regleFidelite', $regle);
+                    $nouveaux[] = $avantage;
+                }
             }
-        }
 
-        return $nouveaux;
+            return $nouveaux;
+        });
     }
 }

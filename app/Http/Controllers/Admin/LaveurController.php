@@ -33,8 +33,11 @@ class LaveurController extends Controller
         $laveurs = Laveur::query()
             ->with('pressing')
             ->when($search, function ($q, $search) {
-                $q->where('nom', 'like', "%{$search}%")
-                    ->orWhere('telephone', 'like', "%{$search}%");
+                $escaped = addcslashes((string) $search, '%_\\');
+                $q->where(function ($sub) use ($escaped) {
+                    $sub->where('nom', 'like', "%{$escaped}%")
+                        ->orWhere('telephone', 'like', "%{$escaped}%");
+                });
             })
             ->when($pressingId, function ($q, $pressingId) {
                 $q->where('pressing_id', $pressingId);

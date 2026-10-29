@@ -20,10 +20,13 @@ class PressingController extends Controller
 
         $pressings = Pressing::query()
             ->when($search, function ($query, $search) {
-                $query->where('nom', 'like', "%{$search}%")
-                    ->orWhere('ville', 'like', "%{$search}%")
-                    ->orWhere('quartier', 'like', "%{$search}%")
-                    ->orWhere('telephone', 'like', "%{$search}%");
+                $escaped = addcslashes((string) $search, '%_\\');
+                $query->where(function ($sub) use ($escaped) {
+                    $sub->where('nom', 'like', "%{$escaped}%")
+                        ->orWhere('ville', 'like', "%{$escaped}%")
+                        ->orWhere('quartier', 'like', "%{$escaped}%")
+                        ->orWhere('telephone', 'like', "%{$escaped}%");
+                });
             })
             ->when($type, function ($query, $type) {
                 $query->where('type_activite', $type);

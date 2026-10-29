@@ -14,9 +14,9 @@ class CaisseClientLookupController extends Controller
      */
     public function __invoke(Request $request): JsonResponse
     {
-        $email = trim((string) $request->query('email', ''));
-        $phone = trim((string) $request->query('telephone', ''));
-        $q = trim((string) $request->query('q', ''));
+        $email = mb_substr(trim((string) $request->query('email', '')), 0, 255);
+        $phone = mb_substr(trim((string) $request->query('telephone', '')), 0, 50);
+        $q = mb_substr(trim((string) $request->query('q', '')), 0, 255);
 
         if ($email === '' && $phone === '' && $q === '') {
             return response()->json(['found' => false]);
@@ -27,15 +27,29 @@ class CaisseClientLookupController extends Controller
         if ($email !== '') {
             $clientQuery->where('email', $email);
         } elseif ($phone !== '') {
-            $clientQuery->where(function ($sub) use ($phone) {
-                $sub->where('telephone', $phone)
-                    ->orWhere('telephone', 'like', "%{$phone}%");
+            $plainPhone = str_replace(['%', '_', '\\'], '', $phone);
+            if ($plainPhone === '') {
+                return response()->json(['found' => false]);
+            }
+            $escapedPhone = addcslashes($phone, '%_\\');
+            $clientQuery->where(function ($sub) use ($phone, $plainPhone, $escapedPhone) {
+                $sub->where('telephone', $phone);
+                if (strlen($plainPhone) >= 3) {
+                    $sub->orWhere('telephone', 'like', "%{$escapedPhone}%");
+                }
             });
         } elseif ($q !== '') {
-            $clientQuery->where(function ($sub) use ($q) {
+            $plainQ = str_replace(['%', '_', '\\'], '', $q);
+            if ($plainQ === '') {
+                return response()->json(['found' => false]);
+            }
+            $escapedQ = addcslashes($q, '%_\\');
+            $clientQuery->where(function ($sub) use ($q, $plainQ, $escapedQ) {
                 $sub->where('email', $q)
-                    ->orWhere('telephone', $q)
-                    ->orWhere('telephone', 'like', "%{$q}%");
+                    ->orWhere('telephone', $q);
+                if (strlen($plainQ) >= 3) {
+                    $sub->orWhere('telephone', 'like', "%{$escapedQ}%");
+                }
             });
         }
 

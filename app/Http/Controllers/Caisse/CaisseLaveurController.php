@@ -25,9 +25,19 @@ class CaisseLaveurController extends Controller
             abort(403, 'Aucune agence assignée.');
         }
 
-        $date = $request->query('date', Carbon::today()->toDateString());
-        $carbonDate = Carbon::parse($date);
-        $mois = $request->query('mois', Carbon::today()->format('Y-m'));
+        $date = (string) $request->query('date', Carbon::today()->toDateString());
+        try {
+            $carbonDate = Carbon::parse($date);
+            $date = $carbonDate->toDateString();
+        } catch (\Throwable) {
+            $carbonDate = Carbon::today();
+            $date = $carbonDate->toDateString();
+        }
+
+        $mois = (string) $request->query('mois', Carbon::today()->format('Y-m'));
+        if (! preg_match('/^\d{4}-\d{2}$/', $mois)) {
+            $mois = Carbon::today()->format('Y-m');
+        }
 
         $laveurs = Laveur::where('pressing_id', $pressing->id)
             ->where('actif', true)

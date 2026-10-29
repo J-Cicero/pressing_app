@@ -97,6 +97,13 @@ class CaisseVehiculeController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $user = Auth::user()->load('pressing');
+        $pressing = $user->pressing;
+
+        if (! $pressing) {
+            abort(403, 'Aucune agence assignée.');
+        }
+
         $validated = $request->validate([
             'client_telephone' => ['required', 'string', 'max:50'],
             'client_nom' => ['required', 'string', 'max:255'],
@@ -167,6 +174,13 @@ class CaisseVehiculeController extends Controller
      */
     public function update(Request $request, Vehicule $vehicule): RedirectResponse
     {
+        $user = Auth::user()->load('pressing');
+        $pressing = $user->pressing;
+
+        if (! $pressing) {
+            abort(403, 'Aucune agence assignée.');
+        }
+
         $validated = $request->validate([
             'marque_modele' => ['nullable', 'string', 'max:100'],
             'type_vehicule' => ['nullable', 'string', 'max:100'],

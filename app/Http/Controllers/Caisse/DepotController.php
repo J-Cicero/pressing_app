@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class DepotController extends Controller
@@ -76,7 +77,12 @@ class DepotController extends Controller
             'lignes.*.service_id' => ['required', 'exists:services,id'],
             'lignes.*.quantite' => ['required', 'integer', 'min:1', 'max:1000'],
             // Wash specific fields
-            'laveur_id' => ['nullable', 'exists:laveurs,id'],
+            'laveur_id' => [
+                'nullable',
+                Rule::exists('laveurs', 'id')
+                    ->where('pressing_id', $pressing->id)
+                    ->where('actif', true),
+            ],
             'immatriculation' => ['nullable', 'string', 'max:50'],
             'marque_modele' => ['nullable', 'string', 'max:100'],
             'type_vehicule' => ['nullable', 'string', 'max:100'],
@@ -208,11 +214,12 @@ class DepotController extends Controller
                 $avantage = ClientFideliteAvantage::where('id', $validated['client_fidelite_avantage_id'])
                     ->where('client_id', $client->id)
                     ->with('regleFidelite')
+                    ->lockForUpdate()
                     ->first();
 
                 if ($avantage && $avantage->estValide()) {
                     $regle = $avantage->regleFidelite;
-                    if ($regle && $regle->actif) {
+                    if ($regle && $regle->actif && in_array($regle->type_activite, [$pressing->type_activite, 'global'], true)) {
                         $remiseFidelite = min($montantBrut, $regle->calculerRemise($montantBrut));
                         $regleFideliteId = $regle->id;
                         $avantageId = $avantage->id;
@@ -222,7 +229,12 @@ class DepotController extends Controller
                 }
             } elseif (! empty($validated['regle_fidelite_id'])) {
                 $regle = RegleFidelite::find($validated['regle_fidelite_id']);
-                if ($regle && $regle->actif && $client->estEligibleRegle($regle)) {
+                if (
+                    $regle
+                    && $regle->actif
+                    && in_array($regle->type_activite, [$pressing->type_activite, 'global'], true)
+                    && $client->estEligibleRegle($regle)
+                ) {
                     $remiseFidelite = min($montantBrut, $regle->calculerRemise($montantBrut));
                     $regleFideliteId = $regle->id;
                     $detailsRemise = "Privilège Fidélité : {$regle->description}";

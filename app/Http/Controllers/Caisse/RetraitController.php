@@ -10,8 +10,10 @@ use App\Services\WhatsAppNotificationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class RetraitController extends Controller
@@ -34,38 +36,39 @@ class RetraitController extends Controller
         $baseQuery = Facture::where('pressing_id', $pressing->id)
             ->with(['ligneFactures.service', 'user', 'client', 'vehicule', 'laveur'])
             ->when($search !== '', function ($q) use ($search) {
+                $escapedSearch = addcslashes($search, '%_\\');
                 $cleanDigits = preg_replace('/[^0-9]/', '', $search);
-                $q->where(function ($sub) use ($search, $cleanDigits) {
-                    $sub->where('num_ticket', 'like', "%{$search}%")
-                        ->orWhere('client_nom', 'like', "%{$search}%")
-                        ->orWhere('client_telephone', 'like', "%{$search}%")
-                        ->orWhere('client_email', 'like', "%{$search}%");
+                $q->where(function ($sub) use ($escapedSearch, $cleanDigits) {
+                    $sub->where('num_ticket', 'like', "%{$escapedSearch}%")
+                        ->orWhere('client_nom', 'like', "%{$escapedSearch}%")
+                        ->orWhere('client_telephone', 'like', "%{$escapedSearch}%")
+                        ->orWhere('client_email', 'like', "%{$escapedSearch}%");
 
                     if (! empty($cleanDigits) && strlen($cleanDigits) >= 4) {
                         $sub->orWhere('client_telephone', 'like', "%{$cleanDigits}%");
                     }
 
-                    $sub->orWhereHas('client', function ($c) use ($search, $cleanDigits) {
-                        $c->where('nom', 'like', "%{$search}%")
-                            ->orWhere('email', 'like', "%{$search}%")
-                            ->orWhere('telephone', 'like', "%{$search}%");
+                    $sub->orWhereHas('client', function ($c) use ($escapedSearch, $cleanDigits) {
+                        $c->where('nom', 'like', "%{$escapedSearch}%")
+                            ->orWhere('email', 'like', "%{$escapedSearch}%")
+                            ->orWhere('telephone', 'like', "%{$escapedSearch}%");
                         if (! empty($cleanDigits) && strlen($cleanDigits) >= 4) {
                             $c->orWhere('telephone', 'like', "%{$cleanDigits}%");
                         }
                     });
 
-                    $sub->orWhereHas('vehicule', function ($v) use ($search) {
-                        $v->where('immatriculation', 'like', "%{$search}%")
-                            ->orWhere('marque_modele', 'like', "%{$search}%")
-                            ->orWhere('type_vehicule', 'like', "%{$search}%");
+                    $sub->orWhereHas('vehicule', function ($v) use ($escapedSearch) {
+                        $v->where('immatriculation', 'like', "%{$escapedSearch}%")
+                            ->orWhere('marque_modele', 'like', "%{$escapedSearch}%")
+                            ->orWhere('type_vehicule', 'like', "%{$escapedSearch}%");
                     });
 
-                    $sub->orWhereHas('laveur', function ($l) use ($search) {
-                        $l->where('nom', 'like', "%{$search}%");
+                    $sub->orWhereHas('laveur', function ($l) use ($escapedSearch) {
+                        $l->where('nom', 'like', "%{$escapedSearch}%");
                     });
 
-                    $sub->orWhereHas('ligneFactures.service', function ($s) use ($search) {
-                        $s->where('designation', 'like', "%{$search}%");
+                    $sub->orWhereHas('ligneFactures.service', function ($s) use ($escapedSearch) {
+                        $s->where('designation', 'like', "%{$escapedSearch}%");
                     });
                 });
             });
@@ -160,30 +163,45 @@ class RetraitController extends Controller
             abort(403, 'Accès non autorisé.');
         }
 
-        if ($facture->statut === 'paye_retire') {
+        $alreadyPaid = false;
+        $nouveaux = [];
+
+        DB::transaction(function () use ($facture, &$alreadyPaid, &$nouveaux): void {
+            $lockedFacture = Facture::whereKey($facture->id)->lockForUpdate()->first();
+
+            if (! $lockedFacture || $lockedFacture->statut === 'paye_retire') {
+                $alreadyPaid = true;
+
+                return;
+            }
+
+            $lockedFacture->update([
+                'statut' => 'paye_retire',
+                'paye_at' => now(),
+            ]);
+
+            $facture->refresh()->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
+
+            if ($facture->client) {
+                $nouveaux = $facture->client->debloquerAvantagesEligibles($facture->pressing?->type_activite);
+            }
+        });
+
+        if ($alreadyPaid) {
             return back()->withErrors([
                 'error' => 'Cette facture a déjà été encaissée et retirée.',
             ]);
         }
 
-        $facture->update([
-            'statut' => 'paye_retire',
-            'paye_at' => now(),
-        ]);
-        $facture->load(['pressing', 'vehicule', 'laveur', 'ligneFactures.service', 'client']);
-
         $fideliteMessage = null;
         $fideliteUrl = null;
 
-        if ($facture->client) {
-            $nouveaux = $facture->client->debloquerAvantagesEligibles($facture->pressing?->type_activite);
-            if (! empty($nouveaux)) {
-                $premier = $nouveaux[0];
-                $regle = $premier->regleFidelite;
-                if ($regle) {
-                    $fideliteMessage = "Nouveau palier de fidélité atteint : {$regle->seuil_visites} visites ({$regle->description}) !";
-                    $fideliteUrl = $whatsApp->urlFidelite($facture->client, $regle);
-                }
+        if ($facture->client && ! empty($nouveaux)) {
+            $premier = $nouveaux[0];
+            $regle = $premier->regleFidelite;
+            if ($regle) {
+                $fideliteMessage = "Nouveau palier de fidélité atteint : {$regle->seuil_visites} visites ({$regle->description}) !";
+                $fideliteUrl = $whatsApp->urlFidelite($facture->client, $regle);
             }
         }
 
@@ -213,7 +231,12 @@ class RetraitController extends Controller
         }
 
         $validated = $request->validate([
-            'laveur_id' => ['nullable', 'exists:laveurs,id'],
+            'laveur_id' => [
+                'nullable',
+                Rule::exists('laveurs', 'id')
+                    ->where('pressing_id', $user->pressing_id)
+                    ->where('actif', true),
+            ],
         ]);
 
         $facture->update([
