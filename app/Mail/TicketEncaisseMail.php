@@ -23,7 +23,7 @@ class TicketEncaisseMail extends Mailable
         public ?RegleFidelite $regleDebloquee = null,
         public ?ClientFideliteAvantage $avantageDebloque = null,
     ) {
-        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule', 'client', 'avantageFidelite.regleFidelite']);
+        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule', 'client', 'fideliteAvantage.regleFidelite']);
     }
 
     /**

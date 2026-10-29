@@ -33,11 +33,11 @@
             </div>
         @endif
 
-        @if($facture->avantageFidelite && $facture->avantageFidelite->utilisations_restantes > 0)
+        @if($facture->fideliteAvantage && $facture->fideliteAvantage->utilisations_restantes > 0)
             <div style="font-size: 12px; color: #52525b;">
-                <strong>Fidélité restante :</strong> {{ $facture->avantageFidelite->utilisations_restantes }} utilisation(s)
-                @if($facture->avantageFidelite->date_expiration)
-                    jusqu'au {{ $facture->avantageFidelite->date_expiration->format('d/m/Y') }}
+                <strong>Fidélité restante :</strong> {{ $facture->fideliteAvantage->utilisations_restantes }} utilisation(s)
+                @if($facture->fideliteAvantage->date_expiration)
+                    jusqu'au {{ $facture->fideliteAvantage->date_expiration->format('d/m/Y') }}
                 @endif
             </div>
         @endif

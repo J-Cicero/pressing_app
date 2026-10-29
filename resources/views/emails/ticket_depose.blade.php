@@ -41,10 +41,10 @@
 
         <div style="font-size: 12px; color: #52525b;">
             <strong>Retrait prévu :</strong> {{ $facture->date_retrait_prevue ? $facture->date_retrait_prevue->format('d/m/Y') : 'Dès que prêt' }}
-            @if($facture->avantageFidelite)
-                <br><strong>Fidélité :</strong> {{ $facture->avantageFidelite->utilisations_restantes }} utilisation(s) restante(s)
-                @if($facture->avantageFidelite->date_expiration)
-                    (jusqu'au {{ $facture->avantageFidelite->date_expiration->format('d/m/Y') }})
+            @if($facture->fideliteAvantage)
+                <br><strong>Fidélité :</strong> {{ $facture->fideliteAvantage->utilisations_restantes }} utilisation(s) restante(s)
+                @if($facture->fideliteAvantage->date_expiration)
+                    (jusqu'au {{ $facture->fideliteAvantage->date_expiration->format('d/m/Y') }})
                 @endif
             @endif
         </div>
