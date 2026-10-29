@@ -124,6 +124,24 @@
                     <tr>
                         <td style="padding: 0 32px 32px 32px;">
                             <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #09090b; border-radius: 12px; border: 1px solid #27272a; padding: 20px; margin-bottom: 20px;">
+                                @if((float) $facture->remise_fidelite > 0)
+                                    <tr>
+                                        <td style="font-size: 12px; color: #a1a1aa; padding-bottom: 8px;">
+                                            Montant Brut
+                                        </td>
+                                        <td align="right" style="font-size: 13px; color: #a1a1aa; font-family: monospace; padding-bottom: 8px;">
+                                            {{ number_format((float)$facture->montant_brut, 0, ',', ' ') }} FCFA
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="font-size: 12px; color: #ffffff; font-weight: 700; padding-bottom: 12px;">
+                                            {{ $facture->details_remise ?? 'Privilège Fidélité appliqué' }}
+                                        </td>
+                                        <td align="right" style="font-size: 13px; color: #ffffff; font-weight: 700; font-family: monospace; padding-bottom: 12px;">
+                                            -{{ number_format((float)$facture->remise_fidelite, 0, ',', ' ') }} FCFA
+                                        </td>
+                                    </tr>
+                                @endif
                                 <tr>
                                     <td style="font-size: 13px; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 1px;">
                                         Montant Total à régler
@@ -133,6 +151,19 @@
                                     </td>
                                 </tr>
                             </table>
+
+                            @if($facture->avantageFidelite)
+                                <div style="background-color: #18181b; border: 1px solid #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 20px; font-size: 12px; color: #f4f4f5; line-height: 1.6;">
+                                    <strong style="color: #ffffff; text-transform: uppercase; letter-spacing: 0.5px;">Suivi de votre Privilège Fidélité :</strong><br>
+                                    • Utilisations restantes après ce ticket : <strong>{{ $facture->avantageFidelite->utilisations_restantes }} passage(s)</strong><br>
+                                    • Validité du privilège :
+                                    @if($facture->avantageFidelite->date_expiration)
+                                        <strong>Durée limitée jusqu'au {{ $facture->avantageFidelite->date_expiration->format('d/m/Y') }}</strong>
+                                    @else
+                                        <strong>Validité permanente (sans date limite)</strong>
+                                    @endif
+                                </div>
+                            @endif
 
                             <div style="background-color: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 16px; font-size: 13px; color: #d4d4d8; line-height: 1.6;">
                                 @if($facture->isLavage())

@@ -519,7 +519,9 @@
                                 activeAvantage = data.avantages[0];
                                 loyaltyDescription.textContent = activeAvantage.description;
                                 loyaltyQuotaBadge.textContent = `${activeAvantage.utilisations_restantes} utilisation(s) restante(s)`;
-                                loyaltyExpiration.textContent = activeAvantage.date_expiration ? `Valable jusqu'au ${activeAvantage.date_expiration}` : 'Validité permanente';
+                                loyaltyExpiration.textContent = activeAvantage.date_expiration
+                                    ? `Durée limitée : valable jusqu'au ${activeAvantage.date_expiration} (${activeAvantage.jours_restants} jour(s) restant(s))`
+                                    : 'Validité permanente';
                                 clientFideliteAvantageId.value = activeAvantage.id;
                                 toggleFidelite.checked = true; // Auto-checked for convenience, user can uncheck
                                 loyaltyOfferCard.classList.remove('hidden');
@@ -546,19 +548,10 @@
             }, 300);
         }
 
-        // Trigger on Email Input
+        // Trigger on Email Input (Reconnaissance client et fidélité uniquement via l'email)
         if (emailInput) {
             emailInput.addEventListener('input', function () {
                 performClientLookup('email', this.value);
-            });
-        }
-
-        // Trigger on Phone Input as fallback
-        if (phoneInput) {
-            phoneInput.addEventListener('input', function () {
-                if (!emailInput.value || emailInput.value.trim().length === 0) {
-                    performClientLookup('telephone', this.value);
-                }
             });
         }
 

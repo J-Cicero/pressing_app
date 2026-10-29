@@ -112,12 +112,31 @@
                                     <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px;">
                                         ★ Nouveau Privilège Fidélité Débloqué ★
                                     </div>
-                                    <div style="font-size: 16px; font-weight: 900; margin-bottom: 4px;">
+                                    <div style="font-size: 16px; font-weight: 900; margin-bottom: 6px;">
                                         {{ $regleDebloquee->description }}
                                     </div>
-                                    <div style="font-size: 12px; color: #3f3f46;">
-                                        Palier atteint : {{ $regleDebloquee->seuil_visites }} visites complétées. Cet avantage est disponible dès votre prochain passage !
+                                    <div style="font-size: 12px; color: #3f3f46; line-height: 1.6;">
+                                        Palier atteint : <strong>{{ $regleDebloquee->seuil_visites }} visites complétées</strong>.<br>
+                                        Quota accordé : <strong>{{ $avantageDebloque?->utilisations_restantes ?? ($regleDebloquee->nombre_utilisations ?: 1) }} utilisation(s)</strong><br>
+                                        @if($avantageDebloque?->date_expiration)
+                                            Durée limitée : <strong>Valable {{ $regleDebloquee->duree_jours }} jour(s) — jusqu'au {{ $avantageDebloque->date_expiration->format('d/m/Y') }}</strong>
+                                        @elseif($regleDebloquee->duree_jours)
+                                            Durée limitée : <strong>Valable {{ $regleDebloquee->duree_jours }} jour(s)</strong>
+                                        @else
+                                            Validité : <strong>Sans limite de durée</strong>
+                                        @endif
                                     </div>
+                                </div>
+                            @endif
+
+                            @if($facture->avantageFidelite && $facture->avantageFidelite->utilisations_restantes > 0)
+                                <div style="background-color: #18181b; border: 1px solid #3f3f46; border-radius: 12px; padding: 16px; margin-bottom: 20px; font-size: 12px; color: #d4d4d8; line-height: 1.6; text-align: center;">
+                                    <strong style="color: #ffffff;">Privilège en cours :</strong> Il vous reste <strong>{{ $facture->avantageFidelite->utilisations_restantes }} utilisation(s)</strong>
+                                    @if($facture->avantageFidelite->date_expiration)
+                                        valable(s) jusqu'au <strong>{{ $facture->avantageFidelite->date_expiration->format('d/m/Y') }}</strong>.
+                                    @else
+                                        sur votre avantage fidélité.
+                                    @endif
                                 </div>
                             @endif
 

@@ -18,7 +18,7 @@ class TicketDeposeMail extends Mailable
      */
     public function __construct(public Facture $facture)
     {
-        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule']);
+        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule', 'avantageFidelite.regleFidelite']);
     }
 
     /**

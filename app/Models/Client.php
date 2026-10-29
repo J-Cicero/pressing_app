@@ -234,10 +234,23 @@ class Client extends Model
     }
 
     /**
+     * Mark any expired loyalty advantages as 'expire' in storage.
+     */
+    public function expirerAvantagesEchus(): void
+    {
+        $this->avantagesFidelite()
+            ->where('statut', 'disponible')
+            ->whereNotNull('date_expiration')
+            ->where('date_expiration', '<=', now())
+            ->update(['statut' => 'expire']);
+    }
+
+    /**
      * Get all currently valid and available loyalty advantages for this client.
      */
     public function avantagesDisponibles(?string $typeActivite = null): Collection
     {
+        $this->expirerAvantagesEchus();
         $this->debloquerAvantagesEligibles($typeActivite);
 
         return $this->avantagesFidelite()
@@ -268,6 +281,8 @@ class Client extends Model
         return DB::transaction(function () use ($typeActivite): array {
             static::whereKey($this->id)->lockForUpdate()->first();
 
+            $this->expirerAvantagesEchus();
+
             $regles = RegleFidelite::query()
                 ->where('actif', true)
                 ->when($typeActivite, function ($q) use ($typeActivite) {
@@ -278,21 +293,32 @@ class Client extends Model
             $nouveaux = [];
 
             foreach ($regles as $regle) {
-                if (! $this->estEligibleRegle($regle)) {
+                $visites = $this->countVisitesPourRegle($regle);
+                if ($regle->seuil_visites <= 0 || $visites < $regle->seuil_visites) {
                     continue;
                 }
 
-                // Check if advantage already granted and active, or if already granted for this tier
-                $existant = $this->avantagesFidelite()
+                // Nombre de paliers franchis (ex: seuil 5 -> 1 à 5 visites, 2 à 10 visites, etc.)
+                $paliersFranchis = intdiv($visites, $regle->seuil_visites);
+
+                // Nombre d'avantages déjà accordés pour cette règle
+                $dejaAccordes = $this->avantagesFidelite()
                     ->where('regle_fidelite_id', $regle->id)
-                    ->where(function ($q) {
-                        $q->where('statut', 'disponible')
-                            ->orWhere('created_at', '>=', now()->subHours(12));
-                    })
                     ->lockForUpdate()
+                    ->count();
+
+                // Vérifier s'il existe déjà un avantage actif disponible pour cette règle
+                $actifExistant = $this->avantagesFidelite()
+                    ->where('regle_fidelite_id', $regle->id)
+                    ->where('statut', 'disponible')
+                    ->where('utilisations_restantes', '>', 0)
+                    ->where(function ($q) {
+                        $q->whereNull('date_expiration')
+                            ->orWhere('date_expiration', '>', now());
+                    })
                     ->first();
 
-                if (! $existant) {
+                if (! $actifExistant && $dejaAccordes < $paliersFranchis) {
                     $dureeJours = $regle->duree_jours;
                     $dateExp = $dureeJours ? now()->addDays($dureeJours) : null;
                     $quota = $regle->nombre_utilisations ?: 1;

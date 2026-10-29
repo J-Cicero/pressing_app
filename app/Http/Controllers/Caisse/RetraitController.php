@@ -201,13 +201,18 @@ class RetraitController extends Controller
         $fideliteMessage = null;
         $fideliteUrl = null;
         $regleDebloquee = null;
+        $avantageDebloque = null;
 
         if ($facture->client && ! empty($nouveaux)) {
             $premier = $nouveaux[0];
+            $avantageDebloque = $premier;
             $regle = $premier->regleFidelite;
             if ($regle) {
                 $regleDebloquee = $regle;
-                $fideliteMessage = "Nouveau palier de fidélité atteint : {$regle->seuil_visites} visites ({$regle->description}) !";
+                $dureeInfo = $premier->date_expiration
+                    ? ' — Valable jusqu\'au '.$premier->date_expiration->format('d/m/Y')
+                    : '';
+                $fideliteMessage = "Nouveau palier de fidélité atteint : {$regle->seuil_visites} visites ({$regle->description}, {$premier->utilisations_restantes} utilisation(s){$dureeInfo}) !";
                 $fideliteUrl = $whatsApp->urlFidelite($facture->client, $regle);
             }
         }
@@ -218,7 +223,7 @@ class RetraitController extends Controller
                 $facture->update(['client_email' => $recipientEmail]);
             }
             try {
-                Mail::to($recipientEmail)->send(new TicketEncaisseMail($facture, $regleDebloquee));
+                Mail::to($recipientEmail)->send(new TicketEncaisseMail($facture, $regleDebloquee, $avantageDebloque));
             } catch (\Throwable $e) {
                 Log::error('Erreur lors de l\'envoi de l\'e-mail d\'encaissement : '.$e->getMessage());
             }

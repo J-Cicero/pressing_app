@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\ClientFideliteAvantage;
 use App\Models\Facture;
 use App\Models\RegleFidelite;
 use Illuminate\Bus\Queueable;
@@ -20,8 +21,9 @@ class TicketEncaisseMail extends Mailable
     public function __construct(
         public Facture $facture,
         public ?RegleFidelite $regleDebloquee = null,
+        public ?ClientFideliteAvantage $avantageDebloque = null,
     ) {
-        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule', 'client']);
+        $this->facture->loadMissing(['pressing', 'ligneFactures.service', 'vehicule', 'client', 'avantageFidelite.regleFidelite']);
     }
 
     /**

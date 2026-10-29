@@ -14,43 +14,26 @@ class CaisseClientLookupController extends Controller
      */
     public function __invoke(Request $request): JsonResponse
     {
-        $email = mb_substr(trim((string) $request->query('email', '')), 0, 255);
+        $email = strtolower(mb_substr(trim((string) $request->query('email', '')), 0, 255));
         $phone = mb_substr(trim((string) $request->query('telephone', '')), 0, 50);
-        $q = mb_substr(trim((string) $request->query('q', '')), 0, 255);
 
-        if ($email === '' && $phone === '' && $q === '') {
+        if ($email === '' && $phone === '') {
             return response()->json(['found' => false]);
         }
 
         $clientQuery = Client::query()->with('vehicules');
 
         if ($email !== '') {
-            $clientQuery->where('email', $email);
-        } elseif ($phone !== '') {
+            if (! str_contains($email, '@')) {
+                return response()->json(['found' => false]);
+            }
+            $clientQuery->whereRaw('LOWER(email) = ?', [$email]);
+        } else {
             $plainPhone = str_replace(['%', '_', '\\'], '', $phone);
             if ($plainPhone === '') {
                 return response()->json(['found' => false]);
             }
-            $escapedPhone = addcslashes($phone, '%_\\');
-            $clientQuery->where(function ($sub) use ($phone, $plainPhone, $escapedPhone) {
-                $sub->where('telephone', $phone);
-                if (strlen($plainPhone) >= 3) {
-                    $sub->orWhere('telephone', 'like', "%{$escapedPhone}%");
-                }
-            });
-        } elseif ($q !== '') {
-            $plainQ = str_replace(['%', '_', '\\'], '', $q);
-            if ($plainQ === '') {
-                return response()->json(['found' => false]);
-            }
-            $escapedQ = addcslashes($q, '%_\\');
-            $clientQuery->where(function ($sub) use ($q, $plainQ, $escapedQ) {
-                $sub->where('email', $q)
-                    ->orWhere('telephone', $q);
-                if (strlen($plainQ) >= 3) {
-                    $sub->orWhere('telephone', 'like', "%{$escapedQ}%");
-                }
-            });
+            $clientQuery->where('telephone', $phone);
         }
 
         $client = $clientQuery->first();
@@ -98,7 +81,9 @@ class CaisseClientLookupController extends Controller
                 'type_avantage' => $av->regleFidelite?->type_avantage,
                 'valeur_avantage' => (float) ($av->regleFidelite?->valeur_avantage ?? 0),
                 'utilisations_restantes' => $av->utilisations_restantes,
+                'duree_jours' => $av->regleFidelite?->duree_jours,
                 'date_expiration' => $av->date_expiration?->format('d/m/Y'),
+                'jours_restants' => $av->date_expiration ? max(0, (int) now()->diffInDays($av->date_expiration, false)) : null,
             ])->values(),
         ]);
     }

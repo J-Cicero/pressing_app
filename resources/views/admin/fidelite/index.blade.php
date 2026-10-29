@@ -44,6 +44,7 @@
                         <th class="py-3.5 px-6">Portée</th>
                         <th class="py-3.5 px-6">Type d'avantage</th>
                         <th class="py-3.5 px-6">Valeur</th>
+                        <th class="py-3.5 px-6">Quota & Durée</th>
                         <th class="py-3.5 px-6">Description client</th>
                         <th class="py-3.5 px-6 text-center">Statut</th>
                         <th class="py-3.5 px-6 text-right">Actions</th>
@@ -91,6 +92,16 @@
                                 @else
                                     Offert
                                 @endif
+                            </td>
+                            <td class="py-4 px-6">
+                                <div class="font-bold text-zinc-900 dark:text-white">{{ $regle->nombre_utilisations ?? 1 }} utilisation(s)</div>
+                                <div class="text-[11px] text-zinc-500 dark:text-zinc-400">
+                                    @if($regle->duree_jours)
+                                        Durée limitée : {{ $regle->duree_jours }} jour(s)
+                                    @else
+                                        Sans limite de durée
+                                    @endif
+                                </div>
                             </td>
                             <td class="py-4 px-6 text-zinc-600 dark:text-zinc-400 max-w-xs truncate">
                                 {{ $regle->description }}
