@@ -13,34 +13,28 @@
 
         <p style="margin: 0 0 12px 0;">
             Bonjour <strong>{{ $facture->client_nom }}</strong>,<br>
-            Paiement reçu et {{ $facture->isLavage() ? 'véhicule restitué' : 'articles retirés' }}.
+            Votre règlement a bien été enregistré et vos {{ $facture->isLavage() ? 'clefs et véhicule vous ont été restitués' : 'vêtements ont bien été retirés' }}.
         </p>
 
-        <div style="background: #f4f4f5; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
-            <strong>Total réglé :</strong> <span style="font-family: monospace; font-weight: bold;">{{ number_format((float)$facture->montant_total, 0, ',', ' ') }} FCFA</span>
+        <div style="background: #f4f4f5; border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 13px; line-height: 1.6;">
+            <strong>Ticket N° :</strong> <span style="font-family: monospace; font-weight: bold;">{{ $facture->num_ticket }}</span><br>
+            <strong>Montant réglé :</strong> <span style="font-family: monospace; font-weight: bold;">{{ number_format((float)$facture->montant_total, 0, ',', ' ') }} FCFA</span>
             @if((float) $facture->remise_fidelite > 0)
-                <br><span style="font-size: 12px; color: #52525b;">Remise fidélité appliquée : -{{ number_format((float)$facture->remise_fidelite, 0, ',', ' ') }} FCFA</span>
+                <br><span style="font-size: 11px; color: #52525b;">(Remise fidélité accordée : -{{ number_format((float)$facture->remise_fidelite, 0, ',', ' ') }} FCFA)</span>
             @endif
         </div>
 
         @if($regleDebloquee)
-            <div style="border: 1px solid #18181b; border-radius: 8px; padding: 10px; font-size: 12px; margin-bottom: 8px;">
-                <strong>Privilège fidélité débloqué :</strong> {{ $regleDebloquee->description }}<br>
-                Quota : {{ $avantageDebloque?->utilisations_restantes ?? ($regleDebloquee->nombre_utilisations ?: 1) }} utilisation(s)
-                @if($avantageDebloque?->date_expiration)
-                    • Valable jusqu'au {{ $avantageDebloque->date_expiration->format('d/m/Y') }} ({{ $regleDebloquee->duree_jours }}j)
-                @endif
+            <div style="border: 1px solid #18181b; border-radius: 8px; padding: 10px; font-size: 12px; margin-bottom: 12px; line-height: 1.5;">
+                🎁 <strong>Privilège fidélité débloqué :</strong> {{ $regleDebloquee->description }}<br>
+                Valable sur vos prochains passages !
             </div>
         @endif
 
-        @if($facture->fideliteAvantage && $facture->fideliteAvantage->utilisations_restantes > 0)
-            <div style="font-size: 12px; color: #52525b;">
-                <strong>Fidélité restante :</strong> {{ $facture->fideliteAvantage->utilisations_restantes }} utilisation(s)
-                @if($facture->fideliteAvantage->date_expiration)
-                    jusqu'au {{ $facture->fideliteAvantage->date_expiration->format('d/m/Y') }}
-                @endif
-            </div>
-        @endif
+        <p style="margin: 0 0 8px 0; color: #52525b; font-size: 12px;">
+            Merci pour votre confiance et à très bientôt,<br>
+            <strong>L'équipe {{ $facture->pressing->nom ?? 'ERP SUITE' }}</strong>
+        </p>
     </div>
 </body>
 </html>

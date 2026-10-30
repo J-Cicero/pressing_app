@@ -20,10 +20,17 @@
             @endif
         </p>
 
-        <div style="background: #f4f4f5; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+        <div style="background: #f4f4f5; border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 13px; line-height: 1.6;">
+            <strong>Ticket N° :</strong> <span style="font-family: monospace; font-weight: bold;">{{ $facture->num_ticket }}</span><br>
             <strong>Montant à régler :</strong> <span style="font-family: monospace; font-weight: bold;">{{ number_format((float)$facture->montant_total, 0, ',', ' ') }} FCFA</span><br>
-            <strong>Agence :</strong> {{ $facture->pressing->nom }} ({{ $facture->pressing->ville }}{{ $facture->pressing->quartier ? ' - '.$facture->pressing->quartier : '' }})
+            <strong>Agence de retrait :</strong> {{ $facture->pressing->nom ?? 'Notre agence' }} ({{ $facture->pressing->ville }}{{ $facture->pressing->quartier ? ' - '.$facture->pressing->quartier : '' }})
         </div>
+
+        <p style="margin: 0 0 8px 0; color: #52525b; font-size: 12px;">
+            Vous pouvez passer récupérer votre commande dès maintenant.<br>
+            À très bientôt,<br>
+            <strong>L'équipe {{ $facture->pressing->nom ?? 'ERP SUITE' }}</strong>
+        </p>
     </div>
 </body>
 </html>

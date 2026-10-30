@@ -14,40 +14,26 @@
         <p style="margin: 0 0 12px 0;">
             Bonjour <strong>{{ $facture->client_nom }}</strong>,<br>
             @if($facture->isLavage())
-                Confirmation de la prise en charge de votre véhicule @if($facture->vehicule)<strong>({{ $facture->vehicule->immatriculation }})</strong>@endif.
+                Votre véhicule @if($facture->vehicule)<strong>({{ $facture->vehicule->immatriculation }})</strong>@endif a bien été pris en charge à notre station.
             @else
-                Confirmation du dépôt de vos vêtements.
+                Vos vêtements ont bien été déposés à notre agence.
             @endif
         </p>
 
-        <table width="100%" cellspacing="0" cellpadding="4" style="border-collapse: collapse; margin-bottom: 12px; font-size: 12px;">
-            @foreach($facture->ligneFactures as $ligne)
-                <tr style="border-bottom: 1px solid #f4f4f5;">
-                    <td>{{ $ligne->service->designation ?? 'Prestation' }} (x{{ $ligne->quantite }})</td>
-                    <td align="right" style="font-family: monospace;">{{ number_format((float)($ligne->quantite * $ligne->prix_applique), 0, ',', ' ') }} FCFA</td>
-                </tr>
-            @endforeach
+        <div style="background: #f4f4f5; border-radius: 8px; padding: 12px; margin-bottom: 12px; font-size: 13px; line-height: 1.6;">
+            <strong>Ticket N° :</strong> <span style="font-family: monospace; font-weight: bold;">{{ $facture->num_ticket }}</span><br>
+            <strong>Date de retrait prévue :</strong> {{ $facture->date_retrait_prevue ? $facture->date_retrait_prevue->format('d/m/Y') : 'Dès que prêt' }}<br>
+            <strong>Montant à régler au retrait :</strong> <span style="font-family: monospace; font-weight: bold;">{{ number_format((float)$facture->montant_total, 0, ',', ' ') }} FCFA</span>
             @if((float) $facture->remise_fidelite > 0)
-                <tr>
-                    <td>Remise fidélité</td>
-                    <td align="right" style="font-family: monospace;">-{{ number_format((float)$facture->remise_fidelite, 0, ',', ' ') }} FCFA</td>
-                </tr>
-            @endif
-            <tr>
-                <td><strong>Net à payer au retrait</strong></td>
-                <td align="right" style="font-family: monospace; font-weight: bold;">{{ number_format((float)$facture->montant_total, 0, ',', ' ') }} FCFA</td>
-            </tr>
-        </table>
-
-        <div style="font-size: 12px; color: #52525b;">
-            <strong>Retrait prévu :</strong> {{ $facture->date_retrait_prevue ? $facture->date_retrait_prevue->format('d/m/Y') : 'Dès que prêt' }}
-            @if($facture->fideliteAvantage)
-                <br><strong>Fidélité :</strong> {{ $facture->fideliteAvantage->utilisations_restantes }} utilisation(s) restante(s)
-                @if($facture->fideliteAvantage->date_expiration)
-                    (jusqu'au {{ $facture->fideliteAvantage->date_expiration->format('d/m/Y') }})
-                @endif
+                <br><span style="font-size: 11px; color: #52525b;">(Remise fidélité appliquée : -{{ number_format((float)$facture->remise_fidelite, 0, ',', ' ') }} FCFA)</span>
             @endif
         </div>
+
+        <p style="margin: 0 0 8px 0; color: #52525b; font-size: 12px;">
+            Nous vous enverrons un message dès que tout sera prêt !<br>
+            Merci de votre confiance,<br>
+            <strong>L'équipe {{ $facture->pressing->nom ?? 'ERP SUITE' }}</strong>
+        </p>
     </div>
 </body>
 </html>
