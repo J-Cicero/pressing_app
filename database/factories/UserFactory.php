@@ -64,4 +64,14 @@ class UserFactory extends Factory
             'role' => 'caissier',
         ]);
     }
+
+    /**
+     * Indicate that the user is a comptable.
+     */
+    public function comptable(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => 'comptable',
+        ]);
+    }
 }

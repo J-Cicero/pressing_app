@@ -22,7 +22,7 @@
             <div class="overflow-y-auto">
                 <!-- Brand Header -->
                 <div class="p-4 border-b border-zinc-800 flex items-center justify-between">
-                    <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : route('caisse.dashboard') }}" class="block">
+                    <a href="{{ auth()->user()->isAdmin() ? route('admin.dashboard') : (auth()->user()->isComptable() ? route('comptable.dashboard') : route('caisse.dashboard')) }}" class="block">
                         <div class="text-base font-extrabold tracking-tight text-white flex items-center gap-2">
                             <span class="w-2 h-2 rounded-full bg-white inline-block"></span>
                             <span>ERP<span class="text-zinc-400 font-light">SUITE</span></span>
@@ -42,7 +42,7 @@
                         <div class="min-w-0 flex-1">
                             <div class="text-[11px] font-bold text-white truncate">{{ auth()->user()->name }}</div>
                             <div class="text-[9px] uppercase font-mono text-zinc-400 tracking-wider">
-                                {{ auth()->user()->role === 'admin' ? 'Super Admin' : 'Caissier' }}
+                                {{ auth()->user()->role === 'admin' ? 'Super Admin' : (auth()->user()->role === 'comptable' ? 'Comptable' : 'Caissier') }}
                             </div>
                         </div>
                     </div>
@@ -84,6 +84,12 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
                                 <span>Factures Consolidées</span>
+                            </a>
+                            <a href="{{ route('admin.comptabilite.index') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('admin.comptabilite.*') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                                <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <span>Comptabilité & Dépenses</span>
                             </a>
                         </div>
 
@@ -159,6 +165,22 @@
                                 <span>Caissiers & Gestionnaires</span>
                             </a>
                         </div>
+                    @elseif(auth()->user()->isComptable())
+                        <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-500">
+                            Espace Comptabilité & Finances
+                        </div>
+                        <a href="{{ route('comptable.dashboard') }}" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition {{ request()->routeIs('comptable.dashboard') ? 'bg-white text-zinc-950 font-bold shadow-xs' : 'text-zinc-300 hover:text-white hover:bg-zinc-800/80' }}">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span>Revenus & Dépenses par Mois</span>
+                        </a>
+                        <a href="{{ route('comptable.dashboard') }}#section-depenses" class="flex items-center gap-2 px-2.5 py-1.5 text-[11px] font-medium rounded-lg transition text-zinc-300 hover:text-white hover:bg-zinc-800/80">
+                            <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <span>Journal des Charges</span>
+                        </a>
                     @elseif(auth()->user()->isCaissier())
                         <div class="px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-zinc-500">
                             Espace Guichet Caisse

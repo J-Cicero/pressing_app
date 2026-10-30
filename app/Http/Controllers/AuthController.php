@@ -66,6 +66,10 @@ class AuthController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
+        if ($user->isComptable()) {
+            return redirect()->route('comptable.dashboard');
+        }
+
         if ($user->isCaissier()) {
             return redirect()->route('caisse.dashboard');
         }

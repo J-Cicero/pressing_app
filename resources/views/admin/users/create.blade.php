@@ -83,6 +83,7 @@
                         class="w-full px-3.5 py-2.5 bg-zinc-50/50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-xl text-zinc-900 dark:text-white text-xs focus:bg-white dark:focus:bg-zinc-900 focus:outline-none focus:border-zinc-900 dark:focus:border-white transition"
                     >
                         <option value="caissier" {{ old('role', 'caissier') === 'caissier' ? 'selected' : '' }}>Caissier</option>
+                        <option value="comptable" {{ old('role') === 'comptable' ? 'selected' : '' }}>Comptable</option>
                         <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                     </select>
                 </div>

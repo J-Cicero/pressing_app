@@ -79,13 +79,17 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
-            'role' => ['required', Rule::in(['admin', 'caissier'])],
+            'role' => ['required', Rule::in(['admin', 'caissier', 'comptable'])],
             'pressing_id' => [
                 Rule::requiredIf(fn () => $request->input('role') === 'caissier'),
                 'nullable',
                 'exists:pressings,id',
             ],
         ]);
+
+        if (in_array($validated['role'], ['admin', 'comptable'], true)) {
+            $validated['pressing_id'] = null;
+        }
 
         $plainPassword = $validated['password'];
         $validated['password'] = Hash::make($validated['password']);
@@ -124,13 +128,17 @@ class UserController extends Controller
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users', 'email')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8'],
-            'role' => ['required', Rule::in(['admin', 'caissier'])],
+            'role' => ['required', Rule::in(['admin', 'caissier', 'comptable'])],
             'pressing_id' => [
                 Rule::requiredIf(fn () => $request->input('role') === 'caissier'),
                 'nullable',
                 'exists:pressings,id',
             ],
         ]);
+
+        if (in_array($validated['role'], ['admin', 'comptable'], true)) {
+            $validated['pressing_id'] = null;
+        }
 
         if ($user->id === Auth::id() && $validated['role'] !== 'admin') {
             return back()->withErrors([

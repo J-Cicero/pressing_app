@@ -53,7 +53,8 @@ class ClientController extends Controller
         $visitesPressing = $client->visitesPressing();
         $visitesLavage = $client->visitesLavage();
 
-        $fideliteAtteinte = $client->fideliteAtteinte();
+        $avantagesDisponibles = $client->avantagesDisponibles();
+        $fideliteAtteinte = $avantagesDisponibles->first()?->regleFidelite ?? $client->fideliteAtteinte();
         $whatsappFideliteUrl = $fideliteAtteinte ? $whatsApp->urlFidelite($client, $fideliteAtteinte) : null;
         $prochaineRegle = $client->prochaineRegleFidelite();
 

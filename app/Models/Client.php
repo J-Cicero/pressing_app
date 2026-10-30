@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasRouteUuid;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class Client extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRouteUuid;
 
     /**
      * The attributes that are mass assignable.
@@ -18,6 +19,7 @@ class Client extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'uuid',
         'nom',
         'telephone',
         'email',

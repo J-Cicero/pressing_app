@@ -172,6 +172,24 @@
                 </svg>
             </button>
 
+            <!-- Comptable -->
+            <button
+                type="button"
+                onclick="fillCredentials('comptable@pressing-suite.tg', 'Comptable@2026!')"
+                class="w-full p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 hover:bg-zinc-100 dark:hover:bg-zinc-850 transition text-left group cursor-pointer flex items-center justify-between"
+            >
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="font-bold text-zinc-950 dark:text-white text-xs">Responsable Comptabilité</span>
+                        <span class="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-900 text-white dark:bg-white dark:text-black font-bold">Finances</span>
+                    </div>
+                    <p class="text-[10px] text-zinc-500 dark:text-zinc-400 font-mono">comptable@pressing-suite.tg &bull; Comptable@2026!</p>
+                </div>
+                <svg class="w-3.5 h-3.5 text-zinc-400 group-hover:translate-x-1 group-hover:text-black dark:group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                </svg>
+            </button>
+
             <!-- Caissier Lavage -->
             <button
                 type="button"

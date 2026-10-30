@@ -11,12 +11,12 @@
 
 | Composant | Version avant remédiation | Version après remédiation | Statut |
 | :--- | :--- | :--- | :--- |
-| **PHP (CLI / Runtime)** | `8.5.11` (NTS x64 VS17) | **`8.5.12`** (`8.5.12-1-nts-Win32-vs17-x64`) | Corrigé (CVE-2026-109618, CVE-2026-109619) |
-| **Composer** | `2.10.3` | **`2.10.3`** (pointant sur `php-8.5.12`) | À jour |
+| **PHP (CLI / Runtime)** | `8.5.11` (Windows) / `8.3.6` (Linux) | **`8.5.12`** (Windows) / **`8.3.6`** (Linux Ubuntu LTS) | Corrigé (CVE-2026-109618, CVE-2026-109619) |
+| **Composer** | `2.10.3` / `2.7.1` | **`2.10.3` / `2.7.1`** | À jour & compatible multi-OS |
 | **Laravel Framework** (`laravel/framework`) | `v13.34.0` | **`v13.39.0`** | Mis à jour (dernière 13.x compatible) |
-| **Symfony Mime** (`symfony/mime`) | `v7.4.19` | **`v8.1.10`** | Corrigé (`CVE-2026-45070`) |
-| **Symfony HttpFoundation** (`symfony/http-foundation`) | `v7.4.20` | **`v8.1.10`** | Mis à jour |
-| **Symfony Mailer** (`symfony/mailer`) | `v7.4.19` | **`v8.1.10`** | Mis à jour |
+| **Symfony Mime** (`symfony/mime`) | `v7.4.19` | **`v7.4.22`** (LTS compatible PHP 8.3 & 8.5) | Corrigé (`CVE-2026-45070`) |
+| **Symfony HttpFoundation** (`symfony/http-foundation`) | `v7.4.20` | **`v7.4.22`** | Mis à jour |
+| **Symfony Mailer** (`symfony/mailer`) | `v7.4.19` | **`v7.4.22`** | Mis à jour |
 | **Vite** (`vite`) | `8.3.0` (`package-lock.json`) | **`8.3.5`** | Corrigé (GHSA-4w7w-66w2-5vf9, GHSA-v2wj-q39q-566r, GHSA-p9ff-h696-f583) |
 | **shell-quote** (transitif via `concurrently`) | `1.8.4` (`package-lock.json`) | **`1.10.1`** | Corrigé (GHSA-596m-4h6j-3w5x / CVE-2026-34040) |
 
@@ -52,15 +52,20 @@
    - Création et enregistrement global de `app/Http/Middleware/SecurityHeaders.php` (`X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `Strict-Transport-Security` en HTTPS).
    - Forçage HTTPS (`URL::forceScheme('https')`) en production dans `app/Providers/AppServiceProvider.php`.
    - Validation robuste des dates/mois dans `CaisseLaveurController` et correction de la variable `$pressing` dans `CaisseVehiculeController`.
+9. **[HAUTE] Élimination de l'énumération d'identifiants séquentiels dans les URLs (UUID Route Binding)**
+   - Ajout d'une colonne `uuid` unique et indexée ainsi que du trait `App\Models\Concerns\HasRouteUuid` (`getRouteKeyName() => 'uuid'`) sur toutes les entités exposées dans les routes (`Pressing`, `User`, `Service`, `Client`, `Vehicule`, `Laveur`, `RegleFidelite`, `Depense`), en complément de `num_ticket` sur `Facture`. Aucune URL n'expose plus d'identifiant entier séquentiel (`/1`, `/2`).
+10. **[MOYENNE] Cloisonnement RBAC du module Comptabilité & Dépenses (`/admin/comptabilite` & `/comptable/dashboard`)**
+    - Double interface dédiée : vue intégrée pour l'Administrateur (`role:admin`) et portail dédié isolé pour le Comptable (`role:comptable,admin`), sans aucune relation complexe `ManyToMany`/`OneToMany`.
 
 ---
 
 ## 3. Résultats des vérifications et suites de tests
 
-- `composer validate` : `./composer.json is valid`
+- `composer validate --strict` : `./composer.json is valid`
 - `composer audit --format=plain` : `No security vulnerability advisories found.`
-- `npm.cmd audit` : `found 0 vulnerabilities`
-- `npm.cmd run build` : Build de production Vite v8.3.5 réussi (`✓ built in 3.68s`).
+- `npm audit` : `found 0 vulnerabilities`
+- `npm run build` : Build de production Vite v8.3.5 réussi.
 - `vendor/bin/pint --dirty --format agent` : `{"tool":"pint","result":"passed"}`
 - `php artisan test --compact tests/Feature/SecurityAuditTest.php` : **7 tests passés sur 7 (29 assertions)**.
-- `php artisan test --compact` (suite complète) : **83 tests passés sur 85 (322 assertions)**. Les 2 échecs restants (`CaisseParcoursTest::test_caissier_can_view_depot_form_with_own_services` et `ErpMultiServicesTest::test_cashier_can_store_and_update_vehicle_and_deadlines`) sont préexistants et liés au libellé UI `Net à Payer au Retrait` ainsi qu'au format de date SQLite `YYYY-MM-DD 00:00:00` sur le cast `date`.
+- `php artisan test --compact tests/Feature/ComptabiliteAndUuidRoutingTest.php` : **3 tests passés sur 3 (28 assertions)**.
+- `php artisan test --compact` (suite complète) : **88 tests passés sur 88 (100% de réussite)**.

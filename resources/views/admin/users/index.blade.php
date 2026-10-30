@@ -49,6 +49,7 @@
                 >
                     <option value="">Tous les rôles</option>
                     <option value="admin" {{ $selectedRole === 'admin' ? 'selected' : '' }}>Admin</option>
+                    <option value="comptable" {{ $selectedRole === 'comptable' ? 'selected' : '' }}>Comptable</option>
                     <option value="caissier" {{ $selectedRole === 'caissier' ? 'selected' : '' }}>Caissier</option>
                 </select>
             </div>
@@ -120,6 +121,10 @@
                                 @if($u->role === 'admin')
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-900 dark:bg-white text-white dark:text-zinc-950">
                                         Super Admin
+                                    </span>
+                                @elseif($u->role === 'comptable')
+                                    <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-zinc-200 dark:bg-zinc-700 text-zinc-900 dark:text-white border border-zinc-300 dark:border-zinc-600">
+                                        Comptable
                                     </span>
                                 @else
                                     <span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700">

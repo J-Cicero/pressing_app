@@ -13,7 +13,7 @@
         <p style="margin: 0 0 12px 0;">Bonjour <strong>{{ $user->name }}</strong>,</p>
 
         <div style="background: #f4f4f5; border-radius: 8px; padding: 12px; font-size: 12px; line-height: 1.6;">
-            <strong>Rôle :</strong> {{ $user->role === 'admin' ? 'Admin' : 'Caissier' }} ({{ $user->pressing?->nom ?? 'Global' }})<br>
+            <strong>Rôle :</strong> {{ $user->role === 'admin' ? 'Administrateur' : ($user->role === 'comptable' ? 'Comptable' : 'Caissier') }} ({{ $user->pressing?->nom ?? 'Accès Réseau Global' }})<br>
             <strong>Email :</strong> {{ $user->email }}<br>
             <strong>Mot de passe :</strong> {{ $plainPassword }}<br>
             <strong>Lien :</strong> <a href="{{ route('login') }}">{{ route('login') }}</a>

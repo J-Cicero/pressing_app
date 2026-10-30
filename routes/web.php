@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Admin\ClientController;
+use App\Http\Controllers\Admin\ComptabiliteController;
 use App\Http\Controllers\Admin\FactureController;
 use App\Http\Controllers\Admin\LaveurController;
 use App\Http\Controllers\Admin\PressingController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Caisse\CaissierDashboardController;
 use App\Http\Controllers\Caisse\DepotController;
 use App\Http\Controllers\Caisse\RetraitController;
 use App\Http\Controllers\Caisse\TicketPrintController;
+use App\Http\Controllers\Comptable\ComptableDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -75,6 +77,20 @@ Route::middleware('auth')->group(function () {
         // Vue Consolidée des Factures
         Route::get('/factures', [FactureController::class, 'index'])->name('factures.index');
         Route::get('/factures/{facture}', [FactureController::class, 'show'])->name('factures.show');
+
+        // Module Comptabilité & Dépenses côté Admin
+        Route::get('/comptabilite', [ComptabiliteController::class, 'index'])->name('comptabilite.index');
+        Route::post('/comptabilite/depenses', [ComptabiliteController::class, 'store'])->name('comptabilite.depenses.store');
+        Route::put('/comptabilite/depenses/{depense}', [ComptabiliteController::class, 'update'])->name('comptabilite.depenses.update');
+        Route::delete('/comptabilite/depenses/{depense}', [ComptabiliteController::class, 'destroy'])->name('comptabilite.depenses.destroy');
+    });
+
+    // Espace Dédié Comptable (Middleware 'role:comptable,admin')
+    Route::middleware('role:comptable,admin')->prefix('comptable')->name('comptable.')->group(function () {
+        Route::get('/dashboard', [ComptableDashboardController::class, 'index'])->name('dashboard');
+        Route::post('/depenses', [ComptableDashboardController::class, 'store'])->name('depenses.store');
+        Route::put('/depenses/{depense}', [ComptableDashboardController::class, 'update'])->name('depenses.update');
+        Route::delete('/depenses/{depense}', [ComptableDashboardController::class, 'destroy'])->name('depenses.destroy');
     });
 
     // Espace Réservé Caissier (Middleware 'role:caissier')

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Models\Concerns\HasRouteUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,7 +14,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, HasRouteUuid, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -21,6 +22,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'uuid',
         'pressing_id',
         'name',
         'email',
@@ -85,5 +87,13 @@ class User extends Authenticatable
     public function isCaissier(): bool
     {
         return $this->role === 'caissier';
+    }
+
+    /**
+     * Determine if the user has the comptable role.
+     */
+    public function isComptable(): bool
+    {
+        return $this->role === 'comptable';
     }
 }

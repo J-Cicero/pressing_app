@@ -168,7 +168,7 @@
                                     <button
                                         type="button"
                                         onclick="openEditModal({
-                                            id: '{{ $v->id }}',
+                                            id: '{{ $v->getRouteKey() }}',
                                             immatriculation: '{{ addslashes($v->immatriculation) }}',
                                             marque_modele: '{{ addslashes($v->marque_modele) }}',
                                             type_vehicule: '{{ $v->type_vehicule }}',

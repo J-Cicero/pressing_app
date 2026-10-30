@@ -45,8 +45,8 @@ class CaisseClientLookupController extends Controller
         $pressing = $request->user()?->pressing;
         $activite = $pressing?->type_activite;
 
-        $fidelite = $client->fideliteAtteinte($activite);
         $avantages = $client->avantagesDisponibles($activite);
+        $fidelite = $avantages->first()?->regleFidelite;
 
         return response()->json([
             'found' => true,

@@ -9,7 +9,6 @@ use App\Models\ClientFideliteAvantage;
 use App\Models\Facture;
 use App\Models\Laveur;
 use App\Models\LigneFacture;
-use App\Models\RegleFidelite;
 use App\Models\Service;
 use App\Models\Vehicule;
 use App\Models\VisiteTechnique;
@@ -206,7 +205,10 @@ class DepotController extends Controller
                 ];
             }
 
-            // 5. Calcul de la remise de fidélité accordée au client
+            // 5. Calcul de la remise de fidélité accordée au client (mise à jour préalable des expirations et paliers)
+            $client->expirerAvantagesEchus();
+            $client->debloquerAvantagesEligibles($pressing->type_activite);
+
             $remiseFidelite = 0.0;
             $regleFideliteId = null;
             $avantageId = null;
@@ -231,16 +233,22 @@ class DepotController extends Controller
                     }
                 }
             } elseif (! empty($validated['regle_fidelite_id'])) {
-                $regle = RegleFidelite::find($validated['regle_fidelite_id']);
-                if (
-                    $regle
-                    && $regle->actif
-                    && in_array($regle->type_activite, [$pressing->type_activite, 'global'], true)
-                    && $client->estEligibleRegle($regle)
-                ) {
-                    $remiseFidelite = min($montantBrut, $regle->calculerRemise($montantBrut));
-                    $regleFideliteId = $regle->id;
-                    $detailsRemise = "Privilège Fidélité : {$regle->description}";
+                $avantage = ClientFideliteAvantage::where('client_id', $client->id)
+                    ->where('regle_fidelite_id', $validated['regle_fidelite_id'])
+                    ->where('statut', 'disponible')
+                    ->with('regleFidelite')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($avantage && $avantage->estValide()) {
+                    $regle = $avantage->regleFidelite;
+                    if ($regle && $regle->actif && in_array($regle->type_activite, [$pressing->type_activite, 'global'], true)) {
+                        $remiseFidelite = min($montantBrut, $regle->calculerRemise($montantBrut));
+                        $regleFideliteId = $regle->id;
+                        $avantageId = $avantage->id;
+                        $detailsRemise = "Privilège Fidélité : {$regle->description}";
+                        $avantageAUtiliser = $avantage;
+                    }
                 }
             }
 

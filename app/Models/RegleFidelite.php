@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasRouteUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class RegleFidelite extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRouteUuid;
 
     /**
      * The table associated with the model.
@@ -23,6 +24,7 @@ class RegleFidelite extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'uuid',
         'seuil_visites',
         'type_avantage',
         'valeur_avantage',

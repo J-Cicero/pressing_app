@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasRouteUuid;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -10,7 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Vehicule extends Model
 {
-    use HasFactory;
+    use HasFactory, HasRouteUuid;
 
     /**
      * The attributes that are mass assignable.
@@ -18,6 +19,7 @@ class Vehicule extends Model
      * @var list<string>
      */
     protected $fillable = [
+        'uuid',
         'client_id',
         'immatriculation',
         'marque_modele',

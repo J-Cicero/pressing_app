@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         Schema::disableForeignKeyConstraints();
+        if (Schema::hasTable('depenses')) {
+            DB::table('depenses')->truncate();
+        }
         DB::table('client_fidelite_avantages')->truncate();
         DB::table('paiements_laveurs')->truncate();
         DB::table('visites_techniques')->truncate();
@@ -42,6 +45,15 @@ class DatabaseSeeder extends Seeder
             'email' => 'direction@pressing-suite.tg',
             'password' => Hash::make('Pressing@2026!'),
             'role' => 'admin',
+            'pressing_id' => null,
+        ]);
+
+        // 1b. Responsable Comptabilité & Finances (Interface dédiée Comptable)
+        User::create([
+            'name' => 'Responsable Comptabilité',
+            'email' => 'comptable@pressing-suite.tg',
+            'password' => Hash::make('Comptable@2026!'),
+            'role' => 'comptable',
             'pressing_id' => null,
         ]);
 

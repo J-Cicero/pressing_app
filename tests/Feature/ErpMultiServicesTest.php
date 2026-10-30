@@ -491,7 +491,6 @@ class ErpMultiServicesTest extends TestCase
             'immatriculation' => $plate,
             'marque_modele' => 'Toyota RAV4',
             'type_vehicule' => '4x4',
-            'date_visite_technique' => '2026-11-20',
         ]);
         $this->assertDatabaseHas('clients', [
             'telephone' => $tel,
@@ -499,6 +498,7 @@ class ErpMultiServicesTest extends TestCase
         ]);
 
         $vehicule = Vehicule::where('immatriculation', $plate)->firstOrFail();
+        $this->assertSame('2026-11-20', $vehicule->date_visite_technique?->format('Y-m-d'));
 
         // 2. Update
         $updateResponse = $this->actingAs($caissier)->put(route('caisse.vehicules.update', $vehicule), [
@@ -509,11 +509,9 @@ class ErpMultiServicesTest extends TestCase
         ]);
 
         $updateResponse->assertSessionHas('status');
-        $this->assertDatabaseHas('vehicules', [
-            'id' => $vehicule->id,
-            'marque_modele' => 'Toyota RAV4 Hybrid',
-            'date_visite_technique' => '2027-05-10',
-        ]);
+        $vehicule->refresh();
+        $this->assertSame('Toyota RAV4 Hybrid', $vehicule->marque_modele);
+        $this->assertSame('2027-05-10', $vehicule->date_visite_technique?->format('Y-m-d'));
     }
 
     public function test_admin_can_store_and_update_vehicle_and_deadlines(): void
