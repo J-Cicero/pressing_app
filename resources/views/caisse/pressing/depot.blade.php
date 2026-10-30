@@ -254,9 +254,9 @@
                     </div>
                 </div>
 
-                <!-- Net à Payer au Retrait -->
+                <!-- Reste à Payer au Retrait -->
                 <div class="border-2 border-black dark:border-white p-5 rounded-2xl bg-zinc-50 dark:bg-zinc-950 space-y-1">
-                    <div class="text-[10px] uppercase font-bold text-zinc-950 dark:text-white">Net à Payer au Retrait</div>
+                    <div class="text-[10px] uppercase font-bold text-zinc-950 dark:text-white">Reste à Payer au Retrait</div>
                     <div class="text-2xl font-mono font-black text-zinc-950 dark:text-white">
                         <span id="displayReste">0</span> <span class="text-xs font-semibold text-zinc-600 dark:text-zinc-300">FCFA</span>
                     </div>
